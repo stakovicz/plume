@@ -9,7 +9,7 @@
   import IconButton from '$lib/ui/kit/IconButton.svelte';
   import InlineName from '$lib/ui/kit/InlineName.svelte';
 
-  /** Left column: the layer tree, top of the stack first; ⌘/⇧-click for several.
+  /** Left column: the layer tree, top of the stack first; ⌘-click for several, ⇧-click for a range.
    *  Follows the selection: groups containing a layer selected on the canvas open, and the list scrolls to it. */
   let { doc }: { doc: Doc } = $props();
 
@@ -120,7 +120,18 @@
     }
   }
 
+  /** ⌘-click toggles a layer; ⇧-click selects the visible rows from the last clicked one (`anchor`) to this one.
+   *  A layer inside a group of the range is left out: the group already brings it along. */
+  let anchor: string | null = null;
   function select(e: MouseEvent, id: string) {
+    const rows = [...list.querySelectorAll<HTMLElement>('li[data-id]')].map((r) => r.dataset.id!); // display order
+    const from = rows.indexOf(anchor ?? '') >= 0 ? anchor! : [...doc.selectedIDs].find((x) => rows.includes(x));
+    if (e.shiftKey && from) {
+      const [i, j] = [rows.indexOf(from), rows.indexOf(id)].sort((a, b) => a - b), range = new Set(rows.slice(i, j + 1));
+      doc.selectedIDs = new Set([...range].filter((x) => !ancestors(doc.layers, x).some((a) => range.has(a.id))));
+      return;
+    }
+    anchor = id;
     if (e.metaKey || e.shiftKey) {
       const ids = new Set(doc.selectedIDs);
       if (ids.has(id)) ids.delete(id);

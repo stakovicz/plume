@@ -22,10 +22,28 @@
     subtract: '<path d="M2.5 2.5h7v4h-3v3h-4Z" fill="currentColor"/><rect x="6.5" y="6.5" width="7" height="7"/>',
     intersect: '<rect x="2.5" y="2.5" width="7" height="7"/><rect x="6.5" y="6.5" width="7" height="7"/><rect x="6.5" y="6.5" width="3" height="3" fill="currentColor"/>',
     difference: '<path d="M2.5 2.5h7v4h-3v3h-4ZM9.5 6.5h4v7h-7v-4h3Z" fill="currentColor"/><rect x="6.5" y="6.5" width="3" height="3"/>',
+    // Point types: a point and its handles
+    straight: '<path d="M2.5 12 8 5.5l5.5 6.5"/><circle cx="8" cy="5.5" r="1.5"/>',
+    mirrored: '<path d="M2.5 12C3 7.5 5 6 8 6s5 1.5 5.5 6M2.5 6h11"/><circle cx="8" cy="6" r="1.5"/><circle cx="2.5" cy="6" r="1" fill="currentColor"/><circle cx="13.5" cy="6" r="1" fill="currentColor"/>',
+    disconnected: '<path d="M2.5 12C3 8.5 5.5 7.5 8 7.5s5 1 5.5 4.5M3.5 4 8 7.5l4.5-3.5"/><circle cx="8" cy="7.5" r="1.5"/><circle cx="3.5" cy="4" r="1" fill="currentColor"/><circle cx="12.5" cy="4" r="1" fill="currentColor"/>',
+    asymmetric: '<path d="M2.5 12C3 7.5 5 6 8 6s5 1.5 5.5 6M2.5 6H11"/><circle cx="8" cy="6" r="1.5"/><circle cx="2.5" cy="6" r="1" fill="currentColor"/><circle cx="11" cy="6" r="1" fill="currentColor"/>',
+    // Arrange: the selected layer filled, stacked with others
+    ungroup: '<rect x="1.5" y="4.5" width="5.5" height="7" rx="1"/><rect x="9" y="4.5" width="5.5" height="7" rx="1"/>',
+    outline: '<circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2.8"/>',
+    'flip-horizontal': '<path d="M8 1.5v13" stroke-dasharray="1.5 1.5"/><path d="M6 4 2 12h4Z" fill="currentColor"/><path d="m10 4 4 8h-4Z"/>',
+    'flip-vertical': '<path d="M1.5 8h13" stroke-dasharray="1.5 1.5"/><path d="M4 6l8-4v4Z" fill="currentColor"/><path d="m4 10 8 4v-4Z"/>',
+    forward: '<rect x="2.5" y="2.5" width="7" height="7"/><rect x="6.5" y="6.5" width="7" height="7" fill="currentColor"/>',
+    backward: '<path d="M2.5 2.5h7v4h-3v3h-4Z" fill="currentColor"/><rect x="6.5" y="6.5" width="7" height="7"/>',
+    front: '<rect x="1.5" y="1.5" width="6" height="6"/><rect x="4.5" y="4.5" width="6" height="6"/><rect x="8" y="8" width="6.5" height="6.5" fill="currentColor"/>',
+    back: '<path d="M1.5 1.5h6v3h-3v3h-3Z" fill="currentColor"/><rect x="4.5" y="4.5" width="6" height="6"/><rect x="8" y="8" width="6.5" height="6.5"/>',
     'sidebar-left': '<rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M6 2.5v11"/>',
     'sidebar-right': '<rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10 2.5v11"/>',
   };
   export type IconName = keyof typeof paths;
+
+  /** Standalone SVG, stroke style inlined, for drawing outside the DOM (native menu icons). */
+  export const iconSVG = (name: IconName, color: string) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="${color}" color="${color}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</svg>`;
 </script>
 
 <script lang="ts">

@@ -47,6 +47,7 @@
       <hr />
     {:else if 'submenu' in item}
       <button type="button" class="item" popovertarget="{path}-{j}" style:anchor-name="--{path}-{j}">
+        {#if item.icon}<Icon name={item.icon} />{/if}
         <span class="text">{item.submenu}</span><span class="hint">▸</span>
       </button>
       <div id="{path}-{j}" class="menu sub" popover="auto" style:position-anchor="--{path}-{j}">

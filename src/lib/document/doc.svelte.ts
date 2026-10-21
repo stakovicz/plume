@@ -1,11 +1,11 @@
 import { L } from '$lib/i18n';
-import { type Affine, type Pt, type Rect, intersects, midX, midY, node, pt, union } from '$lib/model/geometry';
+import { type Affine, type PointType, type Pt, type Rect, intersects, midX, midY, node, pt, union } from '$lib/model/geometry';
 import { type RGBA, BLACK, CLEAR, eqColor } from '$lib/model/color';
-import { type Kind, type Layer, asPath, bounds, isContainer, keepingPlace, localBounds, moved, newArtboard, newLayer, refit } from '$lib/model/layer';
+import { type Kind, type Layer, asPath, bounds, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newLayer, refit } from '$lib/model/layer';
 import { DEFAULT_TEXT } from '$lib/model/text';
-import { ancestors, find, inTreeOrder, parent, remove, siblings, update } from '$lib/model/layer-tree';
+import { ancestors, find, inTreeOrder, nextName, parent, remove, siblings, update } from '$lib/model/layer-tree';
 import { artboardAt, homeOf, inside } from './artboards';
-import type { NodeRef } from '$lib/model/point-editing';
+import { type NodeRef, setPointType } from '$lib/model/point-editing';
 import { decodeFile, encodeFile } from '$lib/model/codable';
 import { type BooleanOp, combined } from '$lib/model/boolean';
 import { outlined } from '$lib/model/outline';
@@ -129,9 +129,13 @@ export class Doc {
   }
 
   /** One undoable change to a layer from the inspector; continuous edits of one layer merge. */
-  styleEdit(id: string, to: Layer) {
-    this.checkpointCoalescing(id);
-    this.set(id, to);
+  styleEdit(id: string, to: Layer) { this.styleEdits([[id, to]]); }
+
+  /** Same, for the layers of a multiple selection, changed together. */
+  styleEdits(edits: [string, Layer][]) {
+    if (!edits.length) return;
+    this.checkpointCoalescing(edits.map(([id]) => id).join(' '));
+    for (const [id, to] of edits) this.set(id, to);
     this.dropCheckpointIfUnchanged();
   }
 
@@ -152,7 +156,7 @@ export class Doc {
     const base = { rect: L('Rectangle'), ellipse: L('Oval'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text') }[kind];
     const host = kind === 'artboard' ? null : artboardAt(this.layers, p);
     const list = host ? host.children : this.layers;
-    const name = kind === 'text' ? base : `${base} ${list.filter((l) => l.kind === kind).length + 1}`; // text: named after its content
+    const name = kind === 'text' ? base : nextName(this.layers, base); // text: named after its content
     const l = kind === 'path'
       ? newLayer(name, kind, [], { subpaths: [{ nodes: [node(p)], closed: false }], fill: CLEAR, strokeWidth: 2 })
       : kind === 'artboard' ? newArtboard(name, [p, p])
@@ -415,6 +419,37 @@ export class Doc {
     this.dropCheckpointIfUnchanged();
   }
 
+  /** Point Type of the selected node, in point-edit mode. */
+  setPointType(type: PointType) {
+    const l = this.editingLayer, r = this.selectedNode;
+    if (!l || !r) return;
+    this.checkpoint();
+    const before = $state.snapshot(l) as Layer, e = structuredClone(before);
+    setPointType(e, r, type);
+    this.editingLayer = keepingPlace(e, before); // new handles can move the bounds, hence the pivot
+    this.dropCheckpointIfUnchanged();
+  }
+
+  /** Flip Horizontal / Vertical: mirrors the selection across its center line. Locked layers and artboards stay. */
+  flip(horizontal: boolean) {
+    const ls = this.selectedLayers.filter((l) => !this.isLocked(l.id) && l.kind !== 'artboard');
+    const b = ls.map(bounds).reduce<Rect | null>(union, null);
+    if (!b) return;
+    this.checkpoint();
+    const axis = horizontal ? midX(b) : midY(b);
+    for (const l of ls) this.set(l.id, flipped($state.snapshot(l) as Layer, horizontal, axis));
+    this.editing = null;
+  }
+
+  /** Arrow keys: moves the selection by `d` (1 px, 10 with ⇧); presses in a row are one undo step. */
+  nudge(d: Pt) {
+    const ls = this.selectedLayers.filter((l) => !this.isLocked(l.id));
+    if (!ls.length) return;
+    this.checkpointCoalescing('nudge');
+    for (const l of ls) this.set(l.id, moved($state.snapshot(l) as Layer, d));
+    this.rehome(ls.map((l) => l.id));
+  }
+
   // MARK: Groups
 
   /** Selected layers that share one parent, in paint order; null if they don't. */
@@ -433,7 +468,7 @@ export class Doc {
     const kids = this.#groupableSiblings;
     if (!kids) return;
     this.checkpoint();
-    const name = `${L('Group')} ${this.layers.filter((l) => l.kind === 'group').length + 1}`;
+    const name = nextName(this.layers, L('Group'));
     const g = newLayer(name, 'group', [], { children: $state.snapshot(kids), lockRatio: true }); // distorting a group is almost always an accident
     const ids = this.selectedIDs, s = siblings(this.layers, kids[0].id)!;
     const top = s.findLastIndex((l) => ids.has(l.id)) - (kids.length - 1);

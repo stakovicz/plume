@@ -1,14 +1,17 @@
 <script lang="ts" generics="T extends string">
-  /** One-of-N picker (macOS segmented control). */
+  import Icon, { type IconName } from './Icon.svelte';
+
+  /** One-of-N picker (macOS segmented control). With `icon`, a segment shows it and `title` is its tooltip. */
   let { value, options, onchange, label, disabled = false }: {
-    value: T; options: { value: T; title: string }[]; onchange: (v: T) => void; label: string; disabled?: boolean;
+    value: T; options: { value: T; title: string; icon?: IconName }[]; onchange: (v: T) => void; label: string; disabled?: boolean;
   } = $props();
 </script>
 
 <div role="radiogroup" aria-label={label} class:disabled>
   {#each options as o (o.value)}
-    <button type="button" role="radio" aria-checked={o.value === value} {disabled} onclick={() => onchange(o.value)}>
-      {o.title}
+    <button type="button" role="radio" aria-checked={o.value === value} {disabled} onclick={() => onchange(o.value)}
+      title={o.icon && o.title} aria-label={o.icon && o.title}>
+      {#if o.icon}<Icon name={o.icon} />{:else}{o.title}{/if}
     </button>
   {/each}
 </div>
@@ -35,6 +38,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  button :global(svg) {
+    vertical-align: middle;
   }
   button[aria-checked='true'] {
     background: var(--field);

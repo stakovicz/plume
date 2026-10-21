@@ -1,0 +1,36 @@
+# Changelog
+
+## 0.2.0 — 2026-10-21
+
+### Ajouts
+
+- **Repères d'alignement** : en déplaçant, redimensionnant (calques pivotés compris) ou dessinant, les bords et
+  centres s'aimantent à ceux des autres calques ; une ligne magenta montre l'alignement. En édition de points,
+  un point s'aimante aussi aux autres points du tracé.
+- **Retourner** horizontalement ou verticalement la sélection (menu Outils).
+- **Déplacer aux flèches** : 1 px, 10 px avec ⇧.
+- **Type de point** dans l'inspecteur en édition de points : droit, miroir, déconnecté, asymétrique.
+  Les poignées suivent le type choisi ; ⌥ en glissant rend une poignée indépendante.
+- **Inspecteur en sélection multiple** : les réglages communs restent affichés (« Multiple » quand les valeurs
+  diffèrent) et s'appliquent à tous les calques en une étape d'annulation. Un groupe sélectionné expose de même
+  le remplissage, la bordure et le texte des calques qu'il contient.
+- **Navigateur** : ⇧-clic sélectionne tous les calques entre le dernier cliqué et celui-ci.
+- **Icônes** dans les menus Outils et Disposition, y compris dans le menu natif.
+- **Icône de l'application** (macOS, Windows, Linux) et favicons pour le web.
+- **Versions** macOS Intel et Linux (.AppImage, .deb, .rpm) en plus de macOS Apple Silicon.
+
+### Modifications
+
+- Les bordures et pointillés suivent le redimensionnement d'un calque ou d'un groupe.
+- Combiner, Vectoriser le contour et Retourner sont dans le menu Outils.
+- Les nouveaux calques et groupes prennent le numéro suivant le plus grand déjà utilisé : plus de doublons.
+- Les documents enregistrés sont plus légers : 3 décimales pour les longueurs, 6 pour les angles et dégradés.
+- Les éléments standard du menu natif sont traduits (Masquer Plume, Tout afficher, Réduire…).
+- Le clic droit n'ouvre plus le menu de la page web (Recharger, Inspecter) dans l'application.
+- L'épaisseur de bordure accepte les décimales.
+
+## 0.1.0 — 2026-10-21
+
+Première version : dessin (rectangle, ovale, plume, crayon, texte, plan de travail), édition de points, calques et
+groupes, combinaison de formes, vectorisation du contour, dégradés, ombre et flou, presse-papier, ouverture de SVG,
+export PDF, SVG, PNG et JPG. Interface en anglais et en français.

@@ -1,10 +1,11 @@
 import { isTauri } from '@tauri-apps/api/core';
-import { Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu';
+import { IconMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu';
+import { Image } from '@tauri-apps/api/image';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { L } from '$lib/i18n';
 import type { Doc } from '$lib/document/doc.svelte';
 import { TOOLS, toolKey, toolTitle } from '$lib/document/tool';
-import type { IconName } from '$lib/ui/kit/Icon.svelte';
+import { type IconName, iconSVG } from '$lib/ui/kit/Icon.svelte';
 import type { Files } from './files.svelte';
 import { isTyping } from './clipboard';
 
@@ -13,7 +14,7 @@ import { isTyping } from './clipboard';
 /** `key`: a shortcut handled elsewhere (tool keys, on the canvas), shown in the browser menu bar only, like `icon`. */
 export type Command = { text: string; accelerator?: string; key?: string; icon?: IconName; enabled?: boolean; run: () => unknown };
 type Native = { native: 'Separator' | 'Cut' | 'Copy' | 'Paste' | 'SelectAll' | 'Hide' | 'HideOthers' | 'ShowAll' | 'Services' | 'Minimize' | 'CloseWindow' | 'About' };
-export type Item = Command | Native | { submenu: string; items: Item[] };
+export type Item = Command | Native | { submenu: string; icon?: IconName; items: Item[] };
 export type MenuSpec = { text: string; items: Item[] };
 
 const sep: Native = { native: 'Separator' };
@@ -66,34 +67,40 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
       ],
     },
     // single-letter accelerators: the native menu disables them while typing (see installNativeMenu); in a
-    // browser runShortcut skips them and the canvas handles the keys. ponytail: no native icons; IconMenuItem + PNGs if wanted
+    // browser runShortcut skips them and the canvas handles the keys
     { text: L('Tools'), items: TOOLS.flatMap((t): Item[] => [
       { text: toolTitle(t), icon: t, accelerator: toolKey[t]?.toUpperCase(), key: toolKey[t] ? undefined : 'Esc', run: () => (doc.tool = t) },
       ...(t === 'select' || t === 'artboard' ? [sep] : []),
+    ]).concat([
+      sep,
+      {
+        submenu: L('Combine'),
+        icon: 'union',
+        items: [
+          { text: L('Union'), icon: 'union', accelerator: 'Alt+CmdOrCtrl+U', run: () => doc.combine('union') },
+          { text: L('Subtract'), icon: 'subtract', accelerator: 'Alt+CmdOrCtrl+S', run: () => doc.combine('subtract') },
+          { text: L('Intersect'), icon: 'intersect', accelerator: 'Alt+CmdOrCtrl+I', run: () => doc.combine('intersect') },
+          { text: L('Difference'), icon: 'difference', accelerator: 'Alt+CmdOrCtrl+X', run: () => doc.combine('difference') },
+        ],
+      },
+      { text: L('Convert to Outlines'), icon: 'outline', accelerator: 'Alt+CmdOrCtrl+O', run: () => doc.outline() },
+      sep,
+      { text: L('Flip Horizontal'), icon: 'flip-horizontal', run: () => doc.flip(true) },
+      { text: L('Flip Vertical'), icon: 'flip-vertical', run: () => doc.flip(false) },
     ]) },
     {
       text: L('Arrange'),
       items: [
-        { text: L('Group Layers'), accelerator: 'CmdOrCtrl+G', run: () => doc.group() },
-        { text: L('Ungroup'), accelerator: 'CmdOrCtrl+Shift+G', run: () => doc.ungroup() },
-        {
-          submenu: L('Combine'),
-          items: [
-            { text: L('Union'), accelerator: 'Alt+CmdOrCtrl+U', run: () => doc.combine('union') },
-            { text: L('Subtract'), accelerator: 'Alt+CmdOrCtrl+S', run: () => doc.combine('subtract') },
-            { text: L('Intersect'), accelerator: 'Alt+CmdOrCtrl+I', run: () => doc.combine('intersect') },
-            { text: L('Difference'), accelerator: 'Alt+CmdOrCtrl+X', run: () => doc.combine('difference') },
-          ],
-        },
-        { text: L('Convert to Outlines'), accelerator: 'Alt+CmdOrCtrl+O', run: () => doc.outline() },
+        { text: L('Group Layers'), icon: 'group', accelerator: 'CmdOrCtrl+G', run: () => doc.group() },
+        { text: L('Ungroup'), icon: 'ungroup', accelerator: 'CmdOrCtrl+Shift+G', run: () => doc.ungroup() },
         sep,
-        { text: L('Bring Forward'), accelerator: 'Alt+CmdOrCtrl+Up', run: () => doc.arrange('forward') },
-        { text: L('Send Backward'), accelerator: 'Alt+CmdOrCtrl+Down', run: () => doc.arrange('backward') },
-        { text: L('Bring to Front'), accelerator: 'Ctrl+Alt+CmdOrCtrl+Up', run: () => doc.arrange('front') },
-        { text: L('Send to Back'), accelerator: 'Ctrl+Alt+CmdOrCtrl+Down', run: () => doc.arrange('back') },
+        { text: L('Bring Forward'), icon: 'forward', accelerator: 'Alt+CmdOrCtrl+Up', run: () => doc.arrange('forward') },
+        { text: L('Send Backward'), icon: 'backward', accelerator: 'Alt+CmdOrCtrl+Down', run: () => doc.arrange('backward') },
+        { text: L('Bring to Front'), icon: 'front', accelerator: 'Ctrl+Alt+CmdOrCtrl+Up', run: () => doc.arrange('front') },
+        { text: L('Send to Back'), icon: 'back', accelerator: 'Ctrl+Alt+CmdOrCtrl+Down', run: () => doc.arrange('back') },
         sep,
-        { text: L('Show/Hide'), accelerator: 'CmdOrCtrl+Shift+H', run: () => doc.toggleHidden(doc.selectedIDs) },
-        { text: L('Lock/Unlock'), accelerator: 'CmdOrCtrl+Shift+L', run: () => doc.toggleLocked(doc.selectedIDs) },
+        { text: L('Show/Hide'), icon: 'eye', accelerator: 'CmdOrCtrl+Shift+H', run: () => doc.toggleHidden(doc.selectedIDs) },
+        { text: L('Lock/Unlock'), icon: 'lock', accelerator: 'CmdOrCtrl+Shift+L', run: () => doc.toggleLocked(doc.selectedIDs) },
       ],
     },
     {
@@ -112,19 +119,54 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
   ];
 }
 
+/** Titles of the standard items, which macOS leaves in English (the app bundle has no localizations). */
+const nativeText = (): Partial<Record<Native['native'], string>> => ({
+  About: L('About Plume'), Services: L('Services'), Hide: L('Hide Plume'), HideOthers: L('Hide Others'), ShowAll: L('Show All'),
+  Cut: L('Cut'), Copy: L('Copy'), Paste: L('Paste'), SelectAll: L('Select All'), Minimize: L('Minimize'), CloseWindow: L('Close Window'),
+});
+
 /** Items with a modifier-less accelerator (tool keys), disabled while a text field has focus so the key reaches it:
  *  a disabled item doesn't take its key equivalent (AppKit's validateMenuItem). */
-let plainKeys: MenuItem[] = [];
+let plainKeys: (MenuItem | IconMenuItem)[] = [];
 const syncPlainKeys = () => setTimeout(() => plainKeys.forEach((i) => i.setEnabled(!isTyping(document.activeElement))));
 let listening = false;
 
+/** Menu icons: Tauri takes no template images, so they're drawn in the menu text color of the current
+ *  appearance, and the menu is rebuilt when it changes. 36 px: macOS shows them 18 pt high. */
+const ICON_PX = 36;
+const dark = matchMedia('(prefers-color-scheme: dark)');
+const rasters = new Map<string, Promise<Image>>();
+function menuIcon(name: IconName): Promise<Image> {
+  const color = dark.matches ? '#f2f2f4' : '#1d1d1f', key = `${name} ${color}`;
+  if (!rasters.has(key)) {
+    rasters.set(key, (async () => {
+      const svg = new window.Image(ICON_PX, ICON_PX);
+      svg.src = `data:image/svg+xml,${encodeURIComponent(iconSVG(name, color))}`;
+      await svg.decode();
+      const c = document.createElement('canvas');
+      c.width = c.height = ICON_PX;
+      const g = c.getContext('2d')!;
+      g.drawImage(svg, 0, 0, ICON_PX, ICON_PX);
+      return Image.new(new Uint8Array(g.getImageData(0, 0, ICON_PX, ICON_PX).data.buffer), ICON_PX, ICON_PX);
+    })());
+  }
+  return rasters.get(key)!;
+}
+let installed: MenuSpec[] = [];
+
 export async function installNativeMenu(specs: MenuSpec[]) {
-  const plain: MenuItem[] = [];
+  installed = specs;
+  const plain: (MenuItem | IconMenuItem)[] = [];
   const build = (items: Item[]): Promise<MenuItem | Submenu | PredefinedMenuItem>[] =>
     items.map(async (i) => {
-      if ('native' in i) return PredefinedMenuItem.new({ item: i.native === 'About' ? { About: null } : i.native });
-      if ('submenu' in i) return Submenu.new({ text: i.submenu, items: await Promise.all(build(i.items)) });
-      const item = await MenuItem.new({ text: i.text, accelerator: i.accelerator, enabled: i.enabled ?? true, action: () => void i.run() });
+      if ('native' in i) return PredefinedMenuItem.new({ item: i.native === 'About' ? { About: null } : i.native, text: nativeText()[i.native] });
+      if ('submenu' in i) {
+        const sub = await Submenu.new({ text: i.submenu, items: await Promise.all(build(i.items)) });
+        if (i.icon) await sub.setIcon(await menuIcon(i.icon));
+        return sub;
+      }
+      const opts = { text: i.text, accelerator: i.accelerator, enabled: i.enabled ?? true, action: () => void i.run() };
+      const item = i.icon ? await IconMenuItem.new({ ...opts, icon: await menuIcon(i.icon) }) : await MenuItem.new(opts);
       if (i.accelerator && !i.accelerator.includes('+')) plain.push(item);
       return item;
     });
@@ -138,6 +180,7 @@ export async function installNativeMenu(specs: MenuSpec[]) {
     listening = true;
     addEventListener('focusin', syncPlainKeys);
     addEventListener('focusout', syncPlainKeys);
+    dark.addEventListener('change', () => installNativeMenu(installed));
   }
 }
 

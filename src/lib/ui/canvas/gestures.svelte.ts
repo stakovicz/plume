@@ -1,7 +1,8 @@
 import { L } from '$lib/i18n';
 import type { Doc } from '$lib/document/doc.svelte';
 import type { Tool } from '$lib/document/tool';
-import { type Affine, type Pt, type Rect, dist, mapNode, node, pt, rectContains, rotateAround, scaleAround, translate } from '$lib/model/geometry';
+import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectContains, rotateAround, scaleAround, translate, union } from '$lib/model/geometry';
+import { type Guide, pointRect, snapAlong, snapRect } from '$lib/model/snapping';
 import { fitCurve } from '$lib/model/curve-fit';
 import { fitted } from '$lib/model/text';
 import {
@@ -9,7 +10,7 @@ import {
 } from '$lib/model/layer';
 import { parent, remove } from '$lib/model/layer-tree';
 import { artboards } from '$lib/document/artboards';
-import { type Target, insertNode, segmentAt, target, toggleCurve } from '$lib/model/point-editing';
+import { type Target, insertNode, movedHandle, segmentAt, target, toggleCurve } from '$lib/model/point-editing';
 import type { IconName } from '$lib/ui/kit/Icon.svelte';
 
 /** What a click-drag does for each tool. */
@@ -29,17 +30,22 @@ export function labelRect(a: Layer, zoom: number): Rect {
 /** What the current mouse drag is doing, decided on mouse-down by `begin`. Layers are snapshots. */
 type Drag =
   | { kind: 'ignore' }
-  | { kind: 'move'; originals: Layer[] }
+  | { kind: 'move'; originals: Layer[]; box: Rect | null } // box: their bounds, for snapping
   | { kind: 'resize'; o: Layer; h: Pt } // handle in unit coordinates of the local bounds
   | { kind: 'rotate'; o: Layer }
   | { kind: 'edit'; o: Layer; t: Target }
   | { kind: 'draw'; tool: Tool };
 
 const DOUBLE_CLICK_MS = 400;
+const SNAP_PX = 5; // smart guides pull within this many screen pixels
 
 export class Gestures {
   /** Pill next to the cursor while resizing/rotating, view space. */
   hint = $state<{ at: Pt; text: string; icon: IconName } | null>(null);
+  /** Smart guides of the current drag, document space. */
+  guides = $state<Guide[]>([]);
+  #targets: Rect[] = []; // what the drag snaps to, taken on mouse-down
+  #from = pt(0, 0); // where a drawing starts, document space, snapped
   #drag: Drag = { kind: 'ignore' };
   #start: Pt | null = null; // view space
   #last: Pt | null = null; // view space
@@ -62,10 +68,11 @@ export class Gestures {
     if (!this.#start) return;
     this.#last = at;
     const doc = this.doc, start = doc.toDoc(this.#start), loc = doc.toDoc(at);
-    const d = pt((at.x - this.#start.x) / doc.zoom, (at.y - this.#start.y) / doc.zoom);
+    let d = pt((at.x - this.#start.x) / doc.zoom, (at.y - this.#start.y) / doc.zoom);
     const g = this.#drag;
     switch (g.kind) {
       case 'move':
+        if (g.box) d = add(d, this.#snap({ ...g.box, x: g.box.x + d.x, y: g.box.y + d.y }));
         doc.preview = { ids: new Set(g.originals.map((o) => o.id)), t: translate(d.x, d.y) };
         this.#commit = () => {
           for (const o of g.originals) doc.set(o.id, moved(o, d));
@@ -73,7 +80,16 @@ export class Gestures {
         };
         break;
       case 'resize': {
-        this.#resize(g.o, g.h, d);
+        // the dragged handle snaps; the guides are those of where it ends up (⇧ or ⌥ may move it elsewhere)
+        const q = toWorld(g.o, handlePoint(g.h, localBounds(g.o))), tol = SNAP_PX / doc.zoom;
+        if (g.h.x === 0.5 || g.h.y === 0.5) { // side handle: slides along one local axis
+          const r = g.o.rotation, u = g.h.y === 0.5 ? pt(Math.cos(r), Math.sin(r)) : pt(-Math.sin(r), Math.cos(r));
+          const along = d.x * u.x + d.y * u.y, t = snapAlong(pt(q.x + u.x * along, q.y + u.y * along), u, this.#targets, tol);
+          d = pt(d.x + u.x * t, d.y + u.y * t);
+        } else {
+          d = add(d, snapRect(pointRect(add(q, d)), this.#targets, tol).d);
+        }
+        this.guides = snapRect(pointRect(this.#resize(g.o, g.h, d)), this.#targets, 0).guides;
         const proportional = doc.shift || g.o.lockRatio;
         let text = proportional ? L('Proportional') : `${L('Free')} · ${L('⇧ proportional')}`;
         if (doc.option) text += ` · ${L('from center')}`;
@@ -92,10 +108,14 @@ export class Gestures {
         break;
       }
       case 'edit':
+        if (g.t.handle === 'node') { // a dragged point snaps to the other layers and the layer's other points
+          const q = toWorld(g.o, g.o.subpaths[g.t.ref.s].nodes[g.t.ref.n].p);
+          d = add(d, this.#snap(pointRect(add(q, d))));
+        }
         this.#editNode(g.o, g.t, d);
         break;
       case 'draw':
-        this.#draw(g.tool, start, loc);
+        this.#draw(g.tool, this.#from, loc);
     }
   }
 
@@ -136,6 +156,40 @@ export class Gestures {
     this.#start = this.#last = null;
     this.#drag = { kind: 'ignore' };
     this.hint = null;
+    this.guides = [];
+  }
+
+  // MARK: Smart guides
+
+  /** Bounds of what a drag snaps to: visible layers as the canvas picks them (top-level layers, artboards and
+   *  their children, the children of the group being worked in), minus `except`. */
+  #snapTargets(except: Set<string>, scope: Layer[] = []): Rect[] {
+    const ok = (l: Layer) => !l.hidden && !except.has(l.id);
+    const ls = [...this.doc.layers.flatMap((l) => (l.kind === 'artboard' ? [l, ...l.children] : [l])), ...scope];
+    return ls.filter(ok).map(bounds);
+  }
+
+  /** Offset that snaps `r` to the targets; shows the guides. */
+  #snap(r: Rect, axes?: { x: boolean; y: boolean }): Pt {
+    const s = snapRect(r, this.#targets, SNAP_PX / this.doc.zoom, axes);
+    this.guides = s.guides;
+    return s.d;
+  }
+
+  #snapPoint(p: Pt): Pt { return add(p, this.#snap(pointRect(p))); }
+
+  /** A point-edit drag: snaps to the other layers and to the edited layer's other points. */
+  #editing(o: Layer, t: Target): Drag {
+    const others = o.subpaths.flatMap((sp, s) => sp.nodes.filter((_, n) => s !== t.ref.s || n !== t.ref.n).map((n) => pointRect(toWorld(o, n.p))));
+    this.#targets = [...this.#snapTargets(new Set([o.id])), ...others];
+    return { kind: 'edit', o, t };
+  }
+
+  /** A move drag: snaps the dragged layers' bounds to the rest. */
+  #moving(originals: Layer[]): Drag {
+    const ids = new Set(originals.map((o) => o.id)), home = parent(this.doc.layers, originals[0]?.id ?? '');
+    this.#targets = this.#snapTargets(ids, home?.kind === 'group' ? home.children : []);
+    return { kind: 'move', originals, box: originals.map(bounds).reduce<Rect | null>(union, null) };
   }
 
   // MARK: Mouse-down
@@ -146,6 +200,12 @@ export class Gestures {
     const count = again ? this.#lastDown.count + 1 : 1, double = count === 2;
     this.#lastDown = { time: now, at: p, count };
     doc.checkpoint();
+    if (doc.tool !== 'select') { // drawing snaps its corners (and pen points) to the other layers
+      this.#targets = this.#snapTargets(new Set(doc.penID ? [doc.penID] : []));
+      if (doc.tool !== 'pencil') p = this.#snapPoint(p);
+      this.#from = p;
+      this.guides = [];
+    }
 
     switch (doc.tool) {
       case 'select': return this.#beginSelect(p, tol, double, shiftClick, count);
@@ -188,14 +248,14 @@ export class Gestures {
           doc.editingLayer = e;
         }
         doc.selectedNode = t.ref;
-        return { kind: 'edit', o: e, t };
+        return this.#editing(e, t);
       }
       const seg = segmentAt(e, lp, tol);
       if (seg) { // click on a segment adds a point
         const r = insertNode(e, seg.s, seg.k, seg.t);
         doc.editingLayer = e;
         doc.selectedNode = r;
-        return { kind: 'edit', o: snap(e), t: { ref: r, handle: 'node' } };
+        return this.#editing(snap(e), { ref: r, handle: 'node' });
       }
       if (hit(e, p, tol)) {
         doc.selectedNode = null;
@@ -208,7 +268,10 @@ export class Gestures {
       const b = localBounds(sel);
       if (sel.kind !== 'artboard' && dist(this.rotateHandle(sel, b), p) < tol) return { kind: 'rotate', o: snap(sel) };
       const h = HANDLES.find((h) => dist(toWorld(sel, handlePoint(h, b)), p) < tol);
-      if (h) return { kind: 'resize', o: snap(sel), h };
+      if (h) {
+        this.#targets = this.#snapTargets(new Set([sel.id]));
+        return { kind: 'resize', o: snap(sel), h };
+      }
     }
 
     // Inside a group, clicks pick among the group's children; otherwise top-level layers,
@@ -244,7 +307,7 @@ export class Gestures {
       return { kind: 'ignore' };
     }
     if (picked && doc.selectedIDs.has(picked.id) && doc.selectedIDs.size > 1) {
-      return { kind: 'move', originals: doc.selectedLayers.filter((l) => !doc.isLocked(l.id)).map(snap) };
+      return this.#moving(doc.selectedLayers.filter((l) => !doc.isLocked(l.id)).map(snap));
     }
     doc.selection = picked?.id ?? null;
     if (!picked) return { kind: 'ignore' };
@@ -256,16 +319,19 @@ export class Gestures {
       }
       return { kind: 'ignore' };
     }
-    return doc.isLocked(picked.id) ? { kind: 'ignore' } : { kind: 'move', originals: [snap(picked)] }; // locked: selectable, not movable
+    return doc.isLocked(picked.id) ? { kind: 'ignore' } : this.#moving([snap(picked)]); // locked: selectable, not movable
   }
 
   // MARK: Drag steps
 
-  /** Free by default; ⇧ or the layer's ratio lock keeps proportions; ⌥ scales from the center. */
-  #resize(o: Layer, h: Pt, d: Pt) {
-    const r = resizeGesture(localBounds(o), h, localDelta(o, d), { proportional: this.doc.shift || o.lockRatio, fromCenter: this.doc.option });
-    const a = r.anchor;
-    this.#write(o, scaleAround(a, r.sx, r.sy), () => resized(o, r.sx, r.sy, a));
+  /** Free by default; ⇧ or the layer's ratio lock keeps proportions; ⌥ scales from the center.
+   *  Returns where the handle ends up, document space. */
+  #resize(o: Layer, h: Pt, d: Pt): Pt {
+    const b = localBounds(o);
+    const r = resizeGesture(b, h, localDelta(o, d), { proportional: this.doc.shift || o.lockRatio, fromCenter: this.doc.option });
+    const a = r.anchor, t = scaleAround(a, r.sx, r.sy);
+    this.#write(o, t, () => resized(o, r.sx, r.sy, a));
+    return toWorld(o, apply(t, handlePoint(h, b))); // the anchor stays put, so the original frame still maps it
   }
 
   /** A group (thousands of paths when imported) is previewed through `t` and written on mouse-up;
@@ -286,16 +352,8 @@ export class Gestures {
   #editNode(o: Layer, t: Target, delta: Pt) {
     let n = o.subpaths[t.ref.s].nodes[t.ref.n];
     const d = localDelta(o, delta);
-    const mirror = !this.doc.option; // ⌥ breaks handle symmetry
     const off = (q: Pt) => pt(q.x + d.x, q.y + d.y);
-    if (t.handle === 'node') n = mapNode(n, off);
-    else if (t.handle === 'cin') {
-      const cin = off(n.cin);
-      n = { ...n, cin, cout: mirror ? pt(2 * n.p.x - cin.x, 2 * n.p.y - cin.y) : n.cout };
-    } else {
-      const cout = off(n.cout);
-      n = { ...n, cout, cin: mirror ? pt(2 * n.p.x - cout.x, 2 * n.p.y - cout.y) : n.cin };
-    }
+    n = t.handle === 'node' ? mapNode(n, off) : movedHandle(n, t.handle, off(n[t.handle]), this.doc.option); // ⌥ frees the handle
     const l = structuredClone(o);
     l.subpaths[t.ref.s].nodes[t.ref.n] = n;
     this.doc.set(o.id, keepingPlace(l, o));
@@ -309,7 +367,7 @@ export class Gestures {
       case 'rect':
       case 'ellipse':
       case 'text': {
-        let p = loc;
+        let p = this.#snapPoint(loc);
         if (doc.shift) { // constrain to square/circle
           const s = Math.max(Math.abs(p.x - start.x), Math.abs(p.y - start.y));
           p = pt(start.x + (p.x < start.x ? -s : s), start.y + (p.y < start.y ? -s : s));

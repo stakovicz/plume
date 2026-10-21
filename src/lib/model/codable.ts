@@ -8,7 +8,17 @@ export type DocFile = { layers: Layer[]; palette: RGBA[] };
 const isPt = (v: unknown): v is { x: number; y: number } =>
   typeof v === 'object' && v !== null && !Array.isArray(v) && Object.keys(v).length === 2 && 'x' in v && 'y' in v;
 
-export const encodeFile = (f: DocFile) => JSON.stringify(f, (_, v) => (isPt(v) ? [v.x, v.y] : v));
+/** Numbers are written to 3 decimals: a thousandth of a pixel, invisible even at the 6400 % zoom, and colors
+ *  and opacity stay exact to 8 bits. Angles and gradients (unit space, scaled up by `transform`) keep 6. */
+const FINE = new Set(['rotation', 'fillGradient', 'strokeGradient']);
+function rounded(v: unknown, digits = 3): unknown {
+  if (typeof v === 'number') return Math.round(v * 10 ** digits) / 10 ** digits || 0; // || 0: no -0
+  if (Array.isArray(v)) return v.map((x) => rounded(x, digits));
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, rounded(x, FINE.has(k) ? 6 : digits)]));
+  return v;
+}
+
+export const encodeFile = (f: DocFile) => JSON.stringify(rounded(f), (_, v) => (isPt(v) ? [v.x, v.y] : v));
 
 // ponytail: any `[number, number]` becomes a point except under `dash`; name the key here if another numeric pair is added
 const revive = (key: string, v: unknown) =>

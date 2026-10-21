@@ -1,14 +1,14 @@
 <script lang="ts">
   import { L } from '$lib/i18n';
 
-  /** Number input. Commits on Return/blur (one undo step), Escape reverts.
+  /** Number input. Commits on Return/blur (one undo step), Escape reverts. `NaN`: values differ (multiple selection).
    *  ↑/↓ keys or the stepper buttons step by `step`, ⇧ by 10 × step, committed at once. */
   let { value, onchange, label, step = 1, digits = 1, min = -Infinity, max = Infinity, suffix = '', disabled = false }: {
     value: number; onchange: (v: number) => void; label: string;
     step?: number; digits?: number; min?: number; max?: number; suffix?: string; disabled?: boolean;
   } = $props();
 
-  const format = (v: number) => String(Math.round(v * 10 ** digits) / 10 ** digits);
+  const format = (v: number) => (Number.isNaN(v) ? '' : String(Math.round(v * 10 ** digits) / 10 ** digits));
   let draft = $state<string | null>(null); // text being typed; null = show `value`
 
   function commit(v: number) {
@@ -35,13 +35,14 @@
 
 <label class:disabled>
   <!-- the unit sits right after the number: an invisible copy of the text pushes it along, the input lies on top -->
-  {#if suffix}<span class="unit" aria-hidden="true"><span class="ghost">{draft ?? format(value)}</span>{suffix}</span>{/if}
+  {#if suffix && !Number.isNaN(value)}<span class="unit" aria-hidden="true"><span class="ghost">{draft ?? format(value)}</span>{suffix}</span>{/if}
   <input
     type="text"
     inputmode="decimal"
     aria-label={label}
     title={label}
     {disabled}
+    placeholder={Number.isNaN(value) ? L('Multiple') : undefined}
     value={draft ?? format(value)}
     oninput={(e) => (draft = e.currentTarget.value)}
     onkeydown={keydown}

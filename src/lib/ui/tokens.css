@@ -39,6 +39,7 @@
   --backdrop: light-dark(rgb(0 0 0 / 0.15), rgb(0 0 0 / 0.4)); /* behind a modal dialog */
   --hover: light-dark(rgb(0 0 0 / 0.05), rgb(255 255 255 / 0.06));
   --accent: light-dark(#007aff, #0a84ff);
+  --guide: #ff00ff; /* smart guides on the canvas */
   --accent-soft: light-dark(rgb(0 122 255 / 0.16), rgb(10 132 255 / 0.28));
   --on-accent: #ffffff;
   --shadow: 0 6px 24px light-dark(rgb(0 0 0 / 0.18), rgb(0 0 0 / 0.5)),

@@ -193,6 +193,12 @@ export function rotated(l: Layer, a: number, g: Pt): Layer {
   return { ...m, rotation: m.rotation + a };
 }
 
+/** Borders follow a resize: width and dashes scale by the mean of the two factors (√|sx·sy|). */
+export function strokeScaled(l: Layer, sx: number, sy: number): Layer {
+  const k = Math.sqrt(Math.abs(sx * sy));
+  return k === 1 ? l : { ...l, strokeWidth: l.strokeWidth * k, dash: l.dash.map((d) => d * k) };
+}
+
 /** Scales in the layer's own frame about local point `a` (a group's frame is the document). */
 export function resized(l: Layer, sx: number, sy: number, a: Pt): Layer {
   if (l.kind === 'group') return scaled(l, sx, sy, a);
@@ -200,11 +206,11 @@ export function resized(l: Layer, sx: number, sy: number, a: Pt): Layer {
   if (l.kind === 'text') { // proportional: the type scales; otherwise the box width changes and the lines rewrap
     const t = l.text!, k = Math.abs(sx);
     if (k === Math.abs(sy)) {
-      return keepingPlace({ ...mapped(l, (p) => scalePoint(p, a, k, k)), text: { ...t, size: t.size * k, letterSpacing: t.letterSpacing * k } }, l);
+      return keepingPlace(strokeScaled({ ...mapped(l, (p) => scalePoint(p, a, k, k)), text: { ...t, size: t.size * k, letterSpacing: t.letterSpacing * k } }, k, k), l);
     }
     return sx === 1 ? l : refit({ ...mapped(l, (p) => scalePoint(p, a, sx, 1)), text: { ...t, autoWidth: false } }, l);
   }
-  return keepingPlace(mapped(l, (p) => scalePoint(p, a, sx, sy)), l);
+  return keepingPlace(strokeScaled(mapped(l, (p) => scalePoint(p, a, sx, sy)), sx, sy), l);
 }
 
 /** Scales in document space about document point `a`. */
@@ -215,10 +221,23 @@ export function scaled(l: Layer, sx: number, sy: number, a: Pt): Layer {
   if (l.kind === 'group') {
     return { ...mappingClip(l, (p) => scalePoint(p, a, sx, sy)), children: l.children.map((c) => scaled(c, sx, sy, a)) };
   }
-  const c = center(l);
-  if (l.kind === 'text') return moved(textScaled(l, Math.sqrt(Math.abs(sx * sy))), sub(scalePoint(c, a, sx, sy), c)); // keeps its proportions
-  if (l.rotation === 0) return mapped(l, (p) => scalePoint(p, a, sx, sy));
-  return moved(mapped(l, (p) => scalePoint(p, c, sx, sy)), sub(scalePoint(c, a, sx, sy), c));
+  const c = center(l), s = strokeScaled(l, sx, sy);
+  if (l.kind === 'text') return moved(textScaled(s, Math.sqrt(Math.abs(sx * sy))), sub(scalePoint(c, a, sx, sy), c)); // keeps its proportions
+  if (l.rotation === 0) return mapped(s, (p) => scalePoint(p, a, sx, sy));
+  return moved(mapped(s, (p) => scalePoint(p, c, sx, sy)), sub(scalePoint(c, a, sx, sy), c));
+}
+
+/** Mirrors across the vertical (`horizontal`) or horizontal line through document coordinate `axis`.
+ *  Exact under rotation: the local geometry is mirrored about its center and the rotation negated.
+ *  Text moves but its glyphs aren't mirrored; artboards don't flip. */
+export function flipped(l: Layer, horizontal: boolean, axis: number): Layer {
+  const f = (p: Pt) => (horizontal ? pt(2 * axis - p.x, p.y) : pt(p.x, 2 * axis - p.y));
+  if (l.kind === 'artboard') return l;
+  if (l.kind === 'group') return { ...mappingClip(l, f), children: l.children.map((c) => flipped(c, horizontal, axis)) };
+  const c = center(l), to = sub(f(c), c);
+  if (l.kind === 'text') return moved(l, to);
+  const own = (p: Pt) => (horizontal ? pt(2 * c.x - p.x, p.y) : pt(p.x, 2 * c.y - p.y));
+  return moved({ ...mapped(l, own), rotation: -l.rotation }, to);
 }
 
 /** Handle drag → scale factors and fixed point, in the layer's local frame.

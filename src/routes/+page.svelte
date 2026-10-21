@@ -57,6 +57,8 @@
       addEventListener('beforeunload', guard);
       return () => removeEventListener('beforeunload', guard);
     }
+    // no web page context menu (Reload, Inspect Element) in the app; text fields keep theirs (copy, paste)
+    addEventListener('contextmenu', (e) => !isTyping(e.target) && e.preventDefault());
     // Red button / ⌘W: save prompt first, Cancel keeps the window (single-window app: closing quits).
     const unlisten = getCurrentWindow().onCloseRequested((e) => {
       e.preventDefault();

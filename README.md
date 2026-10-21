@@ -12,6 +12,9 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
   ordre d'empilement (avancer, reculer, premier plan, arrière-plan).
 - **Combiner** des formes : union, soustraction, intersection, différence (courbes conservées).
 - **Vectoriser le contour** : une bordure devient une forme pleine.
+- **Retourner** horizontalement ou verticalement (menu Outils).
+- **Repères d'alignement** : en déplaçant, redimensionnant ou dessinant, les bords et centres s'aimantent à ceux
+  des autres calques, et une ligne montre l'alignement.
 - **Style** : remplissage et bordure (couleur ou dégradé linéaire / radial), bordure centrée / intérieure /
   extérieure, pointillés, extrémités et angles, opacité, flou, ombre, palette de couleurs du document.
 - **Presse-papier** : copier / couper / coller / dupliquer des calques, groupes et plans de travail ;
@@ -31,6 +34,7 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 | Grouper / Dégrouper | ⌘G / ⇧⌘G |
 | Union / Soustraire / Intersection / Différence | ⌥⌘U / ⌥⌘S / ⌥⌘I / ⌥⌘X |
 | Vectoriser le contour | ⌥⌘O |
+| Déplacer de 1 px / 10 px | ← → ↑ ↓ / ⇧ + flèche |
 | Avancer / Reculer | ⌥⌘↑ / ⌥⌘↓ |
 | Premier plan / Arrière-plan | ⌃⌥⌘↑ / ⌃⌥⌘↓ |
 | Masquer / Verrouiller | ⇧⌘H / ⇧⌘L |

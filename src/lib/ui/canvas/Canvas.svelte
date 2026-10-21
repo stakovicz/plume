@@ -65,10 +65,17 @@
     else doc.pan = pt(doc.pan.x - e.deltaX * k, doc.pan.y - e.deltaY * k);
   }
 
+  const ARROWS: Record<string, Pt> = { ArrowLeft: pt(-1, 0), ArrowRight: pt(1, 0), ArrowUp: pt(0, -1), ArrowDown: pt(0, 1) };
+
   // Tool keys live here, not in the menus, so they never fire while typing in a text field.
   function keydown(e: KeyboardEvent) {
     if (e.target !== el || e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === 'Enter' || e.key === 'Escape') {
+    const arrow = ARROWS[e.key];
+    if (arrow) { // nudge: 1 px, 10 with ⇧
+      if (doc.editing) return;
+      const k = e.shiftKey ? 10 : 1;
+      doc.nudge(pt(arrow.x * k, arrow.y * k));
+    } else if (e.key === 'Enter' || e.key === 'Escape') {
       if (e.key === 'Enter' && doc.tool === 'select' && !doc.editing) doc.enterEdit(); // Return edits points
       else doc.tool = 'select';
     } else {
@@ -176,6 +183,12 @@
           {/each}
         {/if}
 
+        {#each gestures.guides as g, i (i)}
+          <!-- smart guides: what the dragged edges or center line up with -->
+          {#if g.axis === 'x'}<line x1={g.at} y1={g.from} x2={g.at} y2={g.to} class="guide" stroke-width={px} />
+          {:else}<line x1={g.from} y1={g.at} x2={g.to} y2={g.at} class="guide" stroke-width={px} />{/if}
+        {/each}
+
         {#if doc.penLayer}
           <!-- path being drawn with the pen -->
           {@const nodes = doc.penLayer.subpaths[0].nodes}
@@ -254,6 +267,9 @@
   }
   .overlay {
     pointer-events: none;
+  }
+  .guide {
+    stroke: var(--guide);
   }
   .label {
     fill: var(--text-2);

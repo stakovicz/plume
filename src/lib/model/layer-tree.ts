@@ -61,3 +61,12 @@ export function remove(ls: Layer[], ids: Set<string>) {
 export function inTreeOrder(ls: Layer[], ids: Set<string>): Layer[] {
   return ls.flatMap((l) => (ids.has(l.id) ? [l] : inTreeOrder(l.children, ids)));
 }
+
+/** `Base N`, N one past the highest number a `Base N` layer already has anywhere in the tree: names stay unique. */
+export function nextName(ls: Layer[], base: string): string {
+  const re = new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} (\\d+)$`);
+  let n = 0;
+  const walk = (xs: Layer[]) => xs.forEach((l) => { n = Math.max(n, Number(re.exec(l.name)?.[1] ?? 0)); walk(l.children); });
+  walk(ls);
+  return `${base} ${n + 1}`;
+}

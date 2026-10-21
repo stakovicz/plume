@@ -1,8 +1,12 @@
 export type Pt = { x: number; y: number };
 export type Rect = { x: number; y: number; width: number; height: number };
 
-/** Bézier anchor with incoming/outgoing control points (equal to `p` when straight). */
-export type Node = { p: Pt; cin: Pt; cout: Pt };
+/** Bézier anchor with incoming/outgoing control points (equal to `p` when straight).
+ *  `type`: how its handles move together, once chosen (else read from the handles, see `pointType`). */
+export type Node = { p: Pt; cin: Pt; cout: Pt; type?: PointType };
+/** Straight: no handles. Mirrored: opposite, same length. Asymmetric: opposite, own lengths. Disconnected: free. */
+export const POINT_TYPES = ['straight', 'mirrored', 'disconnected', 'asymmetric'] as const;
+export type PointType = (typeof POINT_TYPES)[number];
 export type Subpath = { nodes: Node[]; closed: boolean };
 
 export const pt = (x: number, y: number): Pt => ({ x, y });
@@ -13,7 +17,7 @@ export const add = (a: Pt, b: Pt): Pt => ({ x: a.x + b.x, y: a.y + b.y });
 export const sub = (a: Pt, b: Pt): Pt => ({ x: a.x - b.x, y: a.y - b.y });
 export const dist = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
 
-export const mapNode = (n: Node, f: (p: Pt) => Pt): Node => ({ p: f(n.p), cin: f(n.cin), cout: f(n.cout) });
+export const mapNode = (n: Node, f: (p: Pt) => Pt): Node => ({ ...n, p: f(n.p), cin: f(n.cin), cout: f(n.cout) });
 export const mapSubpaths = (s: Subpath[], f: (p: Pt) => Pt): Subpath[] =>
   s.map((sp) => ({ nodes: sp.nodes.map((n) => mapNode(n, f)), closed: sp.closed }));
 

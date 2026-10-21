@@ -10,7 +10,7 @@ import { decodeFile, encodeFile } from '$lib/model/codable';
 import { importSVG } from '$lib/svg/import';
 import { layerSVG } from '$lib/svg/export';
 import { Doc } from '$lib/document/doc.svelte';
-import { nearRect } from './helpers';
+import { near, nearRect } from './helpers';
 
 beforeAll(() => {
   for (const f of FONTS) for (const [w, file] of Object.entries(f.files)) {
@@ -63,7 +63,9 @@ describe('text', () => {
 
   test('saved and reopened', () => {
     const l = text('Saved', { font: 'PT Serif', weight: 700, align: 'right', letterSpacing: 2 });
-    expect(decodeFile(encodeFile({ layers: [l], palette: [] })).layers[0]).toEqual(l);
+    const back = decodeFile(encodeFile({ layers: [l], palette: [] })).layers[0];
+    expect({ ...back, points: [] }).toEqual({ ...l, points: [] }); // points: rounded on save
+    back.points.forEach((p, i) => expect(near(p, l.points[i], 1e-3)).toBe(true));
   });
 
   test('SVG export and import round trip', () => {
