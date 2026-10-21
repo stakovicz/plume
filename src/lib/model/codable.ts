@@ -1,7 +1,7 @@
 import type { RGBA } from './color';
 import { type Layer, newLayer } from './layer';
 
-/** On-disk format, compatible with the Swift app: `{ layers, palette }`, points as `[x, y]`.
+/** On-disk format: `{ layers, palette }`, points as `[x, y]`.
  *  Files saved before the palette existed are a bare `[Layer]` array. */
 export type DocFile = { layers: Layer[]; palette: RGBA[] };
 

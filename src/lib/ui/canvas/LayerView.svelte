@@ -9,7 +9,7 @@
   } from '$lib/model/layer';
   import { layout } from '$lib/model/text';
 
-  /** One layer as SVG, in document space. Order like the Swift app: clip → opacity/filters
+  /** One layer as SVG, in document space. Order: clip → opacity/filters
    *  composited over the whole layer (a group as one image) → content. */
   let { l, preview = null, typing = null }: {
     l: Layer;

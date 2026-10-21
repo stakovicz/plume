@@ -12,7 +12,7 @@ import { artboards } from '$lib/document/artboards';
 import { type Target, insertNode, segmentAt, target, toggleCurve } from '$lib/model/point-editing';
 import type { IconName } from '$lib/ui/kit/Icon.svelte';
 
-/** What a click-drag does for each tool. Port of the Swift CanvasView+Gestures. */
+/** What a click-drag does for each tool. */
 
 /** Selection frame handles, in unit coordinates of the layer's local bounds. */
 export const HANDLES = [[0, 0], [0.5, 0], [1, 0], [1, 0.5], [1, 1], [0.5, 1], [0, 1], [0, 0.5]].map(([x, y]) => pt(x, y));

@@ -85,7 +85,7 @@ Logic that can be tested without a window belongs in model/document, not in comp
 - **Commands.** Menu items and their shortcuts are defined once in `app/commands.ts`: native menu under
   Tauri, keydown matching in a browser.
 - **Files.** `doc.filePath` is the current document; `isDirty` compares layers and palette with the
-  last save. On disk: `{ layers, palette }`, same format as the former Swift app; a bare `[Layer]` array
+  last save. On disk: `{ layers, palette }`; a bare `[Layer]` array
   (older files) still loads. Anything that replaces the document calls `files.confirmDiscardChanges()` first.
 - **Colors** in views use `ColorField` (kit): it offers the document palette; undo comes from `styleEdit`.
 - Deliberate shortcuts are marked `// ponytail:` with their limit and upgrade path.

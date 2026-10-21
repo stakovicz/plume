@@ -71,8 +71,8 @@ L'architecture et les conventions du code sont décrites dans [CLAUDE.md](CLAUDE
 
 ## Format de fichier
 
-Un document est un JSON `{ "layers": [...], "palette": [...] }`, les points écrits `[x, y]` ; c'est le même
-format que l'ancienne version Swift, et un simple tableau de calques (fichiers plus anciens) s'ouvre aussi.
+Un document est un JSON `{ "layers": [...], "palette": [...] }`, les points écrits `[x, y]` ; un simple
+tableau de calques (fichiers plus anciens) s'ouvre aussi.
 
 ## Licence
 
