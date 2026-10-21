@@ -1,0 +1,81 @@
+/* The only place that defines colors and sizes. Everything else uses these variables
+   (stylelint enforces it outside this file and ui/kit/). */
+
+:root {
+  --font: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-11: 11px;
+  --text-12: 12px;
+  --text-13: 13px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+
+  --radius-1: 4px;
+  --radius-2: 6px;
+  --radius-pill: 999px;
+  --hairline: 1px;
+  --control-h: 22px;
+  --icon: 16px;
+  --stepper-w: 10px; /* number field ▲▼ */
+  --quiet-button: 20px; /* small icon button (padlock, eye); rows reserve it to stay aligned */
+  --label-w: 72px;
+
+  --toolbar-h: 44px;
+  --sidebar-w: 220px;
+  --inspector-w: 280px;
+
+  /* light-dark(): each element follows its own `color-scheme` (the system by default; /kit forces one per column) */
+  --bg: light-dark(#e9e9eb, #1c1c1e);
+  --panel: light-dark(#f6f6f7, #252527);
+  --field: light-dark(#ffffff, #1a1a1c);
+  --border: light-dark(rgb(0 0 0 / 0.12), rgb(255 255 255 / 0.1));
+  --border-strong: light-dark(rgb(0 0 0 / 0.22), rgb(255 255 255 / 0.2));
+  --text: light-dark(#1d1d1f, #f2f2f4);
+  --text-2: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.6));
+  --text-3: light-dark(rgb(0 0 0 / 0.3), rgb(255 255 255 / 0.32));
+  --backdrop: light-dark(rgb(0 0 0 / 0.15), rgb(0 0 0 / 0.4)); /* behind a modal dialog */
+  --hover: light-dark(rgb(0 0 0 / 0.05), rgb(255 255 255 / 0.06));
+  --accent: light-dark(#007aff, #0a84ff);
+  --accent-soft: light-dark(rgb(0 122 255 / 0.16), rgb(10 132 255 / 0.28));
+  --on-accent: #ffffff;
+  --shadow: 0 6px 24px light-dark(rgb(0 0 0 / 0.18), rgb(0 0 0 / 0.5)),
+    0 0 0 var(--hairline) light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
+
+  /* Canvas (the document itself stays white) */
+  --canvas: #ffffff;
+  --pasteboard: light-dark(#f2f2f3, #2b2b2e); /* around artboards */
+  --edit: #ff00ff; /* point-edit mode: nodes and Bézier handles */
+  --handle-fill: #ffffff;
+  --checker: rgb(128 128 128 / 0.3);
+
+  color-scheme: light dark;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font: var(--text-13) / 1.3 var(--font);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+input,
+button,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
