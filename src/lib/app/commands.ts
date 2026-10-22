@@ -119,6 +119,20 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
   ];
 }
 
+const SITE = 'https://github.com/stakovicz/plume';
+/** The About panel. macOS shows the copyright and credits (plain text, links aren't clickable);
+ *  authors, comments, license and website are for Windows and Linux. The version comes from the bundle. */
+const about = () => ({
+  name: 'Plume',
+  copyright: `© 2026 Albin Kester · ${L('MIT License')}`,
+  credits: `${L('Vector editor.')}\n${SITE}\n\n${L('Fonts: Fira Sans, Fira Mono and PT Serif (SIL Open Font License).')}`,
+  authors: ['Albin Kester'],
+  comments: L('Vector editor.'),
+  license: 'MIT',
+  website: SITE,
+  websiteLabel: 'GitHub',
+});
+
 /** Titles of the standard items, which macOS leaves in English (the app bundle has no localizations). */
 const nativeText = (): Partial<Record<Native['native'], string>> => ({
   About: L('About Plume'), Services: L('Services'), Hide: L('Hide Plume'), HideOthers: L('Hide Others'), ShowAll: L('Show All'),
@@ -159,7 +173,7 @@ export async function installNativeMenu(specs: MenuSpec[]) {
   const plain: (MenuItem | IconMenuItem)[] = [];
   const build = (items: Item[]): Promise<MenuItem | Submenu | PredefinedMenuItem>[] =>
     items.map(async (i) => {
-      if ('native' in i) return PredefinedMenuItem.new({ item: i.native === 'About' ? { About: null } : i.native, text: nativeText()[i.native] });
+      if ('native' in i) return PredefinedMenuItem.new({ item: i.native === 'About' ? { About: about() } : i.native, text: nativeText()[i.native] });
       if ('submenu' in i) {
         const sub = await Submenu.new({ text: i.submenu, items: await Promise.all(build(i.items)) });
         if (i.icon) await sub.setIcon(await menuIcon(i.icon));
