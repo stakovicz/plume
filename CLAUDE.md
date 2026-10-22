@@ -14,12 +14,12 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 ## Layout
 
 ```
-src-tauri/src/lib.rs   Rust commands: read_text, write_text / write_bytes (atomic), launch_file; dialog plugin
+src-tauri/src/lib.rs   Rust commands: read_text, read_bytes, write_text / write_bytes (atomic), launch_file, system_fonts (fontdb); dialog plugin
 src/lib/
   model/      Layer (+ transforms, border), geometry (Pt, Affine, Bézier bounds/hit), path-data,
               point-editing, curve-fit, layer-tree helpers, color, effects, codable (file format),
               boolean (union/subtract/… via paper.js), outline (border → filled shape),
-              text (layout, measuring, glyph outlines via opentype.js; fonts bundled in static/fonts)
+              text (layout, measuring, glyph outlines via fontkit; fonts bundled in static/fonts or installed)
   document/   Doc (state, undo, editing ops, zoom, load/save data), Tool
   svg/        import (DOMParser → element tree → layers; gradients, masks as clips, filters), export, syntax
   app/        files (panels/read/write, recents, save prompt, export), render (PNG/JPG/PDF from SVG),

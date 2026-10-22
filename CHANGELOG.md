@@ -1,5 +1,19 @@
 # Changelog
 
+## Non publié
+
+### Ajouts
+
+- **Polices installées** : les polices du système (macOS, Linux) sont proposées dans l'inspecteur, sous
+  « Installées », et chargées quand un calque les utilise. Les collections (.ttc) et les polices variables sont prises en charge.
+- **Aperçu des polices** : la liste affiche chaque police dans son propre dessin, avec un champ de recherche.
+- **Export PDF et PNG** avec les polices installées : elles sont intégrées au fichier (texte sélectionnable en PDF).
+  Les polices .otf (contours CFF) restent remplacées par Times dans les PDF.
+
+### Modifications
+
+- Mise en page et vectorisation du texte par fontkit (au lieu d'opentype.js).
+
 ## 0.2.0 — 2026-10-21
 
 ### Ajouts

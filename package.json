@@ -18,8 +18,8 @@
   "dependencies": {
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.8.3",
+    "fontkit": "^2.0.4",
     "jspdf": "4.2.1",
-    "opentype.js": "^2.0.0",
     "paper": "0.12.18",
     "svg2pdf.js": "2.8.1"
   },

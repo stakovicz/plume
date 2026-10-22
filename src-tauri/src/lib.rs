@@ -31,6 +31,41 @@ fn write_bytes(request: tauri::ipc::Request) -> Result<(), String> {
         .map_err(|e| format!("{path}: {e}"))
 }
 
+/// One upright face of an installed font: `index` is its face in a collection file (.ttc).
+#[derive(serde::Serialize)]
+struct SystemFont {
+    family: String,
+    weight: u16,
+    path: String,
+    index: u32,
+}
+
+/// The installed fonts (upright faces only: text has no italic yet; hidden `.` system families left out).
+/// Async: scanning the font folders stays off the main thread.
+#[tauri::command]
+async fn system_fonts() -> Vec<SystemFont> {
+    let mut db = fontdb::Database::new();
+    db.load_system_fonts();
+    db.faces()
+        .filter(|f| f.style == fontdb::Style::Normal && f.families.first().is_some_and(|n| !n.0.starts_with('.')))
+        .filter_map(|f| match &f.source {
+            fontdb::Source::File(path) | fontdb::Source::SharedFile(path, _) => Some(SystemFont {
+                family: f.families[0].0.clone(),
+                weight: f.weight.0,
+                path: path.to_string_lossy().into_owned(),
+                index: f.index,
+            }),
+            fontdb::Source::Binary(_) => None,
+        })
+        .collect()
+}
+
+/// A font file's bytes, as a raw response (no JSON array of numbers).
+#[tauri::command]
+async fn read_bytes(path: String) -> Result<tauri::ipc::Response, String> {
+    fs::read(&path).map(tauri::ipc::Response::new).map_err(|e| format!("{path}: {e}"))
+}
+
 /// `Plume file.svg` / `Plume file.json` opens that file at launch.
 #[tauri::command]
 fn launch_file() -> Option<String> {
@@ -41,7 +76,7 @@ fn launch_file() -> Option<String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![read_text, write_text, write_bytes, launch_file])
+        .invoke_handler(tauri::generate_handler![read_text, write_text, write_bytes, launch_file, system_fonts, read_bytes])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
