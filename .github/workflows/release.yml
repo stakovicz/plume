@@ -48,6 +48,16 @@ jobs:
       - run: npm ci
       - run: npm test
 
+      - name: Release notes (the version's CHANGELOG section)
+        id: notes
+        shell: bash
+        run: |
+          {
+            echo 'body<<EOF'
+            awk -v h="## ${GITHUB_REF_NAME#v} " 'index($0, h) == 1 { p = 1; next } /^## / { p = 0 } p' CHANGELOG.md
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
       - uses: tauri-apps/tauri-action@v0
         id: tauri
         env:
@@ -57,6 +67,10 @@ jobs:
           tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
           releaseName: Plume ${{ github.ref_name }}
           releaseBody: |
+            ${{ steps.notes.outputs.body }}
+
+            ---
+
             macOS : Apple Silicon (aarch64) ou Intel (x64). Application non signée : au premier lancement,
             clic droit sur Plume.app → Ouvrir (ou `xattr -dr com.apple.quarantine /Applications/Plume.app`).
             Linux : .AppImage, .deb ou .rpm.

@@ -89,3 +89,10 @@ Logic that can be tested without a window belongs in model/document, not in comp
   (older files) still loads. Anything that replaces the document calls `files.confirmDiscardChanges()` first.
 - **Colors** in views use `ColorField` (kit): it offers the document palette; undo comes from `styleEdit`.
 - Deliberate shortcuts are marked `// ponytail:` with their limit and upgrade path.
+
+## Release
+
+1. Note changes under `## Non publié` in CHANGELOG.md as you go.
+2. `npm version patch|minor|major`: runs tests, type check and lint, bumps package.json (tauri.conf.json reads it),
+   Cargo.toml and Cargo.lock, dates the changelog section, commits `Plume x.y.z`, tags `vx.y.z` and pushes.
+3. The tag triggers `.github/workflows/release.yml`: macOS and Linux bundles, release notes from the changelog.

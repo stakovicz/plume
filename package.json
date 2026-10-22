@@ -12,7 +12,10 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "tauri": "tauri",
     "test": "vitest run",
-    "lint": "stylelint 'src/**/*.{css,svelte}'"
+    "lint": "stylelint 'src/**/*.{css,svelte}'",
+    "preversion": "npm test && npm run check && npm run lint",
+    "version": "node scripts/version.js",
+    "postversion": "git push --follow-tags"
   },
   "license": "MIT",
   "dependencies": {
