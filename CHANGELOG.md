@@ -39,6 +39,7 @@
 
 ### Corrections
 
+- Inspecteur, section Texte : le réglage Auto / Fixe s'appelait « Épaisseur » en français ; il s'appelle « Largeur ».
 - Une forme vectorisée (Vectoriser le contour) n'a plus du tout de bordure : l'export SVG écrit `stroke="none"`
   au lieu d'une bordure d'épaisseur 0, comme l'attend une icône pleine.
 - Le code hexadécimal tapé dans le panneau de couleur était perdu en quittant le champ par Tab ou un clic : il est appliqué.
