@@ -108,6 +108,15 @@
     }
   }
 
+  /** What's typed in the hex field, on Return or when leaving it (Tab, click elsewhere), like a number field.
+   *  Not a color: the field shows the current one again. */
+  function commitHex() {
+    if (hexDraft === null) return;
+    const c = fromHex(hexDraft);
+    hexDraft = null;
+    if (c) { setColor({ ...c, a: current.a }); syncFromColor(c); }
+  }
+
   const clamp = (x: number) => Math.min(Math.max(x, 0), 1);
   /** Arrow keys → steps of 1 % (⇧: 10 %). */
   const arrows = (step: (dx: number, dy: number) => void) => (e: KeyboardEvent) => {
@@ -220,13 +229,8 @@
       spellcheck="false"
       value={hexDraft ?? hex(current)}
       oninput={(e) => (hexDraft = e.currentTarget.value)}
-      onkeydown={(e) => {
-        if (e.key !== 'Enter') return;
-        const c = fromHex(e.currentTarget.value);
-        hexDraft = null;
-        if (c) { setColor({ ...c, a: current.a }); syncFromColor(c); }
-      }}
-      onblur={() => (hexDraft = null)}
+      onkeydown={(e) => e.key === 'Enter' && commitHex()}
+      onblur={commitHex}
     />
     <NumberField label={L('Opacity')} value={current.a * 100} digits={0} min={0} max={100} suffix="%" onchange={(x) => setColor({ ...current, a: x / 100 })} />
   </div>
