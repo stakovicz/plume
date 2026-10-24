@@ -115,9 +115,9 @@ function buttons(release, platform, kinds) {
   const items = kinds.flatMap(([label, re]) => {
     const asset = release?.assets.find((a) => re.test(a.name));
     const name = `Télécharger Plume ${release?.tag_name ?? ''} pour ${platform}, ${label}`;
-    return asset ? [`<li><a class="button primary" href="${asset.browser_download_url}" aria-label="${name}">${label}</a></li>`] : [];
+    return asset ? [`<li><a class="button download" href="${asset.browser_download_url}" aria-label="${name}">${label}</a></li>`] : [];
   });
-  return `<ul>${items.length ? items.join('') : `<li><a class="button primary" href="${RELEASES}">Voir les fichiers</a></li>`}</ul>`;
+  return `<ul>${items.length ? items.join('') : `<li><a class="button download" href="${RELEASES}">Voir les fichiers</a></li>`}</ul>`;
 }
 
 rmSync(OUT, { recursive: true, force: true });

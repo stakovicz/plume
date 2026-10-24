@@ -158,6 +158,9 @@ h3 { font-size: 1.1rem; margin: 0 0 0.35rem; }
 /* Downloads */
 .downloads { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; margin: 2rem 0; }
 .platform { padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+/* download buttons: white in both themes, dark text (16:1); orange border on hover and keyboard focus */
+.button.download { background: #ffffff; border-color: var(--border); color: #1d1d1f; }
+.button.download:hover, .button.download:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .platform ul { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0; padding: 0; list-style: none; }
 
 .columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 2rem; margin-top: 2rem; }
