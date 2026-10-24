@@ -137,9 +137,9 @@ const openURL = (url: string) => (isTauri() ? invoke('open_url', { url }) : wind
  *  authors, comments, license and website are for Windows and Linux. The version comes from the bundle. */
 const about = () => ({
   name: 'Plume',
-  copyright: `© 2026 Albin Kester · ${L('MIT License')}`,
+  copyright: `© 2026 Stakovicz · ${L('MIT License')}`,
   credits: `${L('Vector editor.')}\n${SITE}\n\n${L('Fonts: Fira Sans, Fira Mono and PT Serif (SIL Open Font License).')}`,
-  authors: ['Albin Kester'],
+  authors: ['Stakovicz'],
   comments: L('Vector editor.'),
   license: 'MIT',
   website: SITE,

@@ -2,7 +2,7 @@
 name = "plume"
 version = "0.2.0"
 description = "Plume, vector editor"
-authors = ["Albin Kester"]
+authors = ["Stakovicz"]
 license = "MIT"
 edition = "2024"
 
