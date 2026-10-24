@@ -57,7 +57,7 @@ Puis http://localhost:1420 ; `/kit` montre la galerie des composants d'interface
 | `npm run lint` | règles de style (couleurs et tailles uniquement via `src/lib/ui/tokens.css`) |
 | `npm run tauri build` | application empaquetée |
 
-L'architecture et les conventions du code sont décrites dans [CLAUDE.md](CLAUDE.md).
+L'architecture et les conventions du code sont décrites dans [AGENTS.md](AGENTS.md).
 
 ## Format de fichier
 
