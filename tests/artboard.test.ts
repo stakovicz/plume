@@ -246,3 +246,19 @@ test('marquee: dragging on an empty area selects what the rectangle touches; ⇧
   drag(pt(300, 300), pt(301, 300)); // under 3 px: a click
   expect(d.selectedIDs.size).toBe(0);
 });
+
+test('a click on a layer of a multiple selection selects it alone; a drag moves them all', () => {
+  const d = new Doc();
+  d.layers = [rect(0, 0, 10, 10, 'a'), rect(20, 0, 30, 10, 'b')];
+  const g = new Gestures(d), all = () => (d.selectedIDs = new Set(d.layers.map((l) => l.id)));
+  all();
+  g.down(pt(5, 5), false);
+  g.up();
+  expect(d.selectedLayers.map((l) => l.name)).toEqual(['a']);
+  all();
+  g.down(pt(5, 5), false);
+  g.move(pt(15, 5));
+  g.up();
+  expect(d.selectedIDs.size).toBe(2);
+  expect(d.layers.map((l) => bounds(l).x)).toEqual([10, 30]);
+});

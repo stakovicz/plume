@@ -35,6 +35,10 @@
 
 ### Corrections
 
+- Les touches d'outils (A, V, P, R, O, T) marchent aussi juste après un clic dans l'inspecteur ou le navigateur
+  (version web) ; elles restent sans effet pendant la saisie dans un champ.
+- Un clic, sans glisser, sur l'un des calques d'une sélection multiple ne sélectionne plus que lui, comme dans le
+  navigateur ; glisser déplace toujours toute la sélection.
 - Le code hexadécimal tapé dans le panneau de couleur était perdu en quittant le champ par Tab ou un clic : il est appliqué.
 - Un tracé de plusieurs centaines de milliers de points (SVG importé) faisait planter le calcul de ses limites.
 - Un groupe sélectionné avec l'un de ses calques : le déplacement, le retournement et l'export ne s'appliquent

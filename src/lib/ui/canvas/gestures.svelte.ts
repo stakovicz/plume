@@ -30,7 +30,7 @@ export function labelRect(a: Layer, zoom: number): Rect {
 /** What the current mouse drag is doing, decided on mouse-down by `begin`. Layers are snapshots. */
 type Drag =
   | { kind: 'ignore' }
-  | { kind: 'move'; originals: Layer[]; box: Rect | null } // box: their bounds, for snapping
+  | { kind: 'move'; originals: Layer[]; box: Rect | null; narrow?: string } // box: their bounds, for snapping; narrow: see up()
   | { kind: 'resize'; o: Layer; h: Pt } // handle in unit coordinates of the local bounds
   | { kind: 'rotate'; o: Layer }
   | { kind: 'edit'; o: Layer; t: Target }
@@ -159,6 +159,8 @@ export class Gestures {
       }
       doc.tool = 'select'; // back to select after drawing
     }
+    // a click (no drag) on a layer of a multiple selection selects that layer only, as in the layer list
+    if (g.kind === 'move' && g.narrow && this.#start && dist(this.#start, this.#last ?? this.#start) < 3) doc.selection = g.narrow;
     doc.dropCheckpointIfUnchanged();
     this.#start = this.#last = null;
     this.#drag = { kind: 'ignore' };
@@ -195,10 +197,10 @@ export class Gestures {
   }
 
   /** A move drag: snaps the dragged layers' bounds to the rest. */
-  #moving(originals: Layer[]): Drag {
+  #moving(originals: Layer[], narrow?: string): Drag {
     const ids = new Set(originals.map((o) => o.id)), home = parent(this.doc.layers, originals[0]?.id ?? '');
     this.#targets = this.#snapTargets(ids, home?.kind === 'group' ? home.children : []);
-    return { kind: 'move', originals, box: originals.map(bounds).reduce<Rect | null>(union, null) };
+    return { kind: 'move', originals, box: originals.map(bounds).reduce<Rect | null>(union, null), narrow };
   }
 
   // MARK: Mouse-down
@@ -318,8 +320,8 @@ export class Gestures {
       doc.selectedIDs = ids;
       return { kind: 'ignore' };
     }
-    if (picked && doc.selectedIDs.has(picked.id) && doc.selectedIDs.size > 1) {
-      return this.#moving(doc.selectedLayers.filter((l) => !doc.isLocked(l.id)).map(snap));
+    if (picked && doc.selectedIDs.has(picked.id) && doc.selectedIDs.size > 1) { // drags them all; a click narrows (up())
+      return this.#moving(doc.selectedLayers.filter((l) => !doc.isLocked(l.id)).map(snap), picked.id);
     }
     doc.selection = picked.id;
     if (double) {

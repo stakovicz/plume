@@ -1,6 +1,6 @@
 # Outils
 
-La barre d'outils est en haut de l'inspecteur. Les touches agissent quand le canevas a le clavier.
+La barre d'outils est en haut de l'inspecteur. Les touches agissent partout, sauf pendant la saisie dans un champ.
 Après un dessin, Plume revient à l'outil Sélection, sauf pour la Plume (qui continue le tracé).
 
 | Outil | Touche | Utilisation | Modificateurs |
