@@ -21,6 +21,7 @@
 ### Modifications
 
 - Mise en page et vectorisation du texte par fontkit (au lieu d'opentype.js).
+- Les champs numériques de l'inspecteur utilisent Fira Sans avec un zéro barré : 0 et O ne se confondent plus.
 - **Gros documents plus fluides** : glisser sur le canevas (crayon, redimensionner, pivoter, éditer des points) ne
   resérialise plus tout le document à chaque mouvement ; un curseur de l'inspecteur non plus. Clic dans le vide,
   enregistrement et sélection multiple plus rapides.
