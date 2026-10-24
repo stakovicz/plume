@@ -1,0 +1,32 @@
+name: CI
+
+# Every pull request and every push to main: the same checks as `npm version` (tests, types, style rules).
+# The editor is all TypeScript, so no Rust or Tauri build here; release.yml builds the app.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# a new push to a pull request cancels the run still going on its previous commit
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - run: npm run lint
