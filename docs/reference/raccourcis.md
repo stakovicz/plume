@@ -11,7 +11,7 @@
 
 ## Outils
 
-Actifs quand le canevas a le clavier (jamais pendant la saisie dans un champ).
+Actifs partout, sauf pendant la saisie dans un champ.
 
 | Outil | Touche |
 |---|---|

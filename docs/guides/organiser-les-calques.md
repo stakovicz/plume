@@ -3,7 +3,8 @@
 ## Sélectionner
 
 - **Un calque** : clic sur le canevas, ou dans le navigateur.
-- **Plusieurs calques** : ⇧-clic sur le canevas ; ⌘-clic dans le navigateur.
+- **Plusieurs calques** : ⇧-clic sur le canevas ; ⌘-clic dans le navigateur. Un simple clic sur l'un d'eux
+  (sans glisser) ne garde que lui ; glisser déplace toute la sélection.
 - **Au lasso** : glissez depuis une zone vide du canevas ; un rectangle sélectionne tous les calques visibles
   qu'il touche, même en partie. ⇧ en commençant ajoute à la sélection en cours.
 - **Une plage** dans le navigateur : cliquez le premier calque, puis ⇧-clic sur le dernier.

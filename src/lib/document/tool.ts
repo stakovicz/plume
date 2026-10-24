@@ -6,6 +6,10 @@ export type Tool = (typeof TOOLS)[number];
 /** Tool shortcuts; select is reached with Esc/Return. */
 export const toolKey: Record<Tool, string | null> = { select: null, artboard: 'a', pen: 'v', pencil: 'p', rect: 'r', ellipse: 'o', text: 't' };
 
+/** The tool a plain key press (no ⌘, ⌃, ⌥) picks, if any. */
+export const toolForKey = (e: KeyboardEvent): Tool | undefined =>
+  e.metaKey || e.ctrlKey || e.altKey ? undefined : TOOLS.find((t) => toolKey[t] === e.key.toLowerCase());
+
 export const toolTitle = (t: Tool) =>
   ({ select: L('Select'), artboard: L('Artboard'), pen: L('Pen'), pencil: L('Pencil'), rect: L('Rectangle'), ellipse: L('Oval'), text: L('Text') })[t];
 

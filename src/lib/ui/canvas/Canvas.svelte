@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import type { Doc } from '$lib/document/doc.svelte';
-  import { TOOLS, toolKey } from '$lib/document/tool';
+  import { toolForKey } from '$lib/document/tool';
   import { type Node, type Pt, type Rect, apply, eqPt, mapNode, pt } from '$lib/model/geometry';
   import { type Layer, bounds, localBounds, shape, toWorld } from '$lib/model/layer';
   import { css } from '$lib/model/color';
@@ -74,7 +74,7 @@
       if (e.key === 'Enter' && doc.tool === 'select' && !doc.editing) doc.enterEdit(); // Return edits points
       else doc.tool = 'select';
     } else {
-      const t = TOOLS.find((t) => toolKey[t] === e.key.toLowerCase());
+      const t = toolForKey(e);
       if (!t) return;
       doc.tool = t;
     }
