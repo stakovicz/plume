@@ -1,4 +1,4 @@
-/** UI consistency: colors and sizes come from src/lib/ui/tokens.css (see CLAUDE.md). */
+/** UI consistency: colors and sizes come from src/lib/ui/tokens.css (see AGENTS.md). */
 export default {
   overrides: [
     { files: ['**/*.svelte'], customSyntax: 'postcss-html' },
