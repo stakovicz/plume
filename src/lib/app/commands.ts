@@ -19,6 +19,11 @@ export type MenuSpec = { text: string; items: Item[] };
 
 const sep: Native = { native: 'Separator' };
 
+/** macOS or not: Linux has no Services/Hide items, its predefined Minimize/Close do nothing, and ⌃ is ⌘'s stand-in. */
+export const mac = /Mac/.test(globalThis.navigator?.platform ?? '');
+/** Bring to Front / Send to Back modifiers: ⌃⌥⌘ on macOS; elsewhere Ctrl is CmdOrCtrl already, so add Shift. */
+const FRONT = mac ? 'Ctrl+Alt+CmdOrCtrl' : 'Shift+Alt+CmdOrCtrl';
+
 /** Closing the window or quitting goes through the save prompt; Cancel keeps the window. */
 export async function quit(files: Files) {
   if (await files.confirmDiscardChanges()) await getCurrentWindow().destroy();
@@ -38,7 +43,7 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
   return [
     {
       text: 'Plume',
-      items: [{ native: 'About' }, sep, { native: 'Services' }, sep, { native: 'Hide' }, { native: 'HideOthers' }, { native: 'ShowAll' }, sep,
+      items: [{ native: 'About' }, sep, ...(mac ? [{ native: 'Services' }, sep, { native: 'Hide' }, { native: 'HideOthers' }, { native: 'ShowAll' }, sep] as Native[] : []),
         { text: L('Quit Plume'), accelerator: 'CmdOrCtrl+Q', run: () => quit(files) }],
     },
     {
@@ -105,8 +110,8 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
         sep,
         { text: L('Bring Forward'), icon: 'forward', accelerator: 'Alt+CmdOrCtrl+Up', run: () => doc.arrange('forward') },
         { text: L('Send Backward'), icon: 'backward', accelerator: 'Alt+CmdOrCtrl+Down', run: () => doc.arrange('backward') },
-        { text: L('Bring to Front'), icon: 'front', accelerator: 'Ctrl+Alt+CmdOrCtrl+Up', run: () => doc.arrange('front') },
-        { text: L('Send to Back'), icon: 'back', accelerator: 'Ctrl+Alt+CmdOrCtrl+Down', run: () => doc.arrange('back') },
+        { text: L('Bring to Front'), icon: 'front', accelerator: `${FRONT}+Up`, run: () => doc.arrange('front') },
+        { text: L('Send to Back'), icon: 'back', accelerator: `${FRONT}+Down`, run: () => doc.arrange('back') },
         sep,
         { text: L('Show/Hide'), icon: 'eye', accelerator: 'CmdOrCtrl+Shift+H', run: () => doc.toggleHidden(doc.selectedIDs) },
         { text: L('Lock/Unlock'), icon: 'lock', accelerator: 'CmdOrCtrl+Shift+L', run: () => doc.toggleLocked(doc.selectedIDs) },
@@ -124,7 +129,10 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
         { text: L('Show/Hide Inspector'), accelerator: 'Alt+CmdOrCtrl+2', run: () => panels.toggle('inspector') },
       ],
     },
-    { text: L('Window'), items: [{ native: 'Minimize' }, { native: 'CloseWindow' }] },
+    { text: L('Window'), items: mac ? [{ native: 'Minimize' }, { native: 'CloseWindow' }] : [ // Linux: the native ones do nothing
+      { text: L('Minimize'), run: () => getCurrentWindow().minimize() },
+      { text: L('Close Window'), accelerator: 'CmdOrCtrl+W', run: () => quit(files) },
+    ] },
     { text: L('Help'), items: [{ text: L('Plume Documentation'), run: () => openURL(DOCS) }] },
   ];
 }

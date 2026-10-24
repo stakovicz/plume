@@ -4,7 +4,7 @@
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { L } from '$lib/i18n';
   import { Doc } from '$lib/document/doc.svelte';
-  import { TOOLS, toolTooltip } from '$lib/document/tool';
+  import { TOOLS, toolForKey, toolTooltip } from '$lib/document/tool';
   import { Files } from '$lib/app/files.svelte';
   import { installNativeMenu, menus, quit, runShortcut } from '$lib/app/commands';
   import { installClipboard, isTyping } from '$lib/app/clipboard';
@@ -75,6 +75,14 @@
       doc.option = e.altKey;
     }
     if (exporting || runShortcut(specs, e) || isTyping(e.target)) return; // a modal dialog has the keyboard
+    // Tool keys from anywhere but a text field (e.g. right after an inspector button), not only the canvas.
+    // The canvas handles its own (default prevented); the native menu does it under Tauri.
+    const tool = !e.defaultPrevented && toolForKey(e);
+    if (tool) {
+      e.preventDefault();
+      doc.tool = tool;
+      return;
+    }
     if ((e.key === 'Backspace' || e.key === 'Delete') && !e.metaKey) {
       e.preventDefault();
       doc.deleteSelected();
