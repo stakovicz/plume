@@ -50,7 +50,15 @@ styles différents dans un même texte, autres filtres, masques de luminance, dr
 
 | Groupe | Nom | Taille |
 |---|---|---|
-| Ordinateur | Desktop | 1440 × 1024 |
-| Ordinateur | Full HD | 1920 × 1080 |
+| Écran | HD | 1280 × 720 |
+| Écran | Desktop | 1440 × 1024 |
+| Écran | Full HD | 1920 × 1080 |
+| Écran | QHD | 2560 × 1440 |
+| Écran | 4K UHD | 3840 × 2160 |
+| Papier | A5 | 420 × 595 |
 | Papier | A4 | 595 × 842 |
+| Papier | A3 | 842 × 1191 |
 | Papier | Letter | 612 × 792 |
+| Papier | Legal | 612 × 1008 |
+
+Les formats papier sont en points : 1 pt = 1 px dans Plume, comme dans l'export PDF.
