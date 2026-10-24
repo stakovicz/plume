@@ -29,9 +29,9 @@ jobs:
           - { name: lint, run: npm run lint }
           - { name: site, run: npm run site } # presentation site and docs still build (published by pages.yml)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: lts/*
           cache: npm
