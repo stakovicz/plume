@@ -2,6 +2,7 @@
   import { tick } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { L } from '$lib/i18n';
+  import { mac } from '$lib/app/commands';
   import type { Doc } from '$lib/document/doc.svelte';
   import { type Layer, isContainer } from '$lib/model/layer';
   import { ancestors, find, parent } from '$lib/model/layer-tree';
@@ -45,7 +46,7 @@
   }
 
   function startDrag(e: PointerEvent, id: string) {
-    if (e.button !== 0 || e.metaKey || e.shiftKey) return;
+    if (e.button !== 0 || multiKey(e) || e.shiftKey) return;
     const x0 = e.clientX, y0 = e.clientY;
     const ids = doc.selectedIDs.has(id) ? [...doc.selectedIDs] : [id];
     const move = (ev: PointerEvent) => {
@@ -123,6 +124,8 @@
   /** ⌘-click toggles a layer; ⇧-click selects the visible rows from the last clicked one (`anchor`) to this one.
    *  A layer inside a group of the range is left out: the group already brings it along. */
   let anchor: string | null = null;
+  /** ⌘-click on macOS, Ctrl+click elsewhere (on macOS ⌃-click is a right click). */
+  const multiKey = (e: MouseEvent) => (mac ? e.metaKey : e.ctrlKey);
   function select(e: MouseEvent, id: string) {
     const rows = [...list.querySelectorAll<HTMLElement>('li[data-id]')].map((r) => r.dataset.id!); // display order
     const from = rows.indexOf(anchor ?? '') >= 0 ? anchor! : [...doc.selectedIDs].find((x) => rows.includes(x));
@@ -132,7 +135,7 @@
       return;
     }
     anchor = id;
-    if (e.metaKey || e.shiftKey) {
+    if (multiKey(e) || e.shiftKey) {
       const ids = new Set(doc.selectedIDs);
       if (ids.has(id)) ids.delete(id);
       else ids.add(id);
