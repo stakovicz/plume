@@ -24,6 +24,10 @@ const marked = new Marked({
 /** Links to Markdown pages point to their HTML (a folder's README.md is its index.html). */
 const htmlLinks = (html) => html.replace(/href="([^":#]*?)(README)?\.md(#[^"]*)?"/g, (_, path, readme, hash = '') => `href="${path}${readme ? 'index' : ''}.html${hash}"`);
 
+/** Links to GitHub open in a new tab (the site stays open), except file downloads, which would leave an empty one. */
+const githubInNewTab = (html) => html.replace(/<a ([^>]*?)href="(https:\/\/github\.com\/[^"]*)"/g,
+  (a, before, url) => (url.includes('/releases/download/') ? a : `<a ${before}href="${url}" target="_blank" rel="noopener"`));
+
 const template = readFileSync('site/page.html', 'utf8');
 const fill = (s, values) => s.replace(/\{\{(\w+)\}\}/g, (_, k) => {
   if (!(k in values)) throw new Error(`no value for {{${k}}}`);
@@ -37,10 +41,10 @@ function page(source, out, back) {
   const prefix = root ? `${root}/` : './';
   const title = html.match(/<h1[^>]*>(.*?)<\/h1>/)?.[1].replace(/<[^>]+>/g, '') ?? 'Plume';
   mkdirSync(dirname(join(OUT, out)), { recursive: true });
-  writeFileSync(join(OUT, out), fill(template, {
+  writeFileSync(join(OUT, out), githubInNewTab(fill(template, {
     title, root: prefix, source, content: html,
     back: back ? `<a class="back" href="${prefix}${back.href}">← ${back.text}</a>` : '',
-  }));
+  })));
 }
 
 /** The latest release, for the download buttons; null offline or rate-limited (they link to the releases page). */
@@ -69,11 +73,11 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT);
 
 const release = await latestRelease();
-writeFileSync(join(OUT, 'index.html'), fill(readFileSync('site/index.html', 'utf8'), {
+writeFileSync(join(OUT, 'index.html'), githubInNewTab(fill(readFileSync('site/index.html', 'utf8'), {
   version: release?.tag_name ?? '',
   mac: buttons(release, [['Apple Silicon', /aarch64\.dmg$/], ['Intel', /x64\.dmg$/]]),
   linux: buttons(release, [['AppImage', /\.AppImage$/], ['Debian, Ubuntu (.deb)', /\.deb$/], ['Fedora (.rpm)', /\.rpm$/]]),
-}));
+})));
 cpSync('site/style.css', join(OUT, 'style.css'));
 cpSync('site/img', join(OUT, 'img'), { recursive: true });
 
