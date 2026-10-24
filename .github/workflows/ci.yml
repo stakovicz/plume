@@ -16,8 +16,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # one job per check, run in parallel, each shown (and required) on its own in a pull request
   check:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: tests, run: npm test }
+          - { name: types, run: npm run check }
+          - { name: lint, run: npm run lint }
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +36,4 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm test
-      - run: npm run check
-      - run: npm run lint
+      - run: ${{ matrix.run }}
