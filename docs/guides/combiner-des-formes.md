@@ -1,5 +1,7 @@
 # Combiner des formes
 
+Réunir, soustraire ou croiser des formes pour en obtenir une seule, et transformer une bordure en forme pleine.
+
 ## Combiner
 
 1. Sélectionnez au moins deux calques **de même parent** (⇧-clic). Ni verrouillés, ni plans de travail.

@@ -1,5 +1,7 @@
 # Calques, groupes et plans de travail
 
+Comment Plume organise un document : une pile de calques, des groupes sans forme propre, des calques pivotés qui gardent leur géométrie droite et des plans de travail qui découpent leur contenu.
+
 ## Un arbre de calques
 
 Un document Plume est une pile de calques. Certains calques en contiennent d'autres : les **groupes** et les

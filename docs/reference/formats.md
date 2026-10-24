@@ -1,5 +1,7 @@
 # Formats de fichier
 
+Le format des documents Plume, ce que l'import SVG reprend et ignore, les formats d'export et les tailles prédéfinies de plans de travail.
+
 ## Document Plume (`.json`)
 
 Le seul format qui conserve tout : calques, groupes, plans de travail, styles, couleurs du document.

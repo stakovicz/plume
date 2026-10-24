@@ -1,5 +1,7 @@
 # Importer un SVG
 
+Ouvrir un fichier SVG comme document, coller un SVG copié ailleurs ou glisser des fichiers SVG sur le canevas.
+
 ## Ouvrir un SVG comme document
 
 **Fichier › Ouvrir…** (⌘O) et choisissez un `.svg`. Plume crée un nouveau document :
