@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- Demo illustration pasted into the web editor (Full HD artboard, then ungrouped) for the site screenshots. -->
+  <defs>
+    <linearGradient id="sky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1080">
+      <stop offset="0" stop-color="#2B2D6E"/><stop offset="0.65" stop-color="#C9547A"/><stop offset="1" stop-color="#FF9A4D"/>
+    </linearGradient>
+    <radialGradient id="sun" gradientUnits="userSpaceOnUse" cx="1340" cy="640" r="190">
+      <stop offset="0" stop-color="#FFE29A"/><stop offset="1" stop-color="#FF6F00"/>
+    </radialGradient>
+  </defs>
+  <rect id="Ciel" x="0" y="0" width="1920" height="1080" fill="url(#sky)"/>
+  <circle id="Soleil" cx="1340" cy="640" r="190" fill="url(#sun)"/>
+  <path id="Montagne lointaine" d="M0 760 C 220 600 380 560 560 660 C 720 540 900 470 1100 620 C 1300 520 1520 560 1700 650 C 1800 610 1880 620 1920 640 L 1920 1080 L 0 1080 Z" fill="#6B3F7E"/>
+  <path id="Montagne" d="M0 860 C 260 700 480 690 700 800 C 900 700 1080 690 1260 820 C 1450 740 1700 760 1920 840 L 1920 1080 L 0 1080 Z" fill="#3A2350"/>
+  <path id="Lac" d="M0 960 C 400 930 800 990 1200 950 C 1500 925 1750 960 1920 945 L 1920 1080 L 0 1080 Z" fill="#241634"/>
+  <path id="Oiseau 1" d="M960 300 C 990 270 1020 270 1040 300 C 1060 270 1090 270 1120 300" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-opacity="0.85"/>
+  <path id="Oiseau 2" d="M1110 380 C 1130 360 1150 360 1164 380 C 1178 360 1198 360 1218 380" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-opacity="0.7"/>
+  <text id="Titre" x="160" y="200" font-family="Fira Sans" font-size="150" font-weight="700" fill="#FFFFFF">Plume</text>
+  <text id="Sous-titre" x="166" y="275" font-family="Fira Sans" font-size="46" fill="#FFFFFF" fill-opacity="0.8">Dessiner, simplement.</text>
+</svg>
