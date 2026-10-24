@@ -25,7 +25,7 @@ Un plan de travail ne pivote pas et ne se retourne pas.
 
 ## Changer son fond
 
-Section **Fond** de l'inspecteur ; par défaut, blanc à 50 % d'opacité. Un fond transparent (opacité 0) donne un PNG transparent à l'export.
+Section **Fond** de l'inspecteur. Un fond transparent (opacité 0) donne un PNG transparent à l'export.
 
 ## Mettre des calques dedans ou les en sortir
 

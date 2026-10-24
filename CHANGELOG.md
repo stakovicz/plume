@@ -26,7 +26,7 @@
   (A5, A4, A3, Letter, Legal) ; les formats de téléphones, tablettes et réseaux sociaux sont retirés.
 - Les champs numériques de l'inspecteur et le champ hexadécimal des couleurs utilisent Fira Sans avec un zéro
   barré : 0 et O ne se confondent plus.
-- Un nouveau plan de travail a un fond blanc à 50 % d'opacité.
+- Un rectangle ou un ovale dessiné est rempli d'orange (#FF6F00) à 70 % d'opacité, au lieu de gris.
 - Panneau de couleur : Retour dans un champ valide et ferme le panneau.
 - **Gros documents plus fluides** : glisser sur le canevas (crayon, redimensionner, pivoter, éditer des points) ne
   resérialise plus tout le document à chaque mouvement ; un curseur de l'inspecteur non plus. Clic dans le vide,

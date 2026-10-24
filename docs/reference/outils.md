@@ -19,10 +19,10 @@ L'outil Plan de travail n'est pas dans la barre d'outils : il s'obtient avec **A
 
 | Calque | Remplissage | Bordure |
 |---|---|---|
-| Rectangle, ovale | gris | noire, 1 px |
+| Rectangle, ovale | orange #FF6F00 à 70 % d'opacité | noire, 1 px |
 | Tracé (plume, crayon) | aucun | noire, 2 px |
 | Texte | noir (Fira Sans, 16 px) | aucune |
-| Plan de travail | fond blanc à 50 % d'opacité | aucune |
+| Plan de travail | fond blanc | aucune |
 
 Une forme tracée d'un simple clic (moins de 2 pixels à l'écran) est abandonnée.
 

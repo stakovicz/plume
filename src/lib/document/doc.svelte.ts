@@ -1,6 +1,6 @@
 import { L } from '$lib/i18n';
 import { type Affine, type PointType, type Pt, type Rect, intersects, midX, midY, node, pt, union } from '$lib/model/geometry';
-import { type RGBA, BLACK, CLEAR, eqColor } from '$lib/model/color';
+import { type RGBA, BLACK, CLEAR, SHAPE_FILL, eqColor } from '$lib/model/color';
 import { type Kind, type Layer, asPath, bounds, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newLayer, refit } from '$lib/model/layer';
 import { DEFAULT_TEXT } from '$lib/model/text';
 import { ancestors, find, inTreeOrder, nextName, parent, remove, siblings, update } from '$lib/model/layer-tree';
@@ -173,7 +173,7 @@ export class Doc {
       ? newLayer(name, kind, [], { subpaths: [{ nodes: [node(p)], closed: false }], fill: CLEAR, strokeWidth: 2 })
       : kind === 'artboard' ? newArtboard(name, [p, p])
       : kind === 'text' ? newLayer(name, kind, [p, p], { fill: BLACK, strokeWidth: 0, text: { ...DEFAULT_TEXT } })
-      : newLayer(name, kind, [p, p]);
+      : newLayer(name, kind, [p, p], { fill: SHAPE_FILL });
     list.push(l);
     this.selection = l.id;
   }

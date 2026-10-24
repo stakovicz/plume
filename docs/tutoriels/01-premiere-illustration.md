@@ -23,7 +23,7 @@ Un plan de travail est la « page » que vous exporterez.
 1. Appuyez sur **A** (outil Plan de travail). L'inspecteur affiche des tailles prêtes à l'emploi.
 2. Dans la section **Écran**, cliquez sur **1920 × 1080** (Full HD).
 
-Un plan de travail apparaît, cadré dans la fenêtre, avec un fond blanc à 50 % d'opacité. Son nom, « Full HD », s'affiche au-dessus.
+Un plan de travail blanc apparaît, cadré dans la fenêtre. Son nom, « Full HD », s'affiche au-dessus.
 Plume est revenu à l'outil Sélection.
 
 ## 3. Dessiner le soleil
@@ -35,8 +35,10 @@ Plume est revenu à l'outil Sélection.
 Le cercle est sélectionné : huit poignées l'entourent et l'inspecteur montre ses réglages.
 
 3. Dans l'inspecteur, section **Remplissage**, cliquez sur la pastille de couleur.
-4. Dans le champ **Hex** du panneau, tapez `F5B700` puis **Retour**. Le cercle devient jaune.
-5. Cliquez ailleurs pour fermer le panneau. Section **Bordure**, mettez **Épaisseur** à `0` puis **Retour** :
+4. Une nouvelle forme est orange et un peu transparente (70 %). Dans le champ à droite de **Hex**, mettez
+   l'opacité à `100` puis **Retour** : le panneau se ferme.
+5. Rouvrez la pastille, tapez `F5B700` dans **Hex** puis **Retour** : le cercle devient jaune.
+6. Section **Bordure**, mettez **Épaisseur** à `0` puis **Retour** :
    le contour noir disparaît.
 
 ## 4. Dessiner le sol en dégradé
@@ -44,12 +46,13 @@ Le cercle est sélectionné : huit poignées l'entourent et l'inspecteur montre 
 1. Appuyez sur **R** (outil Rectangle) et glissez sur toute la largeur du bas du plan de travail.
 2. Section **Remplissage**, ouvrez la pastille de couleur et choisissez **Linéaire** en haut du panneau.
 
-Le rectangle se remplit d'un dégradé qui va de haut en bas (**Angle** 180°), du gris vers le transparent.
+Le rectangle se remplit d'un dégradé qui va de haut en bas (**Angle** 180°), de l'orange vers le transparent.
 Sous le sélecteur de type, la barre montre ses **arrêts** : à gauche la couleur du haut, à droite celle du bas.
 
-3. Cliquez sur l'arrêt de gauche, puis tapez `2E7D32` dans **Hex** et **Retour**.
-4. Cliquez sur l'arrêt de droite, tapez `A5D6A7` et **Retour**. Cet arrêt est encore transparent :
-   à côté de **Hex**, mettez l'opacité à `100` et **Retour**.
+3. Cliquez sur l'arrêt de gauche, mettez son opacité à `100` (champ à droite de **Hex**) et **Retour** :
+   le panneau se ferme. Rouvrez-le, cliquez sur l'arrêt de gauche, tapez `2E7D32` dans **Hex** et **Retour**.
+4. Rouvrez le panneau, cliquez sur l'arrêt de droite, mettez son opacité à `100` et **Retour** ;
+   rouvrez-le, cliquez sur l'arrêt de droite, tapez `A5D6A7` dans **Hex** et **Retour**.
 
 Retirez aussi la bordure : **Épaisseur** à `0`.
 
