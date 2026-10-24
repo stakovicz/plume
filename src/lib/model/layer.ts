@@ -66,7 +66,7 @@ const EMPTY: Rect = { x: 0, y: 0, width: 0, height: 0 };
 export const isContainer = (l: Layer) => l.kind === 'group' || l.kind === 'artboard';
 
 export const newArtboard = (name: string, points: Pt[]) =>
-  newLayer(name, 'artboard', points, { fill: { r: 1, g: 1, b: 1, a: 1 }, stroke: { r: 0, g: 0, b: 0, a: 0 }, strokeWidth: 0 });
+  newLayer(name, 'artboard', points, { fill: { r: 1, g: 1, b: 1, a: 0.5 }, stroke: { r: 0, g: 0, b: 0, a: 0 }, strokeWidth: 0 });
 
 /** Unrotated bounds of the stored geometry. */
 export function localBounds(l: Layer): Rect {

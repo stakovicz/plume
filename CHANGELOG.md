@@ -22,9 +22,12 @@
 ### Modifications
 
 - Mise en page et vectorisation du texte par fontkit (au lieu d'opentype.js).
-- Tailles de plan de travail : des formats génériques d'écran (HD, Desktop, Full HD, QHD, 4K UHD) et de papier
+- Tailles de plan de travail : des formats génériques d'écran (HD, Desktop, Full HD, QHD, 4K UHD, Carré) et de papier
   (A5, A4, A3, Letter, Legal) ; les formats de téléphones, tablettes et réseaux sociaux sont retirés.
-- Les champs numériques de l'inspecteur utilisent Fira Sans avec un zéro barré : 0 et O ne se confondent plus.
+- Les champs numériques de l'inspecteur et le champ hexadécimal des couleurs utilisent Fira Sans avec un zéro
+  barré : 0 et O ne se confondent plus.
+- Un nouveau plan de travail a un fond blanc à 50 % d'opacité.
+- Panneau de couleur : Retour dans un champ valide et ferme le panneau.
 - **Gros documents plus fluides** : glisser sur le canevas (crayon, redimensionner, pivoter, éditer des points) ne
   resérialise plus tout le document à chaque mouvement ; un curseur de l'inspecteur non plus. Clic dans le vide,
   enregistrement et sélection multiple plus rapides.

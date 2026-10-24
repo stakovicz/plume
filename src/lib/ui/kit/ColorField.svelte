@@ -149,9 +149,19 @@
 <div
   id="color-{uid}"
   class="panel"
+  role="dialog"
+  tabindex="-1"
+  aria-label={label}
   popover="auto"
   style:position-anchor="--color-{uid}"
   ontoggle={(e) => { if (e.newState === 'open') { sel = 0; syncFromColor(); } }}
+  onkeydown={(e) => {
+    // Return in a field: the field commits (its own handler runs first), then the panel closes. Default prevented:
+    // focus goes back to the swatch, which the same key press would otherwise click, reopening the panel
+    if (e.key !== 'Enter' || !(e.target instanceof HTMLInputElement)) return;
+    e.preventDefault();
+    e.currentTarget.hidePopover();
+  }}
 >
   {#if ongradient}
     <Segmented label={L('Fill type')} value={kind} onchange={setKind}
@@ -363,8 +373,9 @@
     border: var(--hairline) solid var(--border-strong);
     border-radius: var(--radius-1);
     background: var(--field);
-    font-family: var(--font-mono);
+    font-family: var(--font-numeric);
     font-size: var(--text-12);
+    font-variant-numeric: tabular-nums slashed-zero;
     outline: none;
     user-select: text;
     -webkit-user-select: text;

@@ -23,7 +23,7 @@ Un plan de travail est la « page » que vous exporterez.
 1. Appuyez sur **A** (outil Plan de travail). L'inspecteur affiche des tailles prêtes à l'emploi.
 2. Dans la section **Écran**, cliquez sur **1920 × 1080** (Full HD).
 
-Un plan de travail blanc apparaît, cadré dans la fenêtre. Son nom, « Full HD », s'affiche au-dessus.
+Un plan de travail apparaît, cadré dans la fenêtre, avec un fond blanc à 50 % d'opacité. Son nom, « Full HD », s'affiche au-dessus.
 Plume est revenu à l'outil Sélection.
 
 ## 3. Dessiner le soleil

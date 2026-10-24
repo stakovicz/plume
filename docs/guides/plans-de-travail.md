@@ -6,7 +6,7 @@ comme un fichier à part.
 ## Créer un plan de travail
 
 - **À une taille prédéfinie** : appuyez sur **A** ; l'inspecteur liste des formats d'écran
-  (HD à 4K) et de papier (A5 à A3, Letter, Legal). Un clic ajoute le plan de travail à droite des autres.
+  (HD à 4K, carré) et de papier (A5 à A3, Letter, Legal). Un clic ajoute le plan de travail à droite des autres.
 - **À la main** : avec **A**, glissez sur le canevas.
 
 Un plan de travail dessiné par-dessus des calques existants les prend s'ils tiennent entièrement dedans.
@@ -25,7 +25,7 @@ Un plan de travail ne pivote pas et ne se retourne pas.
 
 ## Changer son fond
 
-Section **Fond** de l'inspecteur. Un fond transparent (opacité 0) donne un PNG transparent à l'export.
+Section **Fond** de l'inspecteur ; par défaut, blanc à 50 % d'opacité. Un fond transparent (opacité 0) donne un PNG transparent à l'export.
 
 ## Mettre des calques dedans ou les en sortir
 
