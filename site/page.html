@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}} — Plume</title>
+  <link rel="icon" href="{{root}}img/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{root}}style.css">
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="{{root}}"><img src="{{root}}img/icon.svg" alt="" width="28" height="28">Plume</a>
+    <nav>
+      <a href="{{root}}docs/">Documentation</a>
+      <a href="{{root}}#telecharger">Télécharger</a>
+      <a href="{{root}}app/">Essayer</a>
+      <a href="https://github.com/stakovicz/plume">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="doc">
+    {{back}}
+    <article>
+{{content}}
+    </article>
+  </main>
+
+  <footer>
+    <p>Plume · <a href="{{root}}docs/">Documentation</a> · <a href="{{root}}changelog.html">Nouveautés</a> ·
+      <a href="https://github.com/stakovicz/plume/blob/main/{{source}}">Modifier cette page</a> · Licence MIT</p>
+  </footer>
+</body>
+</html>

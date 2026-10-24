@@ -1,4 +1,5 @@
 import { isTauri, invoke } from '@tauri-apps/api/core';
+import { base } from '$app/paths';
 import type { Layer } from '$lib/model/layer';
 import { FONTS, familyOf, hasFamily, registerFont, trueTypeFace } from '$lib/model/text';
 
@@ -14,7 +15,7 @@ const files: FontFile[] = [];
 /** Settles once every font is loaded or failed (a missing font falls back to an estimate, not a blank canvas). */
 export const fontsReady: Promise<void> = Promise.allSettled(
   FONTS.flatMap((f) => Object.entries(f.files).map(async ([w, file]) => {
-    const data = await (await fetch(`/fonts/${file}`)).arrayBuffer();
+    const data = await (await fetch(`${base}/fonts/${file}`)).arrayBuffer();
     registerFont(f.family, +w, data);
     document.fonts.add(new FontFace(f.family, data, { weight: w }));
     files.push({ family: f.family, weight: +w, file, data });

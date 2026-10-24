@@ -15,6 +15,8 @@
   Les polices .otf (contours CFF) restent remplacées par Times dans les PDF.
 - **Sélection au lasso** : glisser depuis une zone vide du canevas trace un rectangle qui sélectionne les calques
   visibles qu'il touche ; ⇧ ajoute à la sélection.
+- **Site de Plume** : https://stakovicz.github.io/plume/ — présentation, téléchargements, documentation et version web
+  à essayer dans le navigateur, publiés depuis GitHub.
 - **Menu Aide › Documentation de Plume** : ouvre la documentation d'utilisation dans le navigateur.
 - **Tout sélectionner** (⌘A) sélectionne les calques : ceux du groupe en cours, sinon tous les calques visibles,
   ceux des plans de travail compris. Dans un champ, ⌘A sélectionne toujours son texte.

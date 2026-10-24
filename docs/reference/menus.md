@@ -63,4 +63,4 @@ Réduire (⌘M) · Fermer la fenêtre (⌘W, propose d'enregistrer).
 
 ## Aide
 
-Documentation de Plume : ouvre cette documentation dans le navigateur.
+Documentation de Plume : ouvre cette documentation, sur le site de Plume, dans le navigateur.

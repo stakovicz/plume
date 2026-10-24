@@ -129,7 +129,7 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
 }
 
 const SITE = 'https://github.com/stakovicz/plume';
-const DOCS = `${SITE}/blob/main/docs/README.md`;
+const DOCS = 'https://stakovicz.github.io/plume/docs/';
 
 /** A web page in the default browser (the app's web view would replace the editor). */
 const openURL = (url: string) => (isTauri() ? invoke('open_url', { url }) : window.open(url, '_blank', 'noopener'));

@@ -12,6 +12,9 @@ const config = {
     adapter: adapter({
       fallback: "index.html",
     }),
+    // The web version lives under the presentation site (BASE_PATH=/plume/app, see scripts/site.js);
+    // the desktop app and `npm run dev` serve it at the root.
+    paths: { base: process.env.BASE_PATH ?? "" },
   },
 };
 
