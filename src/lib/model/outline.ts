@@ -126,6 +126,7 @@ export function outlined(l: Layer): Layer | null {
   const out: Layer = {
     ...l, kind: 'path', points: [], subpaths, evenOdd: false,
     fill: l.stroke, fillGradient: l.strokeGradient, strokeGradient: undefined, strokeWidth: 0, dash: [],
+    stroke: { ...l.stroke, a: 0 }, // no border left at all: SVG export writes stroke="none", as an outlined icon expects
   };
   return keepingPlace(out, l);
 }

@@ -17,6 +17,7 @@ Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj
 | Nouveau | ⌘N | document vide (propose d'enregistrer les modifications) |
 | Ouvrir… | ⌘O | document `.json` ou image `.svg` |
 | Ouvrir l'élément récent | | dix derniers fichiers (application de bureau) ; Effacer le menu |
+| Exemples | | Illustration, Icône d'application, Affiche, Tableau de bord, Pictogrammes, Motif : ouverts comme un nouveau document sans titre |
 | Enregistrer | ⌘S | dans le fichier en cours, ou demande où (navigateur : téléchargement) |
 | Enregistrer sous… | ⇧⌘S | nouveau fichier `.json` |
 | Exporter… | ⌘E | PDF, SVG, PNG, JPG (voir [Exporter](../guides/exporter.md)) |
@@ -66,4 +67,4 @@ Réduire (⌘M ; sans raccourci sous Linux) · Fermer la fenêtre (⌘W, Ctrl+W 
 
 ## Aide
 
-Documentation de Plume : ouvre cette documentation dans le navigateur.
+Documentation de Plume : ouvre cette documentation, sur le site de Plume, dans le navigateur.

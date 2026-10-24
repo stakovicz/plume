@@ -15,6 +15,10 @@
   Les polices .otf (contours CFF) restent remplacées par Times dans les PDF.
 - **Sélection au lasso** : glisser depuis une zone vide du canevas trace un rectangle qui sélectionne les calques
   visibles qu'il touche ; ⇧ ajoute à la sélection.
+- **Site de Plume** : https://stakovicz.github.io/plume/ — présentation, téléchargements, documentation et version web
+  à essayer dans le navigateur, publiés depuis GitHub.
+- **Fichier › Exemples** : six SVG d'exemple (illustration, icône d'application, affiche, tableau de bord,
+  pictogrammes, motif) à ouvrir et retoucher. La version web s'ouvre sur l'illustration.
 - **Menu Aide › Documentation de Plume** : ouvre la documentation d'utilisation dans le navigateur.
 - **Tout sélectionner** (⌘A) sélectionne les calques : ceux du groupe en cours, sinon tous les calques visibles,
   ceux des plans de travail compris. Dans un champ, ⌘A sélectionne toujours son texte.
@@ -42,6 +46,9 @@
   (version web) ; elles restent sans effet pendant la saisie dans un champ.
 - Un clic, sans glisser, sur l'un des calques d'une sélection multiple ne sélectionne plus que lui, comme dans le
   navigateur ; glisser déplace toujours toute la sélection.
+- Inspecteur, section Texte : le réglage Auto / Fixe s'appelait « Épaisseur » en français ; il s'appelle « Largeur ».
+- Une forme vectorisée (Vectoriser le contour) n'a plus du tout de bordure : l'export SVG écrit `stroke="none"`
+  au lieu d'une bordure d'épaisseur 0, comme l'attend une icône pleine.
 - Le code hexadécimal tapé dans le panneau de couleur était perdu en quittant le champ par Tab ou un clic : il est appliqué.
 - Un tracé de plusieurs centaines de milliers de points (SVG importé) faisait planter le calcul de ses limites.
 - Un groupe sélectionné avec l'un de ses calques : le déplacement, le retournement et l'export ne s'appliquent

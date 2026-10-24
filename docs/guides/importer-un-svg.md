@@ -10,6 +10,8 @@
 
 Le document est **sans titre** : ⌘S enregistre un nouveau document `.json`, le fichier SVG d'origine n'est jamais modifié.
 
+Pour essayer sans fichier : **Fichier › Exemples** ouvre l'un des SVG d'exemple fournis avec Plume.
+
 ## Coller un SVG
 
 Copiez un SVG depuis une autre application (en tant que code, fichier ou image dans une page web), puis

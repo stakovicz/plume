@@ -6,7 +6,7 @@ import { L } from '$lib/i18n';
 import type { Doc } from '$lib/document/doc.svelte';
 import { TOOLS, toolKey, toolTitle } from '$lib/document/tool';
 import { type IconName, iconSVG } from '$lib/ui/kit/Icon.svelte';
-import type { Files } from './files.svelte';
+import { type Files, EXAMPLES } from './files.svelte';
 import { isTyping } from './clipboard';
 
 /** The menu bar, defined once: native menus under Tauri, the same shortcuts by keydown in a browser. */
@@ -59,6 +59,7 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
             { text: L('Clear Menu'), enabled: files.recents.length > 0, run: () => files.clearRecents() },
           ],
         },
+        { submenu: L('Examples'), items: EXAMPLES.map(([file, title]) => ({ text: title, run: () => files.openExample(file, title) })) },
         sep,
         { text: L('Save'), accelerator: 'CmdOrCtrl+S', run: () => files.save() },
         { text: L('Save As…'), accelerator: 'CmdOrCtrl+Shift+S', run: () => files.saveAs() },
@@ -137,7 +138,7 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
 }
 
 const SITE = 'https://github.com/stakovicz/plume';
-const DOCS = `${SITE}/blob/main/docs/README.md`;
+const DOCS = 'https://stakovicz.github.io/plume/docs/';
 
 /** A web page in the default browser (the app's web view would replace the editor). */
 const openURL = (url: string) => (isTauri() ? invoke('open_url', { url }) : window.open(url, '_blank', 'noopener'));

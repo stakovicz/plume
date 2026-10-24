@@ -28,3 +28,5 @@ Un **texte** devient ses lettres en tracés : il n'est plus modifiable comme tex
 partout (voir [Fidélité du rendu et des exports](../explications/rendu-et-exports.md)).
 
 Les calques sans bordure visible, les groupes et les calques verrouillés ne changent pas.
+
+Pas à pas pour une icône : [Transformer une icône au trait en icône pleine](icone-au-trait-en-icone-pleine.md).

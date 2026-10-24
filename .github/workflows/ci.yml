@@ -27,6 +27,7 @@ jobs:
           - { name: tests, run: npm test }
           - { name: types, run: npm run check }
           - { name: lint, run: npm run lint }
+          - { name: site, run: npm run site } # presentation site and docs still build (published by pages.yml)
     steps:
       - uses: actions/checkout@v4
 

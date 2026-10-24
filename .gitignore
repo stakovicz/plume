@@ -4,6 +4,7 @@
 .env.*
 /.svelte-kit
 /build
+/_site
 /package
 dist/
 node_modules

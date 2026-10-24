@@ -220,6 +220,7 @@ describe('convert to outlines', () => {
     expect(nearRect(bounds(l), b)).toBe(true);
     expect(l.fill).toEqual(BLACK);
     expect(l.strokeWidth).toBe(0);
+    expect(l.stroke.a).toBe(0);
   });
 
   test('open path: caps', () => {

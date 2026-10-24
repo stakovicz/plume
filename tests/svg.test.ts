@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 import { apply, pathBounds, pt } from '$lib/model/geometry';
 import { BLACK, GRAY } from '$lib/model/color';
@@ -8,6 +9,7 @@ import { parsePath } from '$lib/model/path-data';
 import { importSVG } from '$lib/svg/import';
 import { artboardSVG, documentSVG, layerSVG } from '$lib/svg/export';
 import { Doc } from '$lib/document/doc.svelte';
+import { EXAMPLES } from '$lib/app/files.svelte';
 import { near, nearRect, rect } from './helpers';
 
 /** What an import holds: the content of the artboard every SVG now opens into. */
@@ -202,4 +204,17 @@ test('imported shapes resize freely, imported groups keep proportions', () => {
   expect(r.lockRatio).toBe(false);
   expect(g.lockRatio).toBe(true);
   expect(g.children.every((c) => !c.lockRatio)).toBe(true);
+});
+
+describe('examples (File › Examples, the web version at launch)', () => {
+  const dir = 'static/exemples';
+  test.each(readdirSync(dir).filter((f) => f.endsWith('.svg')))('%s opens as one artboard of layers', (file) => {
+    const [a] = importSVG(readFileSync(`${dir}/${file}`, 'utf8'), file);
+    expect(a.kind).toBe('artboard');
+    expect(a.children.length).toBeGreaterThan(3);
+    expect(a.children.every((l) => !Number.isNaN(bounds(l).width))).toBe(true);
+  });
+  test('every example is in the menu', () => {
+    expect(EXAMPLES.map(([f]) => `${f}.svg`).toSorted()).toEqual(readdirSync(dir).filter((f) => f.endsWith('.svg')).toSorted());
+  });
 });

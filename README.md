@@ -25,6 +25,8 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 
 ## Documentation
 
+Site : **https://stakovicz.github.io/plume/** (présentation, téléchargements, version web à essayer).
+
 La [documentation d'utilisation](docs/README.md) est organisée en tutoriels, guides pratiques, référence
 et explications. Pour commencer : [Votre première illustration](docs/tutoriels/01-premiere-illustration.md).
 Tous les raccourcis : [docs/reference/raccourcis.md](docs/reference/raccourcis.md).

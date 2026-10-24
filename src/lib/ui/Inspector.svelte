@@ -297,9 +297,9 @@
         <Row label={L('Alignment')}>
           <Segmented label={L('Alignment')} value={pPick((x) => x.text!.align)} options={options(TEXT_ALIGNS)} disabled={locked} onchange={(align) => textStyle({ align })} />
         </Row>
-        <Row label={L('Width')}>
+        <Row label={L('Box width')}>
           <!-- auto: fits the longest line; fixed: lines wrap at the box width (resize the box to change it) -->
-          <Segmented label={L('Width')} value={pPick((x) => (x.text!.autoWidth ? 'auto' : 'fixed'))} options={options(['auto', 'fixed'])} disabled={locked}
+          <Segmented label={L('Box width')} value={pPick((x) => (x.text!.autoWidth ? 'auto' : 'fixed'))} options={options(['auto', 'fixed'])} disabled={locked}
             onchange={(w) => textStyle({ autoWidth: w === 'auto' })} />
         </Row>
         <Row label={!pMulti && lp.fillGradient ? L('Gradient') : L('Color')} single>
