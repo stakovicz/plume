@@ -54,6 +54,7 @@ Actifs quand le canevas a le clavier (jamais pendant la saisie dans un champ).
 |---|---|
 | Annuler / Rétablir | ⌘Z / ⇧⌘Z |
 | Copier / Couper / Coller / Dupliquer | ⌘C / ⌘X / ⌘V / ⌘D |
+| Tout sélectionner (calques visibles du niveau en cours : groupe ouvert, sinon hors des plans de travail et dedans) | ⌘A |
 | Supprimer la sélection (ou le point sélectionné en édition de points) | ⌫ / Suppr |
 | Déplacer de 1 px / 10 px | ← → ↑ ↓ / ⇧ + flèche |
 | Éditer les points d'un tracé (ou le texte d'un calque texte) | Retour, ou double-clic |

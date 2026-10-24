@@ -13,7 +13,7 @@ import { isTyping } from './clipboard';
 
 /** `key`: a shortcut handled elsewhere (tool keys, on the canvas), shown in the browser menu bar only, like `icon`. */
 export type Command = { text: string; accelerator?: string; key?: string; icon?: IconName; enabled?: boolean; run: () => unknown };
-type Native = { native: 'Separator' | 'Cut' | 'Copy' | 'Paste' | 'SelectAll' | 'Hide' | 'HideOthers' | 'ShowAll' | 'Services' | 'Minimize' | 'CloseWindow' | 'About' };
+type Native = { native: 'Separator' | 'Cut' | 'Copy' | 'Paste' | 'Hide' | 'HideOthers' | 'ShowAll' | 'Services' | 'Minimize' | 'CloseWindow' | 'About' };
 export type Item = Command | Native | { submenu: string; icon?: IconName; items: Item[] };
 export type MenuSpec = { text: string; items: Item[] };
 
@@ -22,6 +22,13 @@ const sep: Native = { native: 'Separator' };
 /** Closing the window or quitting goes through the save prompt; Cancel keeps the window. */
 export async function quit(files: Files) {
   if (await files.confirmDiscardChanges()) await getCurrentWindow().destroy();
+}
+
+/** ⌘A: the text of the focused field, else the layers. */
+function selectAll(doc: Doc) {
+  const t = document.activeElement;
+  if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement) t.select();
+  else if (!isTyping(t)) doc.selectAll();
 }
 
 /** Window parts the menus open or toggle: side panels (View menu), the export dialog. */
@@ -63,7 +70,8 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
         // native: text fields need them on macOS; on layers they fire the DOM clipboard events (app/clipboard.ts)
         { native: 'Cut' }, { native: 'Copy' }, { native: 'Paste' },
         { text: L('Duplicate'), accelerator: 'CmdOrCtrl+D', run: () => doc.duplicate() },
-        { native: 'SelectAll' },
+        // not the native item: it would select the page's text, never layers; text fields still get their own
+        { text: L('Select All'), accelerator: 'CmdOrCtrl+A', run: () => selectAll(doc) },
       ],
     },
     // single-letter accelerators: the native menu disables them while typing (see installNativeMenu); in a
@@ -136,7 +144,7 @@ const about = () => ({
 /** Titles of the standard items, which macOS leaves in English (the app bundle has no localizations). */
 const nativeText = (): Partial<Record<Native['native'], string>> => ({
   About: L('About Plume'), Services: L('Services'), Hide: L('Hide Plume'), HideOthers: L('Hide Others'), ShowAll: L('Show All'),
-  Cut: L('Cut'), Copy: L('Copy'), Paste: L('Paste'), SelectAll: L('Select All'), Minimize: L('Minimize'), CloseWindow: L('Close Window'),
+  Cut: L('Cut'), Copy: L('Copy'), Paste: L('Paste'), Minimize: L('Minimize'), CloseWindow: L('Close Window'),
 });
 
 /** Items with a modifier-less accelerator (tool keys), disabled while a text field has focus so the key reaches it:

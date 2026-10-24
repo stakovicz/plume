@@ -282,6 +282,14 @@ export class Doc {
     this.selectedIDs = new Set([...this.selectedIDs].filter((id) => !deletable.has(id)));
   }
 
+  /** ⌘A: the visible layers clicks pick among: the group being worked in, else the top-level layers,
+   *  an artboard standing for its children. */
+  selectAll() {
+    const first = [...this.selectedIDs][0], home = first ? parent(this.layers, first) : null;
+    const scope = home?.kind === 'group' ? home.children : this.layers.flatMap((l) => (l.kind === 'artboard' ? l.children : [l]));
+    this.selectedIDs = new Set(scope.filter((l) => !this.isHidden(l.id)).map((l) => l.id));
+  }
+
   // MARK: Visibility & locking
 
   /** ⇧⌘H / eye button: hides all of `ids` unless they're all hidden already (then shows them). */
