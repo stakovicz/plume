@@ -1,5 +1,7 @@
 # Fidélité du rendu et des exports
 
+Pourquoi un dessin s'affiche presque à l'identique dans Plume et dans un export SVG, PNG ou JPG, ce qu'un PDF perd, et comment les polices voyagent ou non.
+
 ## Le canevas est du SVG
 
 Plume dessine le canevas en SVG, par le moteur du navigateur intégré. Ce que vous voyez est donc très proche

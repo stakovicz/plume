@@ -1,5 +1,7 @@
 # Écrire et mettre en forme du texte
 
+Créer un texte sur une ligne ou dans un cadre, choisir sa police, sa taille et son alignement, et le vectoriser pour un rendu identique partout.
+
 ## Créer un texte
 
 Appuyez sur **T**, puis :

@@ -1,5 +1,7 @@
 # Organiser les calques
 
+Sélectionner, déplacer, grouper, ordonner, renommer, masquer et verrouiller les calques d'un document.
+
 ## Sélectionner
 
 - **Un calque** : clic sur le canevas, ou dans le navigateur.

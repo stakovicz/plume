@@ -1,5 +1,7 @@
 # Bordures : centre, intérieur, extérieur
 
+Pourquoi Plume propose des bordures centrées, intérieures ou extérieures, comment elles suivent un redimensionnement, et ce que change leur vectorisation.
+
 ## Où passe le trait
 
 En SVG, comme dans la plupart des formats vectoriels, un trait est toujours **centré** sur le contour : une

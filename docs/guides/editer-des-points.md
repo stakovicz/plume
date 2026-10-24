@@ -1,5 +1,7 @@
 # Modifier les points d'un tracé
 
+Ajouter, déplacer ou supprimer les points d'un tracé et régler leurs poignées, pour retoucher une forme point par point.
+
 ## Entrer en édition de points
 
 Sélectionnez la forme, puis **Retour** ou double-clic. Un rectangle ou un ovale est d'abord converti en tracé

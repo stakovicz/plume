@@ -1,5 +1,7 @@
 # Annulation et enregistrement
 
+Ce que ⌘Z annule, jusqu'où remonte l'historique, et comment Plume sait qu'un document a des modifications à enregistrer.
+
 ## Une étape par geste
 
 Chaque geste complet est **une** étape d'annulation : un déplacement du clic au relâchement, une forme dessinée,
