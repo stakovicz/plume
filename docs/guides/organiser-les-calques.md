@@ -4,13 +4,13 @@
 
 - **Un calque** : clic sur le canevas, ou dans le navigateur.
 - **Plusieurs calques** : ⇧-clic sur le canevas ; ⌘-clic dans le navigateur.
+- **Au lasso** : glissez depuis une zone vide du canevas ; un rectangle sélectionne tous les calques visibles
+  qu'il touche, même en partie. ⇧ en commençant ajoute à la sélection en cours.
 - **Une plage** dans le navigateur : cliquez le premier calque, puis ⇧-clic sur le dernier.
 - **Tout** : ⌘A. Sélectionne les calques visibles du niveau en cours : ceux du groupe où vous travaillez,
   sinon tous les calques du document, plans de travail traversés.
 - **Un calque dans un groupe** : double-clic sur le groupe ; les clics suivants choisissent parmi ses calques.
   Ou dépliez le groupe dans le navigateur.
-
-Il n'y a pas de sélection au lasso : utilisez ⇧-clic, ⌘A ou le navigateur.
 
 ## Déplacer, redimensionner, faire pivoter
 

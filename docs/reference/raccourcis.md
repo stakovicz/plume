@@ -55,6 +55,7 @@ Actifs quand le canevas a le clavier (jamais pendant la saisie dans un champ).
 | Action | Geste |
 |---|---|
 | Ajouter / retirer de la sélection | ⇧-clic |
+| Sélection au lasso (⇧ : ajouter) | glisser depuis une zone vide |
 | Entrer dans un groupe | double-clic |
 | Renommer un plan de travail | triple-clic sur son nom |
 | Ajouter un point à un tracé | clic sur un segment (édition de points) |

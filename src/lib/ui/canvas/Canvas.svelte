@@ -177,6 +177,11 @@
           {/each}
         {/if}
 
+        {#if gestures.marquee}
+          {@const m = gestures.marquee}
+          <rect x={m.x} y={m.y} width={m.width} height={m.height} class="marquee" stroke-width={px} />
+        {/if}
+
         {#each gestures.guides as g, i (i)}
           <!-- smart guides: what the dragged edges or center line up with -->
           {#if g.axis === 'x'}<line x1={g.at} y1={g.from} x2={g.at} y2={g.to} class="guide" stroke-width={px} />
@@ -264,6 +269,10 @@
   }
   .guide {
     stroke: var(--guide);
+  }
+  .marquee {
+    fill: var(--accent-soft);
+    stroke: var(--accent);
   }
   .label {
     fill: var(--text-2);
