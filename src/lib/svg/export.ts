@@ -1,7 +1,7 @@
 import { type Rect, inset, midX, midY, union } from '$lib/model/geometry';
 import { type RGBA, hex } from '$lib/model/color';
 import type { GradientFill } from '$lib/model/effects';
-import { type Layer, bounds, cornerRadius, localBounds } from '$lib/model/layer';
+import { type Layer, bounds, cornerRadii, localBounds, localShape } from '$lib/model/layer';
 import { pathData } from '$lib/model/path-data';
 import { layout } from '$lib/model/text';
 
@@ -61,8 +61,10 @@ export function layerSVG(l: Layer): string {
     return defs.join('') + `<text${attrs}>${spans}</text>`;
   }
 
+  const radii = l.kind === 'rect' ? cornerRadii(l) : [];
   const element =
-    l.kind === 'rect' ? `<rect x="${f(b.x)}" y="${f(b.y)}" width="${f(b.width)}" height="${f(b.height)}"${l.radius > 0 ? ` rx="${f(cornerRadius(l))}"` : ''}${attrs}/>`
+    l.kind === 'rect' && radii.some((r) => r !== radii[0]) ? `<path d="${pathData(localShape(l))}"${attrs}/>` // corners SVG's rx can't say
+    : l.kind === 'rect' ? `<rect x="${f(b.x)}" y="${f(b.y)}" width="${f(b.width)}" height="${f(b.height)}"${radii[0] > 0 ? ` rx="${f(radii[0])}"` : ''}${attrs}/>`
     : l.kind === 'ellipse' ? `<ellipse cx="${f(midX(b))}" cy="${f(midY(b))}" rx="${f(b.width / 2)}" ry="${f(b.height / 2)}"${attrs}/>`
     : `<path d="${pathData(l.subpaths)}"${attrs}${l.evenOdd ? ' fill-rule="evenodd"' : ''}/>`;
   return defs.join('') + element;

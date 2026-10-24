@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { apply, pt, node, pathBounds } from '$lib/model/geometry';
 import { angleOf, colorAt, linearAt, radialIn } from '$lib/model/effects';
 import {
-  asPath, bounds, center, drawnStrokeWidth, effectiveBorderPosition, hit, localBounds, mapped, keepingPlace,
+  asPath, bounds, center, cornerRadii, drawnStrokeWidth, effectiveBorderPosition, hit, localBounds, mapped, keepingPlace,
   newLayer, resizeGesture, resized, rotated, moved, toWorld,
 } from '$lib/model/layer';
 import { insertNode, segmentAt, target, toggleCurve } from '$lib/model/point-editing';
@@ -13,17 +13,22 @@ import { near, nearRect, rect } from './helpers';
 const r = () => rect(0, 0, 10, 20);
 
 describe('layer', () => {
-  test('rounded rectangle: same bounds, four arcs; stretching keeps the corners, a proportional resize scales them', () => {
-    const l = { ...rect(0, 0, 100, 40), radius: 10 };
+  test('rounded corners: four arcs, same bounds; stretching keeps them, a proportional resize scales them', () => {
+    const l = { ...rect(0, 0, 100, 40), corners: [10, 10, 10, 10] };
     expect(asPath(l).subpaths[0].nodes.length).toBe(8);
     expect(bounds(asPath(l))).toEqual({ x: 0, y: 0, width: 100, height: 40 });
-    expect(hit({ ...l }, pt(1, 1), 0)).toBe(false); // the cut corner
-    expect(hit({ ...l }, pt(10, 1), 0)).toBe(true);
-    expect(resized(l, 2, 1, pt(0, 0)).radius).toBe(10);
-    expect(resized(l, 2, 2, pt(0, 0)).radius).toBe(20);
-    const pill = asPath({ ...l, radius: 50 }); // clamped to half the height: no straight vertical sides
-    expect(pill.subpaths[0].nodes.length).toBe(6);
-    expect(decodeFile(JSON.stringify([{ ...rect(0, 0, 1, 1), radius: undefined }])).layers[0].radius).toBe(0);
+    expect(hit(l, pt(1, 1), 0)).toBe(false); // the cut corner
+    expect(hit(l, pt(10, 1), 0)).toBe(true);
+    expect(resized(l, 2, 1, pt(0, 0)).corners).toEqual([10, 10, 10, 10]);
+    expect(resized(l, 2, 2, pt(0, 0)).corners).toEqual([20, 20, 20, 20]);
+    expect(decodeFile(JSON.stringify([{ ...rect(0, 0, 1, 1), corners: undefined }])).layers[0].corners).toEqual([0, 0, 0, 0]);
+  });
+
+  test('corners one by one, scaled down together when they do not fit (like CSS)', () => {
+    expect(asPath({ ...rect(0, 0, 100, 40), corners: [20, 0, 0, 0] }).subpaths[0].nodes.length).toBe(5);
+    expect(cornerRadii({ ...rect(0, 0, 100, 40), corners: [50, 50, 50, 50] })).toEqual([20, 20, 20, 20]); // a pill
+    expect(asPath({ ...rect(0, 0, 100, 40), corners: [50, 50, 50, 50] }).subpaths[0].nodes.length).toBe(6);
+    expect(cornerRadii({ ...rect(0, 0, 100, 40), corners: [100, 100, 0, 0] })).toEqual([40, 40, 0, 0]); // the left side holds 40
   });
 
   test('bounds of a path too big to spread into Math.min', () => {

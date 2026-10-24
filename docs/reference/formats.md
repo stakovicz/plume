@@ -42,7 +42,7 @@ styles différents dans un même texte, autres filtres, masques de luminance, dr
 | Format | Contenu | Notes |
 |---|---|---|
 | PDF | vectoriel, 1 px = 1 pt, texte sélectionnable | polices intégrées sauf `.otf` et polices non chargées (Times) ; ombre et flou ignorés |
-| SVG | vectoriel ; plans de travail en `<g data-artboard>` ; rectangles arrondis en `<rect rx>` | polices non intégrées |
+| SVG | vectoriel ; plans de travail en `<g data-artboard>` ; rectangles arrondis en `<rect rx>`, ou en `<path>` si leurs coins diffèrent | polices non intégrées |
 | PNG | rendu du canevas, 1×, 2×, 3× | transparence conservée ; polices intégrées |
 | JPG | idem, qualité 90 % | fond blanc |
 
