@@ -41,6 +41,7 @@ Absente pour les plans de travail.
 | Position X, Y | coin supérieur gauche du cadre (non pivoté) ; plusieurs calques : de leur ensemble |
 | Taille L, H | dimensions ; plusieurs calques : mis à l'échelle depuis le coin supérieur gauche |
 | Cadenas (Verrouiller les proportions) | redimensionner garde les proportions sans ⇧ |
+| Rayon | rectangles : rayon des coins, limité à la moitié du plus petit côté ; 0 = coins droits |
 | Préréglage | plans de travail : taille prédéfinie, ou Personnalisé |
 | Rotation | en degrés ; ni groupes, ni plans de travail |
 

@@ -4,6 +4,9 @@
 
 ### Ajouts
 
+- **Coins arrondis** : un rayon pour les rectangles, dans l'inspecteur (Géométrie › Rayon). Étirer le rectangle
+  garde ses coins, un redimensionnement proportionnel les met à l'échelle. Exportés en SVG (`rx`) ;
+  les `rx`/`ry` des SVG importés sont désormais conservés.
 - **Polices installées** : les polices du système (macOS, Linux) sont proposées dans l'inspecteur, sous
   « Installées », et chargées quand un calque les utilise. Les collections (.ttc) et les polices variables sont prises en charge.
 - **Aperçu des polices** : la liste affiche chaque police dans son propre dessin, avec un champ de recherche.

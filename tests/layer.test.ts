@@ -13,6 +13,19 @@ import { near, nearRect, rect } from './helpers';
 const r = () => rect(0, 0, 10, 20);
 
 describe('layer', () => {
+  test('rounded rectangle: same bounds, four arcs; stretching keeps the corners, a proportional resize scales them', () => {
+    const l = { ...rect(0, 0, 100, 40), radius: 10 };
+    expect(asPath(l).subpaths[0].nodes.length).toBe(8);
+    expect(bounds(asPath(l))).toEqual({ x: 0, y: 0, width: 100, height: 40 });
+    expect(hit({ ...l }, pt(1, 1), 0)).toBe(false); // the cut corner
+    expect(hit({ ...l }, pt(10, 1), 0)).toBe(true);
+    expect(resized(l, 2, 1, pt(0, 0)).radius).toBe(10);
+    expect(resized(l, 2, 2, pt(0, 0)).radius).toBe(20);
+    const pill = asPath({ ...l, radius: 50 }); // clamped to half the height: no straight vertical sides
+    expect(pill.subpaths[0].nodes.length).toBe(6);
+    expect(decodeFile(JSON.stringify([{ ...rect(0, 0, 1, 1), radius: undefined }])).layers[0].radius).toBe(0);
+  });
+
   test('bounds of a path too big to spread into Math.min', () => {
     const nodes = Array.from({ length: 200_000 }, (_, k) => node(pt(k, k % 7)));
     expect(pathBounds([{ nodes, closed: false }])).toEqual({ x: 0, y: 0, width: 199_999, height: 6 });

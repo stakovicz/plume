@@ -222,6 +222,11 @@
         {#if !multi}<IconButton quiet icon={l.lockRatio ? 'lock' : 'lock-open'} label={L('Lock proportions')} active={l.lockRatio} disabled={locked}
           onclick={() => edit((x) => ({ ...x, lockRatio: !x.lockRatio }))} />{/if}
       </Row>
+      {#if all((x) => x.kind === 'rect')}
+        <Row label={L('Radius')} single reserve>
+          <NumberField label={L('Corner radius')} value={num((x) => x.radius)} min={0} disabled={locked} onchange={(radius) => edit((x) => ({ ...x, radius }))} />
+        </Row>
+      {/if}
       {#if multi}
         <!-- several layers: no preset, no shared rotation -->
       {:else if l.kind === 'artboard'}

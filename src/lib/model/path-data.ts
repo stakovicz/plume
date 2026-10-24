@@ -18,7 +18,7 @@ export function shapeData(name: string, a: Record<string, string>): string | nul
     `M${cx - rx} ${cy} A${rx} ${ry} 0 1 0 ${cx + rx} ${cy} A${rx} ${ry} 0 1 0 ${cx - rx} ${cy} Z`;
   switch (name) {
     case 'path': return a.d ?? null;
-    case 'rect': return `M${n('x')} ${n('y')} h${n('width')} v${n('height')} h${-n('width')} Z`; // ponytail: rx/ry corners ignored
+    case 'rect': return roundedRect(n('x'), n('y'), n('width'), n('height'), number(a.rx), number(a.ry));
     case 'circle': return ellipse(n('cx'), n('cy'), n('r'), n('r'));
     case 'ellipse': return ellipse(n('cx'), n('cy'), n('rx'), n('ry'));
     case 'line': return `M${n('x1')} ${n('y1')} L${n('x2')} ${n('y2')}`;
@@ -26,6 +26,16 @@ export function shapeData(name: string, a: Record<string, string>): string | nul
     case 'polygon': return 'M' + (a.points ?? '') + ' Z';
     default: return null;
   }
+}
+
+/** SVG's rounded rect: a missing radius takes the other's value, each clamped to half the side. */
+function roundedRect(x: number, y: number, w: number, h: number, rx0: number | null, ry0: number | null): string {
+  const rx = Math.min(Math.max(rx0 ?? ry0 ?? 0, 0), w / 2), ry = Math.min(Math.max(ry0 ?? rx0 ?? 0, 0), h / 2);
+  if (!rx || !ry) return `M${x} ${y} h${w} v${h} h${-w} Z`;
+  const arc = (ex: number, ey: number) => `A${rx} ${ry} 0 0 1 ${ex} ${ey}`;
+  const side = (cmd: 'H' | 'V', to: number, len: number) => (len > 0 ? `${cmd}${to} ` : ''); // none when the corners meet
+  return `M${x + rx} ${y} ${side('H', x + w - rx, w - 2 * rx)}${arc(x + w, y + ry)} ${side('V', y + h - ry, h - 2 * ry)}` +
+    `${arc(x + w - rx, y + h)} ${side('H', x + rx, w - 2 * rx)}${arc(x, y + h - ry)} ${side('V', y + ry, h - 2 * ry)}${arc(x + rx, y)} Z`;
 }
 
 export function parsePath(d: string): Subpath[] {

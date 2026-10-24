@@ -35,6 +35,8 @@
   "Position": "Position",
   "Size": "Taille",
   "Rotation": "Rotation",
+  "Radius": "Rayon",
+  "Corner radius": "Rayon des coins",
   "Fill": "Remplissage",
   "Color": "Couleur",
   "Border": "Bordure",

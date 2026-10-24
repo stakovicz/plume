@@ -5,7 +5,7 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 
 ## Fonctionnalités
 
-- **Dessin** : rectangle (R), ovale (O), plume (V), crayon (P, lissé en courbes de Bézier), texte (T), plan de travail (A).
+- **Dessin** : rectangle (R, coins arrondis), ovale (O), plume (V), crayon (P, lissé en courbes de Bézier), texte (T), plan de travail (A).
   ⇧ contraint (carré, cercle, angles par 15°), ⌥ dessine depuis le centre.
 - **Édition de points** : double-clic ou Retour sur un tracé ; poignées miroir, ⌥ pour les rendre indépendantes.
 - **Calques** : groupes, plans de travail, masquer / verrouiller, renommer, glisser-déposer dans la liste,

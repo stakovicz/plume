@@ -18,6 +18,15 @@ const content = (svg: string) => {
 const roundTrip = (l: ReturnType<typeof rect>) => content(`<svg>${layerSVG(l)}</svg>`)[0];
 
 describe('svg', () => {
+  test('rounded rect: exported with rx (clamped), imported back with its corners', () => {
+    const l = { ...rect(0, 0, 100, 40), radius: 50 };
+    expect(layerSVG(l)).toContain('rx="20.00"');
+    const back = roundTrip(l);
+    expect(back.subpaths[0].nodes.length).toBe(6);
+    expect(nearRect(bounds(back), { x: 0, y: 0, width: 100, height: 40 })).toBe(true);
+    expect(content('<svg><rect width="10" height="10" ry="2"/></svg>')[0].subpaths[0].nodes.length).toBe(8); // rx takes ry
+  });
+
   test('path data with relative commands after close', () => {
     const s = parsePath('M10 10 h20 v20 h-20 z m5 5 c1 1 2 2 3 3 s1 1 2 2');
     expect(s.length).toBe(2);
