@@ -20,7 +20,8 @@ Il n'y a pas de sélection au lasso : utilisez ⇧-clic, ⌘A ou le navigateur.
   Le cadenas **Verrouiller les proportions** de l'inspecteur (section Géométrie) rend le redimensionnement
   proportionnel sans ⇧ ; il est actif par défaut pour les groupes et les SVG importés.
 - **Faire pivoter** : glissez la poignée ronde au-dessus du cadre. ⇧ arrondit l'angle par pas de 15°.
-- **Valeurs exactes** : section **Géométrie** de l'inspecteur (Position, Taille, Rotation).
+- **Valeurs exactes** : section **Géométrie** de l'inspecteur (Position, Taille, Rotation, et Rayon des coins
+  pour un rectangle, un même rayon ou un par coin). Un rectangle étiré garde ses coins ; redimensionné proportionnellement, ses coins suivent.
 - **Retourner** : **Outils › Retourner horizontalement / verticalement**.
 
 ## Grouper et dégrouper

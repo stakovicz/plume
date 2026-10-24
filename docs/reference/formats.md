@@ -32,16 +32,17 @@ Le seul format qui conserve tout : calques, groupes, plans de travail, styles, c
 | Cadre | `viewBox`, sinon `width`/`height`, sinon le contenu → plan de travail |
 | Plans de travail | `<g data-artboard>` (exports de Plume) reviennent comme plans de travail |
 
+Les coins arrondis des `rect` (`rx`, `ry`) sont conservés ; le rectangle devient un tracé.
+
 Non pris en charge : images bitmap, motifs (`pattern`), feuilles de style CSS (`<style>`), texte sur un chemin,
-styles différents dans un même texte, autres filtres, masques de luminance, coins arrondis des `rect`
-(`rx`, `ry`), drapeaux d'arc compactés (`a1 1 0 011 1`).
+styles différents dans un même texte, autres filtres, masques de luminance, drapeaux d'arc compactés (`a1 1 0 011 1`).
 
 ## Exports
 
 | Format | Contenu | Notes |
 |---|---|---|
 | PDF | vectoriel, 1 px = 1 pt, texte sélectionnable | polices intégrées sauf `.otf` et polices non chargées (Times) ; ombre et flou ignorés |
-| SVG | vectoriel ; plans de travail en `<g data-artboard>` | polices non intégrées |
+| SVG | vectoriel ; plans de travail en `<g data-artboard>` ; rectangles arrondis en `<rect rx>`, ou en `<path>` si leurs coins diffèrent | polices non intégrées |
 | PNG | rendu du canevas, 1×, 2×, 3× | transparence conservée ; polices intégrées |
 | JPG | idem, qualité 90 % | fond blanc |
 

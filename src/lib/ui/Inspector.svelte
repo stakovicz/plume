@@ -73,6 +73,9 @@
     return rectOf([pt(r.x, r.y), pt(r.x + r.width, r.y), pt(r.x, r.y + r.height), pt(r.x + r.width, r.y + r.height)].map((q) => apply(p.t, q)))!;
   });
 
+  /** Corner radius fields shown one by one (always, when the corners differ). */
+  let corners = $state(false);
+
   /** Snapshots of the layers an edit applies to. */
   const targets = (ls = sel) => ls.filter((x) => !doc.isLocked(x.id)).map((x) => $state.snapshot(x) as Layer);
   type Patch = Partial<Layer> | ((c: Layer) => Partial<Layer>);
@@ -222,6 +225,25 @@
         {#if !multi}<IconButton quiet icon={l.lockRatio ? 'lock' : 'lock-open'} label={L('Lock proportions')} active={l.lockRatio} disabled={locked}
           onclick={() => edit((x) => ({ ...x, lockRatio: !x.lockRatio }))} />{/if}
       </Row>
+      {#if all((x) => x.kind === 'rect')}
+        {@const uneven = !all((x) => x.corners.every((r) => r === x.corners[0]))}
+        <Row label={L('Radius')} single>
+          <NumberField label={L('Corner radius')} value={uneven ? NaN : num((x) => x.corners[0])} min={0} disabled={locked}
+            onchange={(r) => edit((x) => ({ ...x, corners: [r, r, r, r] }))} />
+          <IconButton quiet icon="corners" label={L('Independent corners')} active={corners || uneven} disabled={locked}
+            onclick={() => (uneven ? edit((x) => ({ ...x, corners: x.corners.map(() => x.corners[0]) })) : (corners = !corners))} />
+        </Row>
+        {#if corners || uneven}
+          {#each [[L('Top'), 0, 1, L('Top left'), L('Top right')], [L('Bottom'), 3, 2, L('Bottom left'), L('Bottom right')]] as const as [row, a, b, la, lb] (row)}
+            <Row label={row} reserve>
+              {#each [[a, la], [b, lb]] as const as [i, label] (i)}
+                <NumberField {label} value={num((x) => x.corners[i])} min={0} disabled={locked}
+                  onchange={(r) => edit((x) => ({ ...x, corners: x.corners.map((c, j) => (j === i ? r : c)) }))} />
+              {/each}
+            </Row>
+          {/each}
+        {/if}
+      {/if}
       {#if multi}
         <!-- several layers: no preset, no shared rotation -->
       {:else if l.kind === 'artboard'}

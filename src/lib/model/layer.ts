@@ -4,7 +4,7 @@ import {
 } from './geometry';
 import { type RGBA, BLACK, GRAY } from './color';
 import { type GradientFill, type Shadow, mapGradient } from './effects';
-import { parsePath, shapeData } from './path-data';
+import { parsePath, roundedRect, shapeData } from './path-data';
 import { type TextStyle, fitted, glyphOutlines, textScaled } from './text';
 
 export type Kind = 'rect' | 'ellipse' | 'path' | 'group' | 'artboard' | 'text';
@@ -28,6 +28,7 @@ export type Layer = {
   name: string;
   kind: Kind;
   points: Pt[]; // rect/ellipse: two opposite corners
+  corners: number[]; // rect: radius of each corner, top-left first, clockwise; scaled down together when they don't fit
   subpaths: Subpath[]; // path
   children: Layer[]; // group, bottom to top
   fill: RGBA;
@@ -53,7 +54,7 @@ export type Layer = {
 
 export function newLayer(name: string, kind: Kind, points: Pt[] = [], extra: Partial<Layer> = {}): Layer {
   return {
-    id: crypto.randomUUID(), name, kind, points, subpaths: [], children: [],
+    id: crypto.randomUUID(), name, kind, points, corners: [0, 0, 0, 0], subpaths: [], children: [],
     fill: GRAY, stroke: BLACK, strokeWidth: 1, borderPosition: 'center', dash: [], lineCap: 'butt', lineJoin: 'miter',
     evenOdd: false, rotation: 0, lockRatio: false, hidden: false, locked: false, opacity: 1, clip: [], blur: 0,
     ...extra,
@@ -97,7 +98,8 @@ export function localShape(l: Layer): Subpath[] {
     case 'path': return l.subpaths;
     case 'artboard': return boxShape(l);
     case 'text': return glyphOutlines(l); // what Combine and Convert to Outlines work on
-    default: return parsePath(boxData(l.kind, localBounds(l)));
+    case 'rect': { const b = localBounds(l); return parsePath(roundedRect(b.x, b.y, b.width, b.height, cornerRadii(l).map((r) => [r, r]))); }
+    default: return parsePath(boxData('ellipse', localBounds(l)));
   }
 }
 
@@ -106,6 +108,14 @@ export const shape = (l: Layer): Subpath[] => {
   const t = transform(l);
   return l.rotation === 0 ? localShape(l) : mapSubpaths(localShape(l), (p) => apply(t, p));
 };
+
+/** A rect's corner radii as drawn: like CSS, all scaled down by the same factor until each side holds its two corners. */
+export function cornerRadii(l: Layer): number[] {
+  const b = localBounds(l), [tl, tr, br, bl] = l.corners;
+  const fit = (side: number, a: number, c: number) => (a + c > 0 ? side / (a + c) : Infinity);
+  const k = Math.min(1, fit(b.width, tl, tr), fit(b.width, bl, br), fit(b.height, tl, bl), fit(b.height, tr, br));
+  return l.corners.map((r) => r * k);
+}
 
 function boxData(kind: 'rect' | 'ellipse', b: Rect) {
   const a = { x: b.x, y: b.y, width: b.width, height: b.height, cx: midX(b), cy: midY(b), rx: b.width / 2, ry: b.height / 2 };
@@ -123,7 +133,7 @@ export const hasVisibleStroke = (l: Layer) => l.strokeWidth > 0 && (l.stroke.a >
 /** Rect/ellipse converted to an editable Bézier path. */
 export function asPath(l: Layer): Layer {
   if (l.kind !== 'rect' && l.kind !== 'ellipse') return l;
-  return { ...l, kind: 'path', points: [], subpaths: parsePath(boxData(l.kind, localBounds(l))) };
+  return { ...l, kind: 'path', points: [], corners: [0, 0, 0, 0], subpaths: localShape(l) };
 }
 
 export function mapped(l: Layer, f: (p: Pt) => Pt): Layer {
@@ -194,10 +204,13 @@ export function rotated(l: Layer, a: number, g: Pt): Layer {
   return { ...m, rotation: m.rotation + a };
 }
 
-/** Borders follow a resize: width and dashes scale by the mean of the two factors (√|sx·sy|). */
+/** Borders follow a resize: width and dashes scale by the mean of the two factors (√|sx·sy|). Corner radii
+ *  follow a proportional one only: stretching a rounded rectangle keeps its corners. */
 export function strokeScaled(l: Layer, sx: number, sy: number): Layer {
   const k = Math.sqrt(Math.abs(sx * sy));
-  return k === 1 ? l : { ...l, strokeWidth: l.strokeWidth * k, dash: l.dash.map((d) => d * k) };
+  if (k === 1) return l;
+  const corners = Math.abs(sx) === Math.abs(sy) ? l.corners.map((r) => r * k) : l.corners;
+  return { ...l, strokeWidth: l.strokeWidth * k, dash: l.dash.map((d) => d * k), corners };
 }
 
 /** Scales in the layer's own frame about local point `a` (a group's frame is the document). */

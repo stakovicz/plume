@@ -18,7 +18,11 @@ export function shapeData(name: string, a: Record<string, string>): string | nul
     `M${cx - rx} ${cy} A${rx} ${ry} 0 1 0 ${cx + rx} ${cy} A${rx} ${ry} 0 1 0 ${cx - rx} ${cy} Z`;
   switch (name) {
     case 'path': return a.d ?? null;
-    case 'rect': return `M${n('x')} ${n('y')} h${n('width')} v${n('height')} h${-n('width')} Z`; // ponytail: rx/ry corners ignored
+    case 'rect': { // SVG: a missing radius takes the other's value, each clamped to half the side
+      const w = n('width'), h = n('height'), rx0 = number(a.rx), ry0 = number(a.ry);
+      const rx = Math.min(Math.max(rx0 ?? ry0 ?? 0, 0), w / 2), ry = Math.min(Math.max(ry0 ?? rx0 ?? 0, 0), h / 2);
+      return roundedRect(n('x'), n('y'), w, h, Array(4).fill([rx, ry]));
+    }
     case 'circle': return ellipse(n('cx'), n('cy'), n('r'), n('r'));
     case 'ellipse': return ellipse(n('cx'), n('cy'), n('rx'), n('ry'));
     case 'line': return `M${n('x1')} ${n('y1')} L${n('x2')} ${n('y2')}`;
@@ -26,6 +30,18 @@ export function shapeData(name: string, a: Record<string, string>): string | nul
     case 'polygon': return 'M' + (a.points ?? '') + ' Z';
     default: return null;
   }
+}
+
+/** A rectangle with each corner (top-left, top-right, bottom-right, bottom-left) rounded by its [rx, ry],
+ *  already small enough to fit. A corner with a zero radius is square; sides the corners use up entirely are left out. */
+export function roundedRect(x: number, y: number, w: number, h: number, radii: [number, number][]): string {
+  const [tl, tr, br, bl] = radii.map(([rx, ry]): [number, number] => (rx > 0 && ry > 0 ? [rx, ry] : [0, 0]));
+  const arc = ([rx, ry]: [number, number], ex: number, ey: number) => (rx ? `A${rx} ${ry} 0 0 1 ${ex} ${ey} ` : '');
+  const side = (cmd: 'H' | 'V', from: number, to: number) => (from !== to ? `${cmd}${to} ` : '');
+  return `M${x + tl[0]} ${y} ${side('H', x + tl[0], x + w - tr[0])}${arc(tr, x + w, y + tr[1])}` +
+    `${side('V', y + tr[1], y + h - br[1])}${arc(br, x + w - br[0], y + h)}` +
+    `${side('H', x + w - br[0], x + bl[0])}${arc(bl, x, y + h - bl[1])}` +
+    `${side('V', y + h - bl[1], y + tl[1])}${arc(tl, x + tl[0], y)}Z`;
 }
 
 export function parsePath(d: string): Subpath[] {

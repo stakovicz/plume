@@ -15,6 +15,7 @@
     lock: '<rect x="3.5" y="7" width="9" height="6.5" rx="1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/>',
     'lock-open': '<rect x="3.5" y="7" width="9" height="6.5" rx="1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0"/>',
     plus: '<path d="M8 3v10M3 8h10"/>',
+    corners: '<path d="M2.5 6.5v-2a2 2 0 0 1 2-2h2M9.5 2.5h2a2 2 0 0 1 2 2v2M13.5 9.5v2a2 2 0 0 1-2 2h-2M6.5 13.5h-2a2 2 0 0 1-2-2v-2"/>',
     rotate: '<path d="M13 8a5 5 0 1 1-1.5-3.6"/><path d="M12 1.8v2.8H9.2"/>',
     chevron: '<path d="m6 4 4 4-4 4"/>',
     // Combine: two overlapping squares, the result filled

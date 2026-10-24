@@ -41,8 +41,13 @@ Absente pour les plans de travail.
 | Position X, Y | coin supérieur gauche du cadre (non pivoté) ; plusieurs calques : de leur ensemble |
 | Taille L, H | dimensions ; plusieurs calques : mis à l'échelle depuis le coin supérieur gauche |
 | Cadenas (Verrouiller les proportions) | redimensionner garde les proportions sans ⇧ |
+| Rayon | rectangles : rayon des quatre coins ; 0 = coins droits ; « Multiple » quand ils diffèrent |
+| Coins indépendants (bouton à droite du Rayon) | affiche **Haut** (gauche, droit) et **Bas** (gauche, droit) pour régler chaque coin ; si les coins diffèrent, un clic leur redonne à tous le rayon du coin haut gauche |
 | Préréglage | plans de travail : taille prédéfinie, ou Personnalisé |
 | Rotation | en degrés ; ni groupes, ni plans de travail |
+
+Des rayons trop grands pour le rectangle sont tous réduits du même facteur, jusqu'à ce que chaque côté
+contienne ses deux coins (comme en CSS) : un rayon de 50 sur un rectangle de 100 × 40 donne une pilule.
 
 ## Point
 

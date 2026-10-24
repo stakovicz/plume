@@ -18,6 +18,18 @@ const content = (svg: string) => {
 const roundTrip = (l: ReturnType<typeof rect>) => content(`<svg>${layerSVG(l)}</svg>`)[0];
 
 describe('svg', () => {
+  test('rounded corners: <rect rx> when all equal, a path otherwise; imported back with their corners', () => {
+    const pill = { ...rect(0, 0, 100, 40), corners: [50, 50, 50, 50] };
+    expect(layerSVG(pill)).toContain('rx="20.00"');
+    expect(roundTrip(pill).subpaths[0].nodes.length).toBe(6);
+    const one = { ...rect(0, 0, 100, 40), corners: [20, 0, 0, 0] };
+    expect(layerSVG(one)).toMatch(/^<path /);
+    const back = roundTrip(one);
+    expect(back.subpaths[0].nodes.length).toBe(5);
+    expect(nearRect(bounds(back), { x: 0, y: 0, width: 100, height: 40 })).toBe(true);
+    expect(content('<svg><rect width="10" height="10" ry="2"/></svg>')[0].subpaths[0].nodes.length).toBe(8); // rx takes ry
+  });
+
   test('path data with relative commands after close', () => {
     const s = parsePath('M10 10 h20 v20 h-20 z m5 5 c1 1 2 2 3 3 s1 1 2 2');
     expect(s.length).toBe(2);
