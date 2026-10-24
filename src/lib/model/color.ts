@@ -3,8 +3,9 @@ export type RGBA = { r: number; g: number; b: number; a: number };
 export const CLEAR: RGBA = { r: 0, g: 0, b: 0, a: 0 };
 export const BLACK: RGBA = { r: 0, g: 0, b: 0, a: 1 };
 export const GRAY: RGBA = { r: 0.85, g: 0.86, b: 0.9, a: 1 };
-/** Fill of a newly drawn rectangle or oval: #FF6F00 at 70 %. */
-export const SHAPE_FILL: RGBA = { r: 1, g: 0x6f / 255, b: 0, a: 0.7 };
+/** Fill of a newly drawn rectangle or oval: #FF6F00 at 70 %. Green at 3 decimals, as files store it, so a saved
+ *  shape reads back identical (0.435 × 255 still rounds to 0x6F). */
+export const SHAPE_FILL: RGBA = { r: 1, g: 0.435, b: 0, a: 0.7 };
 
 export const eqColor = (x: RGBA, y: RGBA) => x.r === y.r && x.g === y.g && x.b === y.b && x.a === y.a;
 
