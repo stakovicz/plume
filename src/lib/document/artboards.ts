@@ -16,17 +16,18 @@ export const homeOf = (layers: Layer[], l: Layer) => artboardAt(layers, rectCent
 export const inside = (r: Rect, frame: Rect) =>
   r.x >= frame.x && r.y >= frame.y && r.x + r.width <= frame.x + frame.width && r.y + r.height <= frame.y + frame.height;
 
-/** Sizes offered by the artboard tool and the inspector. Names are product names, not translated. */
-export const PRESETS: { group: 'Phone' | 'Tablet' | 'Desktop' | 'Paper' | 'Social'; name: string; width: number; height: number }[] = [
-  { group: 'Phone', name: 'iPhone 16', width: 393, height: 852 },
-  { group: 'Phone', name: 'iPhone 16 Pro Max', width: 440, height: 956 },
-  { group: 'Phone', name: 'Android', width: 412, height: 917 },
-  { group: 'Tablet', name: 'iPad', width: 820, height: 1180 },
-  { group: 'Tablet', name: 'iPad Pro 13"', width: 1032, height: 1376 },
-  { group: 'Desktop', name: 'Desktop', width: 1440, height: 1024 },
-  { group: 'Desktop', name: 'Full HD', width: 1920, height: 1080 },
+/** Sizes offered by the artboard tool and the inspector: generic screen and paper formats, no device or brand.
+ *  Names are format names, not translated. */
+export const PRESETS: { group: 'Screen' | 'Paper'; name: string; width: number; height: number }[] = [
+  { group: 'Screen', name: 'HD', width: 1280, height: 720 },
+  { group: 'Screen', name: 'Desktop', width: 1440, height: 1024 },
+  { group: 'Screen', name: 'Full HD', width: 1920, height: 1080 },
+  { group: 'Screen', name: 'QHD', width: 2560, height: 1440 },
+  { group: 'Screen', name: '4K UHD', width: 3840, height: 2160 },
+  // paper in points (1 pt = 1 px, as PDF export writes them)
+  { group: 'Paper', name: 'A5', width: 420, height: 595 },
   { group: 'Paper', name: 'A4', width: 595, height: 842 },
+  { group: 'Paper', name: 'A3', width: 842, height: 1191 },
   { group: 'Paper', name: 'Letter', width: 612, height: 792 },
-  { group: 'Social', name: 'Instagram post', width: 1080, height: 1080 },
-  { group: 'Social', name: 'Story', width: 1080, height: 1920 },
+  { group: 'Paper', name: 'Legal', width: 612, height: 1008 },
 ];

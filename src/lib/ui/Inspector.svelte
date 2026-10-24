@@ -150,7 +150,7 @@
   };
   const options = <T extends string>(all: readonly T[]) => all.map((value) => ({ value, title: titles[value] }));
 
-  const presetGroups = { Phone: L('Phone'), Tablet: L('Tablet'), Desktop: L('Desktop'), Paper: L('Paper'), Social: L('Social') };
+  const presetGroups = { Screen: L('Screen'), Paper: L('Paper') };
   const presetOptions = PRESETS.map((p) => ({ value: p.name, title: `${p.name} — ${p.width}×${p.height}`, group: presetGroups[p.group] }));
   /** Inspector preset for an artboard: same origin, new size. */
   function applyPreset(name: string) {

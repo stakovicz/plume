@@ -50,14 +50,15 @@ styles différents dans un même texte, autres filtres, masques de luminance, dr
 
 | Groupe | Nom | Taille |
 |---|---|---|
-| Téléphone | iPhone 16 | 393 × 852 |
-| Téléphone | iPhone 16 Pro Max | 440 × 956 |
-| Téléphone | Android | 412 × 917 |
-| Tablette | iPad | 820 × 1180 |
-| Tablette | iPad Pro 13" | 1032 × 1376 |
-| Ordinateur | Desktop | 1440 × 1024 |
-| Ordinateur | Full HD | 1920 × 1080 |
+| Écran | HD | 1280 × 720 |
+| Écran | Desktop | 1440 × 1024 |
+| Écran | Full HD | 1920 × 1080 |
+| Écran | QHD | 2560 × 1440 |
+| Écran | 4K UHD | 3840 × 2160 |
+| Papier | A5 | 420 × 595 |
 | Papier | A4 | 595 × 842 |
+| Papier | A3 | 842 × 1191 |
 | Papier | Letter | 612 × 792 |
-| Réseaux sociaux | Instagram post | 1080 × 1080 |
-| Réseaux sociaux | Story | 1080 × 1920 |
+| Papier | Legal | 612 × 1008 |
+
+Les formats papier sont en points : 1 pt = 1 px dans Plume, comme dans l'export PDF.

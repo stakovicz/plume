@@ -5,8 +5,8 @@ comme un fichier à part.
 
 ## Créer un plan de travail
 
-- **À une taille prédéfinie** : appuyez sur **A** ; l'inspecteur liste des formats (Téléphone, Tablette,
-  Ordinateur, Papier, Réseaux sociaux). Un clic ajoute le plan de travail à droite des autres.
+- **À une taille prédéfinie** : appuyez sur **A** ; l'inspecteur liste des formats d'écran
+  (HD à 4K) et de papier (A5 à A3, Letter, Legal). Un clic ajoute le plan de travail à droite des autres.
 - **À la main** : avec **A**, glissez sur le canevas.
 
 Un plan de travail dessiné par-dessus des calques existants les prend s'ils tiennent entièrement dedans.
