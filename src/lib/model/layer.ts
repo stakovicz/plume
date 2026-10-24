@@ -159,8 +159,9 @@ export function hit(l: Layer, p: Pt, tol: number): boolean {
   if (l.kind === 'group') return l.children.some((c) => hit(c, p, tol));
   if (l.kind === 'artboard') return rectContains(localBounds(l), p) && l.children.some((c) => hit(c, p, tol)); // content is clipped; the background is picked by its name
   const q = toLocal(l, p);
-  if (l.kind === 'text') return rectContains(inset(localBounds(l), -tol), q); // the box, not just the glyphs
-  return l.fill.a > 0 ? pathContains(localShape(l), q, l.evenOdd) : rectContains(inset(localBounds(l), -tol), q);
+  const near = rectContains(inset(localBounds(l), -tol), q); // cheap rejection before flattening curves
+  if (l.kind === 'text' || !near) return near; // text: the box, not just the glyphs
+  return l.fill.a > 0 ? pathContains(localShape(l), q, l.evenOdd) : near;
 }
 
 // MARK: Border

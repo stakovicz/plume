@@ -54,14 +54,13 @@ export class Gestures {
 
   constructor(private doc: Doc) {}
 
-  get dragging() { return this.#start !== null; }
-
   /** Rotation handle: above the top edge, in the layer's rotated frame, 20 screen px away. */
   rotateHandle(l: Layer, b: Rect) { return toWorld(l, pt(b.x + b.width / 2, b.y - 20 / this.doc.zoom)); }
 
   down(at: Pt, shiftClick: boolean) {
     this.#start = this.#last = at;
     this.#drag = this.#begin(this.doc.toDoc(at), shiftClick);
+    this.doc.dragging = true;
   }
 
   move(at: Pt) {
@@ -155,6 +154,7 @@ export class Gestures {
     doc.dropCheckpointIfUnchanged();
     this.#start = this.#last = null;
     this.#drag = { kind: 'ignore' };
+    doc.dragging = false;
     this.hint = null;
     this.guides = [];
   }

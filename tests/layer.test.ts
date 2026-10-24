@@ -13,6 +13,11 @@ import { near, nearRect, rect } from './helpers';
 const r = () => rect(0, 0, 10, 20);
 
 describe('layer', () => {
+  test('bounds of a path too big to spread into Math.min', () => {
+    const nodes = Array.from({ length: 200_000 }, (_, k) => node(pt(k, k % 7)));
+    expect(pathBounds([{ nodes, closed: false }])).toEqual({ x: 0, y: 0, width: 199_999, height: 6 });
+  });
+
   test('rect converts to path', () => {
     const l = asPath(r());
     expect(l.kind).toBe('path');

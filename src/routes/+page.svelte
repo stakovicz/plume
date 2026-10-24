@@ -44,6 +44,7 @@
   });
 
   $effect(() => {
+    if (doc.dragging) return; // isDirty serializes the document: once the drag ends, not on every mouse move
     const title = `${files.title()}${doc.isDirty ? ` — ${L('Edited')}` : ''}`;
     if (isTauri()) getCurrentWindow().setTitle(title);
     else document.title = title;

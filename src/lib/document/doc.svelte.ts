@@ -60,14 +60,15 @@ export class Doc {
   zoom = $state(1);
   pan = $state<Pt>(pt(0, 0)); // view-space offset of the document origin
   viewSize = { width: 0, height: 0 }; // set by the canvas once laid out
-  hover = $state<Pt | null>(null); // mouse position over the canvas, view space
+  /** A canvas drag is under way: the document may change on every mouse move (see the window title). */
+  dragging = $state(false);
   /** Drag preview: these layers are drawn through `t` (document space: move, or a group's resize/rotate)
    *  and the geometry is written once, on mouse-up. Rewriting the tree on every mouse move re-renders
    *  and re-serializes everything. */
   preview = $state<{ ids: Set<string>; t: Affine } | null>(null);
 
   // Undo: snapshots of everything the user can change, as JSON (cheap to compare and copy).
-  // ponytail: whole document per step; store diffs if documents get huge
+  // ponytail: whole document per step, oldest steps dropped past UNDO_BUDGET; store diffs if documents get huge
   #undo: string[] = [];
   #redo: string[] = [];
   #coalescing: { key: string; at: number } | null = null;
@@ -86,7 +87,9 @@ export class Doc {
   set editingLayer(l: Layer | null) { this.set(this.editing, l); }
   get penLayer() { return this.get(this.penID); }
   set penLayer(l: Layer | null) { this.set(this.penID, l); }
-  get selectedLayers() { return [...this.selectedIDs].map((id) => this.get(id)).filter((l) => l !== null); }
+  /** In paint order; a layer inside a selected group is left out (the group brings it along, so a move or flip
+   *  doesn't apply to it twice). One walk of the tree, not one lookup per selected layer. */
+  get selectedLayers() { return inTreeOrder(this.layers, this.selectedIDs); }
 
   // MARK: Undo
 
@@ -96,18 +99,27 @@ export class Doc {
 
   checkpoint() {
     this.#coalescing = null;
-    this.#undo.push(this.#current());
+    this.#push(this.#current());
     this.#redo = [];
   }
 
   /** For continuous edits (slider drag, typing, color picking): while edits with the same `key` keep
-   *  coming less than a second apart, they share the checkpoint taken by the first one. */
-  checkpointCoalescing(key: string) {
+   *  coming less than a second apart, they share the checkpoint taken by the first one.
+   *  Returns whether this one took a new checkpoint. */
+  checkpointCoalescing(key: string): boolean {
     const now = Date.now(), c = this.#coalescing;
     this.#coalescing = { key, at: now };
-    if (c && c.key === key && now - c.at < 1000) return;
-    this.#undo.push(this.#current());
+    if (c && c.key === key && now - c.at < 1000) return false;
+    this.#push(this.#current());
     this.#redo = [];
+    return true;
+  }
+
+  /** Keeps the undo history under UNDO_BUDGET characters (one snapshot of a big document is megabytes). */
+  #push(snapshot: string) {
+    this.#undo.push(snapshot);
+    let size = this.#undo.reduce((n, s) => n + s.length, 0);
+    while (size > UNDO_BUDGET && this.#undo.length > 1) size -= this.#undo.shift()!.length;
   }
 
   dropCheckpointIfUnchanged() {
@@ -125,7 +137,7 @@ export class Doc {
   }
   redo() {
     const s = this.#redo.pop();
-    if (s) { this.#undo.push(this.#current()); this.#restore(s); }
+    if (s) { this.#push(this.#current()); this.#restore(s); }
   }
 
   /** One undoable change to a layer from the inspector; continuous edits of one layer merge. */
@@ -134,9 +146,9 @@ export class Doc {
   /** Same, for the layers of a multiple selection, changed together. */
   styleEdits(edits: [string, Layer][]) {
     if (!edits.length) return;
-    this.checkpointCoalescing(edits.map(([id]) => id).join(' '));
+    const fresh = this.checkpointCoalescing(edits.map(([id]) => id).join(' '));
     for (const [id, to] of edits) this.set(id, to);
-    this.dropCheckpointIfUnchanged();
+    if (fresh) this.dropCheckpointIfUnchanged(); // not on every tick of a drag: it serializes the whole document
   }
 
   /** Edit/pen state and node indices refer to the old layers: drop them, keep valid selection. */
@@ -576,6 +588,9 @@ export class Doc {
     this.pan = pt(w / 2 - midX(b) * this.zoom, h / 2 - midY(b) * this.zoom);
   }
 }
+
+/** Undo history size, in snapshot characters (≈ bytes): about a hundred steps of a 2 MB document. */
+const UNDO_BUDGET = 200_000_000;
 
 /** A text layer's automatic name: its first line. */
 const textName = (content: string) => content.trim().split('\n')[0].slice(0, 40) || L('Text');

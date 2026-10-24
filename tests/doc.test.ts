@@ -285,6 +285,17 @@ describe('arrange', () => {
 });
 
 describe('groups', () => {
+  test('a group selected with its child: nudged once, in paint order', () => {
+    const d = docWith(r10(0, 'a'), r10(20, 'b'));
+    d.selectedIDs = new Set(d.layers.map((l) => l.id));
+    d.group();
+    const g = d.layers[0];
+    d.selectedIDs = new Set([g.children[1].id, g.id, g.children[0].id]);
+    expect(d.selectedLayers.map((l) => l.id)).toEqual([g.id]);
+    d.nudge(pt(1, 0));
+    expect(bounds(d.layers[0])).toEqual({ x: 1, y: 0, width: 30, height: 10 });
+  });
+
   test('group keeps paint order and position', () => {
     const d = docWith(r10(0, 'a'), r10(20, 'b'), r10(40, 'c'), r10(60, 'd'));
     d.selectedIDs = new Set([d.layers[1].id, d.layers[2].id]);

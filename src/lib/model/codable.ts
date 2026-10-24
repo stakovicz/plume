@@ -5,20 +5,23 @@ import { type Layer, newLayer } from './layer';
  *  Files saved before the palette existed are a bare `[Layer]` array. */
 export type DocFile = { layers: Layer[]; palette: RGBA[] };
 
-const isPt = (v: unknown): v is { x: number; y: number } =>
-  typeof v === 'object' && v !== null && !Array.isArray(v) && Object.keys(v).length === 2 && 'x' in v && 'y' in v;
+const isPt = (v: object): v is { x: number; y: number } => 'x' in v && 'y' in v && Object.keys(v).length === 2;
 
 /** Numbers are written to 3 decimals: a thousandth of a pixel, invisible even at the 6400 % zoom, and colors
- *  and opacity stay exact to 8 bits. Angles and gradients (unit space, scaled up by `transform`) keep 6. */
+ *  and opacity stay exact to 8 bits. Angles and gradients (unit space, scaled up by `transform`) keep 6.
+ *  One pass that also turns points into pairs: documents are megabytes. */
 const FINE = new Set(['rotation', 'fillGradient', 'strokeGradient']);
-function rounded(v: unknown, digits = 3): unknown {
-  if (typeof v === 'number') return Math.round(v * 10 ** digits) / 10 ** digits || 0; // || 0: no -0
-  if (Array.isArray(v)) return v.map((x) => rounded(x, digits));
-  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, rounded(x, FINE.has(k) ? 6 : digits)]));
-  return v;
+function encoded(v: unknown, k = 1e3): unknown {
+  if (typeof v === 'number') return Math.round(v * k) / k || 0; // || 0: no -0
+  if (Array.isArray(v)) return v.map((x) => encoded(x, k));
+  if (!v || typeof v !== 'object') return v;
+  if (isPt(v)) return [encoded(v.x, k), encoded(v.y, k)];
+  const out: Record<string, unknown> = {};
+  for (const [key, x] of Object.entries(v)) out[key] = encoded(x, FINE.has(key) ? 1e6 : k);
+  return out;
 }
 
-export const encodeFile = (f: DocFile) => JSON.stringify(rounded(f), (_, v) => (isPt(v) ? [v.x, v.y] : v));
+export const encodeFile = (f: DocFile) => JSON.stringify(encoded(f));
 
 // ponytail: any `[number, number]` becomes a point except under `dash`; name the key here if another numeric pair is added
 const revive = (key: string, v: unknown) =>
