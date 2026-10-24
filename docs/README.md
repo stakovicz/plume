@@ -1,7 +1,7 @@
 # Documentation de Plume
 
 Plume est un éditeur vectoriel pour macOS et Linux, qui fonctionne aussi dans un navigateur.
-Cette documentation suit [Diátaxis](https://diataxis.fr/) : quatre parties, chacune pour un besoin différent.
+Quatre parties, chacune pour un besoin différent.
 
 | Vous voulez… | Lisez |
 |---|---|

@@ -8,9 +8,10 @@
   <link rel="stylesheet" href="{{root}}style.css">
 </head>
 <body>
+  <a class="skip" href="#contenu">Aller au contenu</a>
   <header class="bar">
     <a class="brand" href="{{root}}"><img src="{{root}}img/icon.svg" alt="" width="28" height="28">Plume</a>
-    <nav>
+    <nav aria-label="Navigation principale">
       <a href="{{root}}docs/">Documentation</a>
       <a href="{{root}}#telecharger">Télécharger</a>
       <a href="{{root}}app/">Essayer</a>
@@ -18,7 +19,7 @@
     </nav>
   </header>
 
-  <main class="doc">
+  <main id="contenu" class="doc">
     {{back}}
     <article>
 {{content}}

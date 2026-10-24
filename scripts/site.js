@@ -9,6 +9,31 @@ import { Marked } from 'marked';
 const OUT = '_site';
 const REPO = 'stakovicz/plume';
 const RELEASES = `https://github.com/${REPO}/releases/latest`;
+const SITE = 'https://stakovicz.github.io/plume/';
+
+/** schema.org description of the app for search engines (JSON-LD), the release's version and date when known.
+ *  `<` escaped so nothing in it can close the <script> element. */
+function softwareJSON(release) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Plume',
+    description: 'Éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Linux et le navigateur. Sans compte, sans abonnement.',
+    url: SITE,
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'macOS, Linux, Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+    license: 'https://opensource.org/licenses/MIT',
+    author: { '@type': 'Person', name: 'Stakovicz', url: `https://github.com/${REPO.split('/')[0]}` },
+    inLanguage: 'fr',
+    image: `${SITE}img/icon.svg`,
+    screenshot: `${SITE}img/editeur.webp`,
+    softwareHelp: { '@type': 'CreativeWork', url: `${SITE}docs/` },
+    releaseNotes: `${SITE}changelog.html`,
+    ...(release && { softwareVersion: release.tag_name.replace(/^v/, ''), datePublished: release.published_at.slice(0, 10), downloadUrl: release.html_url }),
+  };
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
 
 /** GitHub's heading anchors (`## Import SVG` → `#import-svg`), so links written for GitHub keep working. */
 const slug = (html) => html.replace(/<[^>]+>/g, '').toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, '').trim().replace(/\s+/g, '-');
@@ -25,8 +50,9 @@ const marked = new Marked({
 const htmlLinks = (html) => html.replace(/href="([^":#]*?)(README)?\.md(#[^"]*)?"/g, (_, path, readme, hash = '') => `href="${path}${readme ? 'index' : ''}.html${hash}"`);
 
 /** Links to GitHub open in a new tab (the site stays open), except file downloads, which would leave an empty one. */
-const githubInNewTab = (html) => html.replace(/<a ([^>]*?)href="(https:\/\/github\.com\/[^"]*)"/g,
-  (a, before, url) => (url.includes('/releases/download/') ? a : `<a ${before}href="${url}" target="_blank" rel="noopener"`));
+const githubInNewTab = (html) => html.replace(/<a ([^>]*?)href="(https:\/\/github\.com\/[^"]*)"([^>]*)>(.*?)<\/a>/gs,
+  (a, before, url, after, text) => (url.includes('/releases/download/') ? a
+    : `<a ${before}href="${url}"${after} target="_blank" rel="noopener">${text}<span class="visually-hidden"> (nouvel onglet)</span></a>`));
 
 const template = readFileSync('site/page.html', 'utf8');
 const fill = (s, values) => s.replace(/\{\{(\w+)\}\}/g, (_, k) => {
@@ -36,7 +62,8 @@ const fill = (s, values) => s.replace(/\{\{(\w+)\}\}/g, (_, k) => {
 
 /** One Markdown file → `out` (relative to _site), in the page template. */
 function page(source, out, back) {
-  const html = htmlLinks(marked.parse(readFileSync(source, 'utf8')));
+  const html = htmlLinks(marked.parse(readFileSync(source, 'utf8')))
+    .replace(/<table>/g, '<div class="table"><table>').replace(/<\/table>/g, '</table></div>'); // see .doc .table
   const root = relative(dirname(join(OUT, out)), OUT).replace(/\\/g, '/');
   const prefix = root ? `${root}/` : './';
   const title = html.match(/<h1[^>]*>(.*?)<\/h1>/)?.[1].replace(/<[^>]+>/g, '') ?? 'Plume';
@@ -60,13 +87,15 @@ async function latestRelease() {
   }
 }
 
-/** Buttons for the assets matching each pattern; one to the releases page when none matches. */
-function buttons(release, kinds) {
+/** Buttons for the assets matching each pattern; one to the releases page when none matches. Their accessible name
+ *  says what and for which system (the visible label alone, « Intel », says neither). */
+function buttons(release, platform, kinds) {
   const items = kinds.flatMap(([label, re]) => {
     const asset = release?.assets.find((a) => re.test(a.name));
-    return asset ? [`<li><a class="button" href="${asset.browser_download_url}">${label}</a></li>`] : [];
+    const name = `Télécharger Plume ${release?.tag_name ?? ''} pour ${platform}, ${label}`;
+    return asset ? [`<li><a class="button primary" href="${asset.browser_download_url}" aria-label="${name}">${label}</a></li>`] : [];
   });
-  return `<ul>${items.length ? items.join('') : `<li><a class="button" href="${RELEASES}">Voir les fichiers</a></li>`}</ul>`;
+  return `<ul>${items.length ? items.join('') : `<li><a class="button primary" href="${RELEASES}">Voir les fichiers</a></li>`}</ul>`;
 }
 
 rmSync(OUT, { recursive: true, force: true });
@@ -75,8 +104,9 @@ mkdirSync(OUT);
 const release = await latestRelease();
 writeFileSync(join(OUT, 'index.html'), githubInNewTab(fill(readFileSync('site/index.html', 'utf8'), {
   version: release?.tag_name ?? '',
-  mac: buttons(release, [['Apple Silicon', /aarch64\.dmg$/], ['Intel', /x64\.dmg$/]]),
-  linux: buttons(release, [['AppImage', /\.AppImage$/], ['Debian, Ubuntu (.deb)', /\.deb$/], ['Fedora (.rpm)', /\.rpm$/]]),
+  jsonld: softwareJSON(release),
+  mac: buttons(release, 'macOS', [['Apple Silicon', /aarch64\.dmg$/], ['Intel', /x64\.dmg$/]]),
+  linux: buttons(release, 'Linux', [['AppImage', /\.AppImage$/], ['Debian, Ubuntu (.deb)', /\.deb$/], ['Fedora (.rpm)', /\.rpm$/]]),
 })));
 cpSync('site/style.css', join(OUT, 'style.css'));
 cpSync('site/img', join(OUT, 'img'), { recursive: true });

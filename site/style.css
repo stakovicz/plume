@@ -9,8 +9,8 @@
   --text: light-dark(#1d1d1f, #f2f2f4);
   --text-2: light-dark(#5e5e66, #a1a1a8);
   --accent: #ff6f00;
-  --accent-text: light-dark(#c45500, #ff8f3a);
-  --on-accent: #ffffff;
+  --accent-text: light-dark(#b04c00, #ff8f3a); /* links and orange text: ≥ 4.5:1 on --bg and --surface */
+  --on-accent: #1d1d1f; /* dark on orange: 6:1 (white would be 2.8:1, below WCAG AA) */
   --radius: 10px;
   --width: 72rem;
   --font: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
@@ -37,6 +37,20 @@ body {
 }
 
 a { color: var(--accent-text); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; border-radius: 4px; }
+[id] { scroll-margin-top: 5rem; } /* anchors land below the sticky bar */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+/* skip link: hidden until focused by the keyboard */
+.skip {
+  position: absolute; z-index: 2; top: 0.5rem; left: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: var(--radius);
+  background: var(--accent); color: var(--on-accent); font-weight: 600;
+  transform: translateY(-200%);
+}
+.skip:focus { transform: none; }
 img { max-width: 100%; height: auto; }
 
 /* Top bar */
@@ -80,7 +94,7 @@ h3 { font-size: 1.1rem; margin: 0 0 0.35rem; }
 /* Hero */
 .hero { text-align: center; padding-top: 4rem; }
 .hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); max-width: 18ch; margin: 0 auto 1.25rem; }
-.hero h1 em { font-style: normal; color: var(--accent); }
+.hero h1 em { font-style: normal; color: light-dark(var(--accent-text), var(--accent)); }
 .lead { max-width: 40rem; margin: 0 auto 2rem; color: var(--text-2); font-size: 1.15rem; }
 .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-bottom: 3rem; }
 
@@ -96,7 +110,7 @@ h3 { font-size: 1.1rem; margin: 0 0 0.35rem; }
 }
 .button:hover { border-color: var(--text-2); }
 .button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.button.primary:hover { filter: brightness(1.08); }
+.button.primary:hover { filter: brightness(1.12); box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 40%, transparent); }
 
 .shot {
   display: block;
@@ -158,7 +172,8 @@ footer a { color: inherit; }
 .doc h1 { font-size: 2.2rem; margin: 0 0 1.5rem; }
 .doc h2 { font-size: 1.45rem; text-align: left; margin: 2.5rem 0 0.75rem; }
 .doc h3 { margin-top: 1.75rem; }
-.doc table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.95rem; display: block; overflow-x: auto; }
+.doc .table { overflow-x: auto; margin: 1rem 0 1.5rem; } /* wide tables scroll; the table keeps its table role */
+.doc table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 .doc th, .doc td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
 .doc th { color: var(--text-2); font-weight: 600; }
 .doc code { padding: 0.1em 0.35em; border-radius: 4px; background: var(--surface); font: 0.88em var(--mono); }

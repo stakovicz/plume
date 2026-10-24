@@ -7,11 +7,13 @@
   <meta name="description" content="Plume est un éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Linux et le navigateur. Sans compte, sans abonnement.">
   <link rel="icon" href="img/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{{jsonld}}</script>
 </head>
 <body>
+  <a class="skip" href="#contenu">Aller au contenu</a>
   <header class="bar">
     <a class="brand" href="./"><img src="img/icon.svg" alt="" width="28" height="28">Plume</a>
-    <nav>
+    <nav aria-label="Navigation principale">
       <a href="#fonctionnalites">Fonctionnalités</a>
       <a href="docs/">Documentation</a>
       <a href="#telecharger">Télécharger</a>
@@ -19,7 +21,7 @@
     </nav>
   </header>
 
-  <main>
+  <main id="contenu">
     <section class="hero">
       <h1>Un éditeur vectoriel <em>simple</em>, <em>léger</em> et <em>libre</em>.</h1>
       <p class="lead">Dessinez, retouchez vos SVG et exportez en PDF, PNG ou JPG. Gratuit, sans compte, sans abonnement :
