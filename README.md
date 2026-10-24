@@ -23,9 +23,11 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
   SVG, PNG et JPG (1×, 2×, 3×) du document, des plans de travail ou de la sélection.
 - **Interface** en anglais et en français.
 
-## Raccourcis
+## Documentation
 
-Tous les raccourcis clavier et gestes : [docs/raccourcis.md](docs/raccourcis.md).
+La [documentation d'utilisation](docs/README.md) est organisée en tutoriels, guides pratiques, référence
+et explications. Pour commencer : [Votre première illustration](docs/tutoriels/01-premiere-illustration.md).
+Tous les raccourcis : [docs/reference/raccourcis.md](docs/reference/raccourcis.md).
 
 ## Développement
 
