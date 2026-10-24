@@ -15,6 +15,15 @@
   --width: 72rem;
   --font: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --titles: "Fira Sans", var(--font);
+}
+
+/* Titles and the brand in the app's own Fira Sans (bundled; Latin subset of the bold) */
+@font-face {
+  font-family: "Fira Sans";
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/FiraSans-Bold.woff2") format("woff2");
 }
 
 * { box-sizing: border-box; }
@@ -61,7 +70,8 @@ main { padding: 0 1rem; }
 section { max-width: var(--width); margin: 0 auto; padding: 4.5rem 0; }
 section + section { border-top: 1px solid var(--border); }
 
-h1, h2, h3 { line-height: 1.2; letter-spacing: -0.01em; }
+h1, h2, h3, .brand { font-family: var(--titles); font-weight: 700; }
+h1, h2, h3 { line-height: 1.2; }
 h2 { font-size: 2rem; margin: 0 0 0.5rem; text-align: center; }
 h3 { font-size: 1.1rem; margin: 0 0 0.35rem; }
 .intro { text-align: center; color: var(--text-2); margin: 0 auto 2.5rem; }
@@ -123,6 +133,13 @@ h3 { font-size: 1.1rem; margin: 0 0 0.35rem; }
 .split { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 3rem; }
 .split h2 { text-align: left; }
 @media (max-width: 50rem) { .split { grid-template-columns: 1fr; } }
+
+/* Before / after pictures */
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 44rem; margin: 0 auto; }
+.compare figure { margin: 0; text-align: center; }
+.compare img { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+.compare figcaption { margin-top: 0.5rem; color: var(--text-2); font-size: 0.9rem; }
+.more { text-align: center; margin-top: 2rem; }
 
 /* Downloads */
 .downloads { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; margin: 2rem 0; }

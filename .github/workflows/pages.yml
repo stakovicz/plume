@@ -1,7 +1,8 @@
 name: Site
 
 # The presentation site, documentation and web editor on GitHub Pages (https://stakovicz.github.io/plume/).
-# Built from main (whose pull requests passed CI), and again when a release is published, for its download links.
+# Built from main (whose pull requests passed CI), and again for each release so its download links are current:
+# release.yml runs this workflow once the bundles are attached (`release` covers releases published by hand).
 on:
   push:
     branches: [main]

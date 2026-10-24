@@ -80,3 +80,16 @@ jobs:
         with:
           name: plume-${{ matrix.target }}
           path: ${{ join(fromJSON(steps.tauri.outputs.artifactPaths), fromJSON('"\n"')) }}
+
+  # Once the bundles are attached, rebuild the site so its download buttons point to this release. Triggered
+  # explicitly: a release created with GITHUB_TOKEN doesn't fire pages.yml's `release` event.
+  site:
+    needs: build
+    if: ${{ !cancelled() && startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

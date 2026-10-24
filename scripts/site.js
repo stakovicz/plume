@@ -80,6 +80,8 @@ writeFileSync(join(OUT, 'index.html'), githubInNewTab(fill(readFileSync('site/in
 })));
 cpSync('site/style.css', join(OUT, 'style.css'));
 cpSync('site/img', join(OUT, 'img'), { recursive: true });
+cpSync('docs/img', join(OUT, 'docs/img'), { recursive: true }); // images of the docs pages
+cpSync('site/fonts', join(OUT, 'fonts'), { recursive: true }); // Fira Sans Bold for titles, as in the app (Latin subset, WOFF2)
 
 const docs = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? docs(join(dir, e.name)) : e.name.endsWith('.md') ? [join(dir, e.name)] : []));
 for (const source of docs('docs')) {
