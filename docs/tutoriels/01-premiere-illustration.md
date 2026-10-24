@@ -16,8 +16,8 @@ La fenêtre a trois zones :
 - au centre, le **canevas**, où l'on dessine ;
 - à droite, l'**inspecteur** : en haut la barre d'outils, en dessous les réglages de la sélection.
 
-Les touches des outils (A, O, R, T…) agissent quand le canevas a le clavier : après avoir tapé dans un champ ou
-cliqué un bouton de l'inspecteur, cliquez plutôt l'outil dans la barre d'outils, ou d'abord dans le canevas.
+Les touches des outils (A, O, R, T…) n'agissent pas pendant la saisie dans un champ : après avoir tapé une valeur,
+cliquez l'outil dans la barre d'outils, ou d'abord dans le canevas.
 
 ## 2. Créer un plan de travail
 
@@ -118,7 +118,7 @@ Ouvrez l'image : 3840 × 2160 pixels, avec le soleil, le titre, l'ombre et le d�
 ## Ce que vous avez appris
 
 - Un **plan de travail** cadre ce que vous exportez.
-- Chaque outil a sa touche (O, R, T, A), quand le canevas a le clavier, et rend la main à la Sélection après le dessin ;
+- Chaque outil a sa touche (O, R, T, A), hors de la saisie dans un champ, et rend la main à la Sélection après le dessin ;
   **⇧** contraint (cercle, carré).
 - L'**inspecteur** règle la sélection : couleur, dégradé, bordure, texte, effets.
 - **Grouper** fait bouger et styler plusieurs calques ensemble.
