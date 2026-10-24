@@ -66,6 +66,16 @@ async fn read_bytes(path: String) -> Result<tauri::ipc::Response, String> {
     fs::read(&path).map(tauri::ipc::Response::new).map_err(|e| format!("{path}: {e}"))
 }
 
+/// Help › Plume Documentation: a web page in the default browser. https only: nothing else gets launched.
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    if !url.starts_with("https://") {
+        return Err(format!("not a web page: {url}"));
+    }
+    let opener = if cfg!(target_os = "macos") { "open" } else { "xdg-open" };
+    std::process::Command::new(opener).arg(&url).spawn().map(|_| ()).map_err(|e| format!("{url}: {e}"))
+}
+
 /// `Plume file.svg` / `Plume file.json` opens that file at launch.
 #[tauri::command]
 fn launch_file() -> Option<String> {
@@ -76,7 +86,7 @@ fn launch_file() -> Option<String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![read_text, write_text, write_bytes, launch_file, system_fonts, read_bytes])
+        .invoke_handler(tauri::generate_handler![read_text, write_text, write_bytes, launch_file, system_fonts, read_bytes, open_url])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -60,3 +60,7 @@ Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), 
 ## Fenêtre
 
 Réduire (⌘M) · Fermer la fenêtre (⌘W, propose d'enregistrer).
+
+## Aide
+
+Documentation de Plume : ouvre cette documentation dans le navigateur.

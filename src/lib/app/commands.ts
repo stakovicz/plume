@@ -1,4 +1,4 @@
-import { isTauri } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import { IconMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu';
 import { Image } from '@tauri-apps/api/image';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -124,10 +124,15 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
       ],
     },
     { text: L('Window'), items: [{ native: 'Minimize' }, { native: 'CloseWindow' }] },
+    { text: L('Help'), items: [{ text: L('Plume Documentation'), run: () => openURL(DOCS) }] },
   ];
 }
 
 const SITE = 'https://github.com/stakovicz/plume';
+const DOCS = `${SITE}/blob/main/docs/README.md`;
+
+/** A web page in the default browser (the app's web view would replace the editor). */
+const openURL = (url: string) => (isTauri() ? invoke('open_url', { url }) : window.open(url, '_blank', 'noopener'));
 /** The About panel. macOS shows the copyright and credits (plain text, links aren't clickable);
  *  authors, comments, license and website are for Windows and Linux. The version comes from the bundle. */
 const about = () => ({
