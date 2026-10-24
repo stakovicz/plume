@@ -9,8 +9,10 @@
     type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
   } from '$lib/model/layer';
   import { type TextStyle, FONTS, TEXT_ALIGNS } from '$lib/model/text';
+  import { loadFamily, systemFonts } from '$lib/app/fonts.svelte';
   import Button from '$lib/ui/kit/Button.svelte';
   import Select from '$lib/ui/kit/Select.svelte';
+  import FontField from '$lib/ui/kit/FontField.svelte';
   import { PRESETS } from '$lib/document/artboards';
   import ColorField from '$lib/ui/kit/ColorField.svelte';
   import IconButton from '$lib/ui/kit/IconButton.svelte';
@@ -84,8 +86,12 @@
   function textStyle(patch: Partial<TextStyle>) {
     doc.styleEdits(targets(painted).filter((c) => c.text).map((c) => [c.id, refit({ ...c, text: { ...c.text!, ...patch } }, c)]));
   }
-  const fontOptions = (font: string) =>
-    [...FONTS.map((f) => f.family), ...(FONTS.some((f) => f.family === font) || !font ? [] : [font])].map((value) => ({ value, title: value }));
+  /** Bundled families first (an unknown one, from an imported file, with them), then the installed ones. */
+  const fontOptions = (font: string) => [
+    ...(FONTS.some((f) => f.family === font) || systemFonts.families.includes(font) || !font ? [] : [{ value: font, title: font }]),
+    ...FONTS.map((f) => ({ value: f.family, title: f.family })),
+    ...systemFonts.families.map((value) => ({ value, title: value, group: L('Installed') })),
+  ];
 
   /** One undoable change to the selected layers. */
   function edit(f: (l: Layer) => Layer) {
@@ -249,9 +255,9 @@
       </Section>
     {:else if pAll((x) => !!x.text)}
       <Section title={L('Text')}>
-        <Row label={L('Font')} single>
-          <Select label={L('Font')} options={fontOptions(pPick((x) => x.text!.font))} value={pPick((x) => x.text!.font)} disabled={locked}
-            onchange={(font) => textStyle({ font })} />
+        <Row label={L('Font')}>
+          <FontField label={L('Font')} options={fontOptions(pPick((x) => x.text!.font))} value={pPick((x) => x.text!.font)} disabled={locked}
+            onchange={(font) => loadFamily(font).then(() => textStyle({ font }))} />
         </Row>
         <Row label={L('Weight')}>
           <Segmented label={L('Weight')} value={pPick((x) => (x.text!.weight >= 600 ? 'bold' : 'regular'))} options={options(['regular', 'bold'])} disabled={locked}

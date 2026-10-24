@@ -14,12 +14,12 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 ## Layout
 
 ```
-src-tauri/src/lib.rs   Rust commands: read_text, write_text / write_bytes (atomic), launch_file; dialog plugin
+src-tauri/src/lib.rs   Rust commands: read_text, read_bytes, write_text / write_bytes (atomic), launch_file, system_fonts (fontdb); dialog plugin
 src/lib/
   model/      Layer (+ transforms, border), geometry (Pt, Affine, Bézier bounds/hit), path-data,
               point-editing, curve-fit, layer-tree helpers, color, effects, codable (file format),
               boolean (union/subtract/… via paper.js), outline (border → filled shape),
-              text (layout, measuring, glyph outlines via opentype.js; fonts bundled in static/fonts)
+              text (layout, measuring, glyph outlines via fontkit; fonts bundled in static/fonts or installed)
   document/   Doc (state, undo, editing ops, zoom, load/save data), Tool
   svg/        import (DOMParser → element tree → layers; gradients, masks as clips, filters), export, syntax
   app/        files (panels/read/write, recents, save prompt, export), render (PNG/JPG/PDF from SVG),
@@ -89,3 +89,10 @@ Logic that can be tested without a window belongs in model/document, not in comp
   (older files) still loads. Anything that replaces the document calls `files.confirmDiscardChanges()` first.
 - **Colors** in views use `ColorField` (kit): it offers the document palette; undo comes from `styleEdit`.
 - Deliberate shortcuts are marked `// ponytail:` with their limit and upgrade path.
+
+## Release
+
+1. Note changes under `## Non publié` in CHANGELOG.md as you go.
+2. `npm version patch|minor|major`: runs tests, type check and lint, bumps package.json (tauri.conf.json reads it),
+   Cargo.toml and Cargo.lock, dates the changelog section, commits `Plume x.y.z`, tags `vx.y.z` and pushes.
+3. The tag triggers `.github/workflows/release.yml`: macOS and Linux bundles, release notes from the changelog.

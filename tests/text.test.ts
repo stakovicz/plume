@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { type Font, type FontCollection, create } from 'fontkit';
+import { jsPDF } from 'jspdf';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { pathBounds, pt } from '$lib/model/geometry';
 import { BLACK } from '$lib/model/color';
 import { type Layer, bounds, localBounds, newLayer, resized, rotated } from '$lib/model/layer';
-import { DEFAULT_TEXT, FONTS, type TextStyle, fitted, measure, registerFont, textLines } from '$lib/model/text';
+import { DEFAULT_TEXT, FONTS, type TextStyle, fitted, measure, registerFont, textLines, trueTypeFace } from '$lib/model/text';
 import { outlined } from '$lib/model/outline';
 import { decodeFile, encodeFile } from '$lib/model/codable';
 import { importSVG } from '$lib/svg/import';
@@ -133,4 +135,25 @@ describe('text', () => {
     doc.undo();
     expect(doc.layers).toEqual([]);
   });
+});
+
+const HELVETICA = '/System/Library/Fonts/Helvetica.ttc'; // a system collection (macOS only)
+describe.skipIf(!existsSync(HELVETICA))('installed fonts', () => {
+  test('a collection face comes out as a TrueType file jsPDF embeds', () => {
+    const ttc = new Uint8Array(readFileSync(HELVETICA));
+    const face = trueTypeFace(ttc, 1)!;
+    expect((create(face) as Font).postscriptName).toBe((create(ttc) as FontCollection).fonts[1].postscriptName);
+    const pdf = new jsPDF();
+    pdf.addFileToVFS('h.ttf', Buffer.from(face).toString('base64'));
+    pdf.addFont('h.ttf', 'H', 'normal');
+    pdf.setFont('H');
+    pdf.text('Hello', 10, 10);
+    expect(pdf.output().length).toBeGreaterThan(1000);
+  });
+});
+
+test('a TrueType file is embedded as is, CFF (.otf) is not', () => {
+  const ttf = new Uint8Array(readFileSync('static/fonts/FiraSans-Regular.ttf'));
+  expect(trueTypeFace(ttf)).toBe(ttf);
+  expect(trueTypeFace(new Uint8Array([0x4f, 0x54, 0x54, 0x4f, 0, 0, 0, 0]))).toBeNull();
 });

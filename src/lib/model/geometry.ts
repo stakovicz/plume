@@ -71,17 +71,24 @@ export const intersects = (a: Rect, b: Rect) =>
   a.x <= b.x + b.width && b.x <= a.x + a.width && a.y <= b.y + b.height && b.y <= a.y + a.height;
 export const rectContains = (r: Rect, p: Pt) => p.x >= r.x && p.x <= r.x + r.width && p.y >= r.y && p.y <= r.y + r.height;
 
+/** A loop, not `Math.min(...xs)`: spreading the points of a big imported path overflows the stack. */
 export function rectOf(points: Pt[]): Rect | null {
   if (!points.length) return null;
-  const xs = points.map((p) => p.x), ys = points.map((p) => p.y);
-  const x = Math.min(...xs), y = Math.min(...ys);
-  return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of points) {
+    if (p.x < x0) x0 = p.x;
+    if (p.x > x1) x1 = p.x;
+    if (p.y < y0) y0 = p.y;
+    if (p.y > y1) y1 = p.y;
+  }
+  return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
 }
 
 export function union(a: Rect | null, b: Rect | null): Rect | null {
   if (!a) return b;
   if (!b) return a;
-  return rectOf([pt(a.x, a.y), pt(a.x + a.width, a.y + a.height), pt(b.x, b.y), pt(b.x + b.width, b.y + b.height)]);
+  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+  return { x, y, width: Math.max(a.x + a.width, b.x + b.width) - x, height: Math.max(a.y + a.height, b.y + b.height) - y };
 }
 
 // MARK: Curves

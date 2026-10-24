@@ -1,5 +1,5 @@
 import type { Framed } from '$lib/svg/export';
-import { base64, fontsIn } from './fonts';
+import { base64, fontsIn } from './fonts.svelte';
 
 /** Export formats: SVG is written as is, PNG/JPG are rendered by the web view, PDF is laid out by
  *  jsPDF + svg2pdf.js (vector; 1 px = 1 pt). Needs a DOM: app layer, not model. */
@@ -50,7 +50,7 @@ async function pdf(f: Framed): Promise<Uint8Array<ArrayBuffer>> {
     doc.addFileToVFS(ff.file, base64(ff.data));
     doc.addFont(ff.file, ff.family, ff.weight >= 600 ? 'bold' : 'normal');
   }
-  // ponytail: fonts that aren't bundled (imported SVG) come out in Times; convert to outlines for exact type
+  // ponytail: fonts not loaded (imported SVG) or .otf (CFF) come out in Times; convert to outlines for exact type
   const svg = new DOMParser().parseFromString(f.svg, 'image/svg+xml').documentElement;
   await doc.svg(svg, { x: 0, y: 0, width: w, height: h });
   return new Uint8Array(doc.output('arraybuffer'));

@@ -1,5 +1,29 @@
 # Changelog
 
+## Non publié
+
+### Ajouts
+
+- **Polices installées** : les polices du système (macOS, Linux) sont proposées dans l'inspecteur, sous
+  « Installées », et chargées quand un calque les utilise. Les collections (.ttc) et les polices variables sont prises en charge.
+- **Aperçu des polices** : la liste affiche chaque police dans son propre dessin, avec un champ de recherche.
+- **Export PDF et PNG** avec les polices installées : elles sont intégrées au fichier (texte sélectionnable en PDF).
+  Les polices .otf (contours CFF) restent remplacées par Times dans les PDF.
+
+### Modifications
+
+- Mise en page et vectorisation du texte par fontkit (au lieu d'opentype.js).
+- **Gros documents plus fluides** : glisser sur le canevas (crayon, redimensionner, pivoter, éditer des points) ne
+  resérialise plus tout le document à chaque mouvement ; un curseur de l'inspecteur non plus. Clic dans le vide,
+  enregistrement et sélection multiple plus rapides.
+- L'historique d'annulation est plafonné (~200 Mo) : les plus anciennes étapes partent sur les très gros documents.
+
+### Corrections
+
+- Un tracé de plusieurs centaines de milliers de points (SVG importé) faisait planter le calcul de ses limites.
+- Un groupe sélectionné avec l'un de ses calques : le déplacement, le retournement et l'export ne s'appliquent
+  plus deux fois à ce calque ; l'export de la sélection suit l'ordre d'empilement.
+
 ## 0.2.0 — 2026-10-21
 
 ### Ajouts

@@ -52,11 +52,6 @@
     gestures.down(view(e), e.shiftKey);
   }
 
-  function pointermove(e: PointerEvent) {
-    doc.hover = view(e);
-    gestures.move(view(e));
-  }
-
   /** Scroll = pan, ⌘-scroll / pinch (ctrl-wheel in WebKit) = zoom around the cursor. */
   function wheel(e: WheelEvent) {
     e.preventDefault();
@@ -123,10 +118,9 @@
   role="application"
   aria-label={L('Canvas')}
   onpointerdown={pointerdown}
-  onpointermove={pointermove}
+  onpointermove={(e) => gestures.move(view(e))}
   onpointerup={() => gestures.up()}
   onpointercancel={() => gestures.up()}
-  onpointerleave={() => !gestures.dragging && (doc.hover = null)}
   onwheel={wheel}
   onkeydown={keydown}
 >

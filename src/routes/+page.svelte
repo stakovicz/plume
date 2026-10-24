@@ -14,7 +14,7 @@
   import IconButton from '$lib/ui/kit/IconButton.svelte';
   import MenuBar from '$lib/ui/kit/MenuBar.svelte';
   import ExportDialog from '$lib/ui/ExportDialog.svelte';
-  import { fontsReady } from '$lib/app/fonts';
+  import { fontsReady, loadUsedFonts, systemFonts } from '$lib/app/fonts.svelte';
 
   const doc = new Doc();
   const files = new Files(doc);
@@ -34,6 +34,7 @@
   let exporting = $state(false);
   let fontsLoaded = $state(false); // text is laid out with the bundled fonts' metrics
   fontsReady.then(() => (fontsLoaded = true));
+  $effect(() => loadUsedFonts(doc.layers));
   const specs = $derived(menus(doc, files, { toggle, openExport: () => (exporting = true) }));
 
 
@@ -43,6 +44,7 @@
   });
 
   $effect(() => {
+    if (doc.dragging) return; // isDirty serializes the document: once the drag ends, not on every mouse move
     const title = `${files.title()}${doc.isDirty ? ` — ${L('Edited')}` : ''}`;
     if (isTauri()) getCurrentWindow().setTitle(title);
     else document.title = title;
@@ -101,7 +103,7 @@
     </aside>
   {/if}
   <div class="stage">
-    {#if fontsLoaded}<Canvas {doc} />{/if}
+    {#if fontsLoaded}{#key systemFonts.loaded}<Canvas {doc} />{/key}{/if}
     <!-- a hidden panel's header is gone with it: this brings it back -->
     {#if !open.navigator}
       <div class="float left">

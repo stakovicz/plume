@@ -13,6 +13,7 @@
   import Segmented from '$lib/ui/kit/Segmented.svelte';
   import { POINT_TYPES, type PointType } from '$lib/model/geometry';
   import Select from '$lib/ui/kit/Select.svelte';
+  import FontField from '$lib/ui/kit/FontField.svelte';
   import InlineName from '$lib/ui/kit/InlineName.svelte';
   import Slider from '$lib/ui/kit/Slider.svelte';
   import TextField from '$lib/ui/kit/TextField.svelte';
@@ -21,7 +22,7 @@
   /** Dev-only gallery: every primitive in every state, light and dark side by side, to spot drift. */
   const icons = ['select', 'pen', 'pencil', 'rect', 'ellipse', 'path', 'group', 'artboard', 'eye', 'eye-off', 'lock', 'lock-open', 'plus', 'rotate', 'chevron', 'union', 'subtract', 'intersect', 'difference', 'sidebar-left', 'sidebar-right'] as const;
   let dialog = $state(false);
-  let renaming = $state(false), pick = $state(''), n = $state(42), text = $state('Rectangle 1'), seg = $state<'a' | 'b' | 'c'>('a'), point = $state<PointType>('straight'), on = $state(true), v = $state(0.6);
+  let renaming = $state(false), pick = $state(''), font = $state('Fira Sans'), n = $state(42), text = $state('Rectangle 1'), seg = $state<'a' | 'b' | 'c'>('a'), point = $state<PointType>('straight'), on = $state(true), v = $state(0.6);
   let color = $state<RGBA>({ r: 0.2, g: 0.5, b: 0.9, a: 0.8 }), palette = $state<RGBA[]>([BLACK, GRAY]);
 </script>
 
@@ -78,6 +79,10 @@
     <Row label="Select">
       <Select label="preset" value={pick} placeholder="Custom" {disabled} onchange={(x) => (pick = x)}
         options={[{ value: 'a4', title: 'A4', group: 'Paper' }, { value: 'hd', title: 'Full HD', group: 'Desktop' }]} />
+    </Row>
+    <Row label="Font">
+      <FontField label="font" value={font} {disabled} onchange={(x) => (font = x)}
+        options={[...['Fira Sans', 'PT Serif', 'Fira Mono'].map((f) => ({ value: f, title: f })), { value: 'Georgia', title: 'Georgia', group: 'Installed' }]} />
     </Row>
     <Row label="Slider"><Slider label="v" value={v} {disabled} oninput={(x) => (v = x)} /></Row>
     <Row label="Color">
