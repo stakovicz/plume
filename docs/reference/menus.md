@@ -5,7 +5,10 @@ en haut de la fenêtre avec les mêmes commandes.
 
 ## Plume
 
-À propos de Plume · Services · Masquer Plume · Masquer les autres · Tout afficher · Quitter Plume (⌘Q)
+À propos de Plume · Services · Masquer Plume · Masquer les autres · Tout afficher · Quitter Plume (⌘Q).
+Sous Linux : À propos de Plume · Quitter Plume (Ctrl+Q).
+
+Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj (voir [Raccourcis](raccourcis.md)).
 
 ## Fichier
 
@@ -43,7 +46,7 @@ Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), 
 |---|---|
 | Grouper / Dégrouper | ⌘G / ⇧⌘G |
 | Avancer / Reculer | ⌥⌘↑ / ⌥⌘↓ |
-| Mettre au premier plan / à l'arrière-plan | ⌃⌥⌘↑ / ⌃⌥⌘↓ |
+| Mettre au premier plan / à l'arrière-plan | ⌃⌥⌘↑ / ⌃⌥⌘↓ (Linux : Ctrl+Maj+Alt+↑ / ↓) |
 | Afficher/Masquer | ⇧⌘H |
 | Verrouiller/Déverrouiller | ⇧⌘L |
 
@@ -59,7 +62,7 @@ Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), 
 
 ## Fenêtre
 
-Réduire (⌘M) · Fermer la fenêtre (⌘W, propose d'enregistrer).
+Réduire (⌘M ; sans raccourci sous Linux) · Fermer la fenêtre (⌘W, Ctrl+W sous Linux ; propose d'enregistrer).
 
 ## Aide
 
