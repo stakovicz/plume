@@ -50,14 +50,7 @@ styles différents dans un même texte, autres filtres, masques de luminance, dr
 
 | Groupe | Nom | Taille |
 |---|---|---|
-| Téléphone | iPhone 16 | 393 × 852 |
-| Téléphone | iPhone 16 Pro Max | 440 × 956 |
-| Téléphone | Android | 412 × 917 |
-| Tablette | iPad | 820 × 1180 |
-| Tablette | iPad Pro 13" | 1032 × 1376 |
 | Ordinateur | Desktop | 1440 × 1024 |
 | Ordinateur | Full HD | 1920 × 1080 |
 | Papier | A4 | 595 × 842 |
 | Papier | Letter | 612 × 792 |
-| Réseaux sociaux | Instagram post | 1080 × 1080 |
-| Réseaux sociaux | Story | 1080 × 1920 |

@@ -1,6 +1,6 @@
 # Votre première illustration
 
-Dans ce tutoriel, vous allez créer une petite carte carrée : un soleil, un sol en dégradé et un titre,
+Dans ce tutoriel, vous allez créer une bannière : un soleil, un sol en dégradé et un titre,
 puis l'exporter en image PNG. Comptez un quart d'heure. Aucune connaissance préalable n'est nécessaire.
 
 À la fin, vous saurez dessiner des formes, les colorer, écrire du texte, grouper des calques,
@@ -21,9 +21,9 @@ La fenêtre a trois zones :
 Un plan de travail est la « page » que vous exporterez.
 
 1. Appuyez sur **A** (outil Plan de travail). L'inspecteur affiche des tailles prêtes à l'emploi.
-2. Dans la section **Réseaux sociaux**, cliquez sur **1080 × 1080** (Instagram post).
+2. Dans la section **Ordinateur**, cliquez sur **1920 × 1080** (Full HD).
 
-Un plan de travail blanc apparaît, cadré dans la fenêtre. Son nom, « Instagram post », s'affiche au-dessus.
+Un plan de travail blanc apparaît, cadré dans la fenêtre. Son nom, « Full HD », s'affiche au-dessus.
 Plume est revenu à l'outil Sélection.
 
 ## 3. Dessiner le soleil
@@ -81,16 +81,16 @@ Glissez le groupe sur le canevas : le soleil et le texte bougent ensemble.
 
 ## 7. Enregistrer
 
-**Fichier › Enregistrer** (⌘S), nommez le fichier `carte` et validez. Plume enregistre un document `carte.json`
+**Fichier › Enregistrer** (⌘S), nommez le fichier `banniere` et validez. Plume enregistre un document `banniere.json`
 que vous pourrez rouvrir et modifier.
 
 ## 8. Exporter en PNG
 
 1. **Fichier › Exporter…** (⌘E).
 2. **Contenu** : **Plans de travail**. **Format** : **PNG**. **Échelle** : **2×**.
-3. Cliquez sur **Exporter** et choisissez où enregistrer `Instagram post@2x.png`.
+3. Cliquez sur **Exporter** et choisissez où enregistrer `Full HD@2x.png`.
 
-Ouvrez l'image : 2160 × 2160 pixels, avec le soleil, le titre, l'ombre et le dégradé.
+Ouvrez l'image : 3840 × 2160 pixels, avec le soleil, le titre, l'ombre et le dégradé.
 
 ## Ce que vous avez appris
 
