@@ -4,6 +4,7 @@
 :root {
   --font: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-numeric: 'Fira Sans', var(--font); /* bundled, so on every system: has a slashed zero (font-variant-numeric) */
   --text-11: 11px;
   --text-12: 12px;
   --text-13: 13px;

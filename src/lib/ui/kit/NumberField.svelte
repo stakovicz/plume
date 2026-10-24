@@ -83,8 +83,9 @@
     padding: 0 var(--space-1);
     border: none;
     background: none;
+    font-family: var(--font-numeric);
     font-size: var(--text-12);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums slashed-zero;
     outline: none;
     user-select: text;
     -webkit-user-select: text;
@@ -95,13 +96,14 @@
     display: flex;
     align-items: center;
     padding: 0 var(--space-1);
+    font-family: var(--font-numeric);
     font-size: var(--text-12);
     color: var(--text-2);
     white-space: pre;
     pointer-events: none;
   }
   .ghost {
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums slashed-zero; /* same width as the field's text: the unit follows it */
     visibility: hidden;
   }
   .stepper {
