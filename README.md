@@ -5,7 +5,7 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 
 ## Fonctionnalités
 
-- **Dessin** : rectangle (R), ovale (O), plume (V), crayon (P, lissé en courbes de Bézier), plan de travail (A).
+- **Dessin** : rectangle (R), ovale (O), plume (V), crayon (P, lissé en courbes de Bézier), texte (T), plan de travail (A).
   ⇧ contraint (carré, cercle, angles par 15°), ⌥ dessine depuis le centre.
 - **Édition de points** : double-clic ou Retour sur un tracé ; poignées miroir, ⌥ pour les rendre indépendantes.
 - **Calques** : groupes, plans de travail, masquer / verrouiller, renommer, glisser-déposer dans la liste,
@@ -25,23 +25,7 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 
 ## Raccourcis
 
-| Action | Raccourci |
-|---|---|
-| Nouveau / Ouvrir / Enregistrer / Enregistrer sous | ⌘N / ⌘O / ⌘S / ⇧⌘S |
-| Exporter | ⌘E |
-| Annuler / Rétablir | ⌘Z / ⇧⌘Z |
-| Copier / Couper / Coller / Dupliquer | ⌘C / ⌘X / ⌘V / ⌘D |
-| Grouper / Dégrouper | ⌘G / ⇧⌘G |
-| Union / Soustraire / Intersection / Différence | ⌥⌘U / ⌥⌘S / ⌥⌘I / ⌥⌘X |
-| Vectoriser le contour | ⌥⌘O |
-| Déplacer de 1 px / 10 px | ← → ↑ ↓ / ⇧ + flèche |
-| Avancer / Reculer | ⌥⌘↑ / ⌥⌘↓ |
-| Premier plan / Arrière-plan | ⌃⌥⌘↑ / ⌃⌥⌘↓ |
-| Masquer / Verrouiller | ⇧⌘H / ⇧⌘L |
-| Zoom + / − / 100 % / Tout afficher | ⌘= / ⌘- / ⌘0 / ⌘1 |
-| Navigateur / Inspecteur | ⌥⌘1 / ⌥⌘2 |
-
-Dans les champs numériques : ↑/↓ (⇧ pour ×10) ou les flèches à droite du champ.
+Tous les raccourcis clavier et gestes : [docs/raccourcis.md](docs/raccourcis.md).
 
 ## Développement
 

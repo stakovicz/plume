@@ -10,6 +10,19 @@ import { rect } from './helpers';
 
 const board = (x = 0, y = 0, w = 100, h = 100) => newArtboard('A', [pt(x, y), pt(x + w, y + h)]);
 
+test('select all: top-level layers and artboard children, visible ones; inside a group, its children', () => {
+  const d = new Doc(), a = board(), hidden = { ...rect(0, 0, 5, 5, 'h'), hidden: true };
+  a.children.push(rect(10, 10, 20, 20, 'b'), rect(30, 30, 40, 40, 'c'), hidden);
+  d.layers = [a, rect(200, 0, 210, 10, 'out')];
+  d.selectAll();
+  expect(d.selectedLayers.map((l) => l.name)).toEqual(['b', 'c', 'out']);
+  d.selectedIDs = new Set(a.children.slice(0, 2).map((l) => l.id));
+  d.group();
+  d.selection = d.selected!.children[0].id;
+  d.selectAll();
+  expect(d.selectedLayers.map((l) => l.name)).toEqual(['b', 'c']);
+});
+
 describe('artboard model', () => {
   test('bounds are the frame, not the content', () => {
     const a = { ...board(), children: [rect(-50, -50, 200, 200)] };
