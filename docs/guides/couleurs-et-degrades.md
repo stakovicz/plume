@@ -10,6 +10,7 @@ Dans le panneau :
 - le carré règle saturation et luminosité, la barre suivante la teinte, la dernière l'opacité ;
 - **Hex** : tapez un code (`F5B700`, `#f5b700`, `FB0`) puis **Retour** ; l'opacité en cours est conservée ;
 - le champ en pourcentage, à côté, règle l'opacité ;
+- **Retour** dans un champ du panneau valide et ferme le panneau ;
 - les flèches du clavier déplacent le curseur actif de 1 % (10 % avec ⇧).
 
 Pour plusieurs calques sélectionnés, le changement s'applique à tous.

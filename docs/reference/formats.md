@@ -55,6 +55,7 @@ styles différents dans un même texte, autres filtres, masques de luminance, dr
 | Écran | Full HD | 1920 × 1080 |
 | Écran | QHD | 2560 × 1440 |
 | Écran | 4K UHD | 3840 × 2160 |
+| Écran | Carré | 1080 × 1080 |
 | Papier | A5 | 420 × 595 |
 | Papier | A4 | 595 × 842 |
 | Papier | A3 | 842 × 1191 |

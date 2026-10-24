@@ -108,6 +108,15 @@
     }
   }
 
+  /** What's typed in the hex field, on Return or when leaving it (Tab, click elsewhere), like a number field.
+   *  Not a color: the field shows the current one again. */
+  function commitHex() {
+    if (hexDraft === null) return;
+    const c = fromHex(hexDraft);
+    hexDraft = null;
+    if (c) { setColor({ ...c, a: current.a }); syncFromColor(c); }
+  }
+
   const clamp = (x: number) => Math.min(Math.max(x, 0), 1);
   /** Arrow keys → steps of 1 % (⇧: 10 %). */
   const arrows = (step: (dx: number, dy: number) => void) => (e: KeyboardEvent) => {
@@ -149,9 +158,19 @@
 <div
   id="color-{uid}"
   class="panel"
+  role="dialog"
+  tabindex="-1"
+  aria-label={label}
   popover="auto"
   style:position-anchor="--color-{uid}"
   ontoggle={(e) => { if (e.newState === 'open') { sel = 0; syncFromColor(); } }}
+  onkeydown={(e) => {
+    // Return in a field: the field commits (its own handler runs first), then the panel closes. Default prevented:
+    // focus goes back to the swatch, which the same key press would otherwise click, reopening the panel
+    if (e.key !== 'Enter' || !(e.target instanceof HTMLInputElement)) return;
+    e.preventDefault();
+    e.currentTarget.hidePopover();
+  }}
 >
   {#if ongradient}
     <Segmented label={L('Fill type')} value={kind} onchange={setKind}
@@ -210,13 +229,8 @@
       spellcheck="false"
       value={hexDraft ?? hex(current)}
       oninput={(e) => (hexDraft = e.currentTarget.value)}
-      onkeydown={(e) => {
-        if (e.key !== 'Enter') return;
-        const c = fromHex(e.currentTarget.value);
-        hexDraft = null;
-        if (c) { setColor({ ...c, a: current.a }); syncFromColor(c); }
-      }}
-      onblur={() => (hexDraft = null)}
+      onkeydown={(e) => e.key === 'Enter' && commitHex()}
+      onblur={commitHex}
     />
     <NumberField label={L('Opacity')} value={current.a * 100} digits={0} min={0} max={100} suffix="%" onchange={(x) => setColor({ ...current, a: x / 100 })} />
   </div>
@@ -363,8 +377,9 @@
     border: var(--hairline) solid var(--border-strong);
     border-radius: var(--radius-1);
     background: var(--field);
-    font-family: var(--font-mono);
+    font-family: var(--font-numeric);
     font-size: var(--text-12);
+    font-variant-numeric: tabular-nums slashed-zero;
     outline: none;
     user-select: text;
     -webkit-user-select: text;

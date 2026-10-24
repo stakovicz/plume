@@ -99,6 +99,6 @@ S'ouvre au clic sur une pastille.
 | Barre d'arrêts | clic : ajouter ; glisser ou ← → : déplacer ; ⌫ : supprimer (deux minimum) |
 | Angle | dégradé linéaire : 0° haut, 90° droite, 180° bas |
 | Carré, Teinte, Opacité | couleur en cours ou de l'arrêt sélectionné ; flèches : 1 %, ⇧ : 10 % |
-| Hex | code hexadécimal, Retour pour appliquer ; garde l'opacité |
+| Hex | code hexadécimal, appliqué par Retour (qui ferme le panneau) ou en quittant le champ (Tab) ; garde l'opacité |
 | % | opacité |
 | Couleurs du document | clic : appliquer ; + : ajouter ; clic droit : retirer |
