@@ -9,6 +9,8 @@
 - **Aperçu des polices** : la liste affiche chaque police dans son propre dessin, avec un champ de recherche.
 - **Export PDF et PNG** avec les polices installées : elles sont intégrées au fichier (texte sélectionnable en PDF).
   Les polices .otf (contours CFF) restent remplacées par Times dans les PDF.
+- **Sélection au lasso** : glisser depuis une zone vide du canevas trace un rectangle qui sélectionne les calques
+  visibles qu'il touche ; ⇧ ajoute à la sélection.
 - **Tout sélectionner** (⌘A) sélectionne les calques : ceux du groupe en cours, sinon tous les calques visibles,
   ceux des plans de travail compris. Dans un champ, ⌘A sélectionne toujours son texte.
 

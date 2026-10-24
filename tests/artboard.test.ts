@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 import { describe, expect, test } from 'vitest';
 import { Doc } from '$lib/document/doc.svelte';
-import { pt } from '$lib/model/geometry';
+import { type Pt, pt } from '$lib/model/geometry';
 import { bounds, hit, localBounds, newArtboard, resized, rotated } from '$lib/model/layer';
 import { decodeFile, encodeFile } from '$lib/model/codable';
 import { artboardSVG } from '$lib/svg/export';
+import { Gestures } from '$lib/ui/canvas/gestures.svelte';
 import { importSVG } from '$lib/svg/import';
 import { rect } from './helpers';
 
@@ -230,4 +231,18 @@ describe('copy and paste', () => {
     expect(copy.children.map((c) => c.id)).not.toContain(d.layers[0].children[0].id);
     expect(bounds(copy.children[0]).x - localBounds(copy).x).toBe(10);
   });
+});
+
+test('marquee: dragging on an empty area selects what the rectangle touches; ⇧ adds; a click deselects', () => {
+  const d = new Doc(), a = board();
+  a.children.push(rect(10, 10, 20, 20, 'in'));
+  d.layers = [a, rect(200, 0, 210, 10, 'out'), { ...rect(150, 0, 160, 10, 'hidden'), hidden: true }];
+  const g = new Gestures(d), drag = (from: Pt, to: Pt, shift = false) => { g.down(from, shift); g.move(to); g.up(); };
+  drag(pt(5, 5), pt(15, 15)); // starts inside the artboard, on no layer
+  expect(d.selectedLayers.map((l) => l.name)).toEqual(['in']);
+  expect(g.marquee).toBe(null);
+  drag(pt(140, -5), pt(205, 5), true); // over the hidden layer and 'out'
+  expect(d.selectedLayers.map((l) => l.name)).toEqual(['in', 'out']);
+  drag(pt(300, 300), pt(301, 300)); // under 3 px: a click
+  expect(d.selectedIDs.size).toBe(0);
 });

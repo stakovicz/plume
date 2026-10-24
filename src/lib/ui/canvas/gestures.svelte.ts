@@ -1,7 +1,7 @@
 import { L } from '$lib/i18n';
 import type { Doc } from '$lib/document/doc.svelte';
 import type { Tool } from '$lib/document/tool';
-import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectContains, rotateAround, scaleAround, translate, union } from '$lib/model/geometry';
+import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectContains, rectOf, rotateAround, scaleAround, translate, union } from '$lib/model/geometry';
 import { type Guide, pointRect, snapAlong, snapRect } from '$lib/model/snapping';
 import { fitCurve } from '$lib/model/curve-fit';
 import { fitted } from '$lib/model/text';
@@ -34,7 +34,8 @@ type Drag =
   | { kind: 'resize'; o: Layer; h: Pt } // handle in unit coordinates of the local bounds
   | { kind: 'rotate'; o: Layer }
   | { kind: 'edit'; o: Layer; t: Target }
-  | { kind: 'draw'; tool: Tool };
+  | { kind: 'draw'; tool: Tool }
+  | { kind: 'marquee'; among: Layer[]; base: Set<string> }; // what it can select, what stays selected (⇧)
 
 const DOUBLE_CLICK_MS = 400;
 const SNAP_PX = 5; // smart guides pull within this many screen pixels
@@ -42,6 +43,8 @@ const SNAP_PX = 5; // smart guides pull within this many screen pixels
 export class Gestures {
   /** Pill next to the cursor while resizing/rotating, view space. */
   hint = $state<{ at: Pt; text: string; icon: IconName } | null>(null);
+  /** Selection rectangle being dragged on an empty area, document space. */
+  marquee = $state<Rect | null>(null);
   /** Smart guides of the current drag, document space. */
   guides = $state<Guide[]>([]);
   #targets: Rect[] = []; // what the drag snaps to, taken on mouse-down
@@ -115,6 +118,11 @@ export class Gestures {
         break;
       case 'draw':
         this.#draw(g.tool, this.#from, loc);
+        break;
+      case 'marquee':
+        if (!this.marquee && dist(at, this.#start) < 3) break; // a click, not a drag
+        this.marquee = rectOf([start, loc])!;
+        doc.selectIn(this.marquee, g.among, g.base);
     }
   }
 
@@ -157,6 +165,7 @@ export class Gestures {
     doc.dragging = false;
     this.hint = null;
     this.guides = [];
+    this.marquee = null;
   }
 
   // MARK: Smart guides
@@ -297,20 +306,22 @@ export class Gestures {
     // a selected artboard is dragged from anywhere in its empty area
     if (!picked && sel?.kind === 'artboard' && rectContains(localBounds(sel), p)) picked = sel;
 
+    if (!picked) { // empty area: deselects, and a drag selects what the rectangle touches (⇧ adds to the selection)
+      const among = doc.pickable(), base = shiftClick ? new Set(doc.selectedIDs) : new Set<string>();
+      doc.selectedIDs = base;
+      return { kind: 'marquee', among, base };
+    }
     if (shiftClick) { // ⇧-click toggles the layer in the selection
-      if (picked) {
-        const ids = new Set(doc.selectedIDs);
-        if (ids.has(picked.id)) ids.delete(picked.id);
-        else ids.add(picked.id);
-        doc.selectedIDs = ids;
-      }
+      const ids = new Set(doc.selectedIDs);
+      if (ids.has(picked.id)) ids.delete(picked.id);
+      else ids.add(picked.id);
+      doc.selectedIDs = ids;
       return { kind: 'ignore' };
     }
     if (picked && doc.selectedIDs.has(picked.id) && doc.selectedIDs.size > 1) {
       return this.#moving(doc.selectedLayers.filter((l) => !doc.isLocked(l.id)).map(snap));
     }
-    doc.selection = picked?.id ?? null;
-    if (!picked) return { kind: 'ignore' };
+    doc.selection = picked.id;
     if (double) {
       if (picked.kind === 'group') { // entering a group only changes the selection, fine even when locked
         doc.selection = picked.children.findLast((c) => hit(c, p, tol))?.id ?? picked.id;

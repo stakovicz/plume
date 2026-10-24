@@ -5,7 +5,7 @@ Après un dessin, Plume revient à l'outil Sélection, sauf pour la Plume (qui c
 
 | Outil | Touche | Utilisation | Modificateurs |
 |---|---|---|---|
-| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; poignées : redimensionner, pivoter ; double-clic ou Retour : éditer les points ou le texte | ⇧-clic : ajouter/retirer ; ⇧ : proportions, angle par 15° ; ⌥ : depuis le centre |
+| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; glisser depuis le vide : sélection au lasso ; poignées : redimensionner, pivoter ; double-clic ou Retour : éditer les points ou le texte | ⇧-clic : ajouter/retirer ; ⇧ : proportions, angle par 15° ; ⌥ : depuis le centre |
 | Plan de travail | A | glisser : dessiner un plan de travail ; l'inspecteur propose des tailles prédéfinies | ⇧ : carré ; ⌥ : depuis le centre |
 | Plume | V | clic : point d'angle ; clic-glisser : point de courbe ; clic sur le premier point : fermer ; Retour ou Échap : terminer ouvert | — |
 | Crayon | P | glisser : trait à main levée, lissé en courbes au relâchement | — |

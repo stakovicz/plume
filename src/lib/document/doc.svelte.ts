@@ -282,12 +282,19 @@ export class Doc {
     this.selectedIDs = new Set([...this.selectedIDs].filter((id) => !deletable.has(id)));
   }
 
-  /** ⌘A: the visible layers clicks pick among: the group being worked in, else the top-level layers,
-   *  an artboard standing for its children. */
-  selectAll() {
+  /** The visible layers clicks pick among: the group being worked in, else the top-level layers,
+   *  an artboard standing for its children. What ⌘A and the marquee select. */
+  pickable(): Layer[] {
     const first = [...this.selectedIDs][0], home = first ? parent(this.layers, first) : null;
     const scope = home?.kind === 'group' ? home.children : this.layers.flatMap((l) => (l.kind === 'artboard' ? l.children : [l]));
-    this.selectedIDs = new Set(scope.filter((l) => !this.isHidden(l.id)).map((l) => l.id));
+    return scope.filter((l) => !this.isHidden(l.id));
+  }
+
+  selectAll() { this.selectedIDs = new Set(this.pickable().map((l) => l.id)); }
+
+  /** Marquee: `base` plus the pickable layers `among` whose bounds touch `r` (document space). */
+  selectIn(r: Rect, among: Layer[], base: Set<string> = new Set()) {
+    this.selectedIDs = new Set([...base, ...among.filter((l) => intersects(bounds(l), r)).map((l) => l.id)]);
   }
 
   // MARK: Visibility & locking
