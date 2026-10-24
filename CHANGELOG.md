@@ -17,6 +17,8 @@
   visibles qu'il touche ; ⇧ ajoute à la sélection.
 - **Site de Plume** : https://stakovicz.github.io/plume/ — présentation, téléchargements, documentation et version web
   à essayer dans le navigateur, publiés depuis GitHub.
+- **Fichier › Exemples** : six SVG d'exemple (illustration, icône d'application, affiche, tableau de bord,
+  pictogrammes, motif) à ouvrir et retoucher. La version web s'ouvre sur l'illustration.
 - **Menu Aide › Documentation de Plume** : ouvre la documentation d'utilisation dans le navigateur.
 - **Tout sélectionner** (⌘A) sélectionne les calques : ceux du groupe en cours, sinon tous les calques visibles,
   ceux des plans de travail compris. Dans un champ, ⌘A sélectionne toujours son texte.

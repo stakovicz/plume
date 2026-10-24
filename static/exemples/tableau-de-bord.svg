@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Example: a dashboard mock-up. Rounded cards with soft shadows, a gradient bar chart, a curve, text. -->
+  <defs>
+    <filter id="carte" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#1E293B" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="barre" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="620">
+      <stop offset="0" stop-color="#FF8A3D"/><stop offset="1" stop-color="#FF6F00"/>
+    </linearGradient>
+  </defs>
+  <rect id="Fond" x="0" y="0" width="1280" height="720" fill="#F1F5F9"/>
+  <rect id="Barre latérale" x="0" y="0" width="220" height="720" fill="#0F172A"/>
+  <circle id="Logo" cx="56" cy="56" r="20" fill="#FF6F00"/>
+  <text id="Nom" x="88" y="64" font-family="Fira Sans" font-size="22" font-weight="700" fill="#FFFFFF">Studio</text>
+  <rect id="Menu actif" x="20" y="120" width="180" height="40" rx="10" fill="#1E293B"/>
+  <text id="Menu 1" x="40" y="146" font-family="Fira Sans" font-size="16" fill="#FFFFFF">Tableau de bord</text>
+  <text id="Menu 2" x="40" y="196" font-family="Fira Sans" font-size="16" fill="#94A3B8">Projets</text>
+  <text id="Menu 3" x="40" y="236" font-family="Fira Sans" font-size="16" fill="#94A3B8">Équipe</text>
+  <text id="Titre" x="260" y="70" font-family="Fira Sans" font-size="30" font-weight="700" fill="#0F172A">Bonjour, Camille</text>
+  <rect id="Carte 1" x="260" y="110" width="300" height="130" rx="18" fill="#FFFFFF" filter="url(#carte)"/>
+  <text id="Carte 1 libellé" x="290" y="155" font-family="Fira Sans" font-size="16" fill="#64748B">Visites</text>
+  <text id="Carte 1 valeur" x="290" y="205" font-family="Fira Sans" font-size="40" font-weight="700" fill="#0F172A">12 480</text>
+  <rect id="Carte 2" x="590" y="110" width="300" height="130" rx="18" fill="#FFFFFF" filter="url(#carte)"/>
+  <text id="Carte 2 libellé" x="620" y="155" font-family="Fira Sans" font-size="16" fill="#64748B">Conversions</text>
+  <text id="Carte 2 valeur" x="620" y="205" font-family="Fira Sans" font-size="40" font-weight="700" fill="#0F172A">3,8 %</text>
+  <rect id="Carte 3" x="920" y="110" width="300" height="130" rx="18" fill="#FF6F00" filter="url(#carte)"/>
+  <text id="Carte 3 libellé" x="950" y="155" font-family="Fira Sans" font-size="16" fill="#FFFFFF" fill-opacity="0.85">Objectif</text>
+  <text id="Carte 3 valeur" x="950" y="205" font-family="Fira Sans" font-size="40" font-weight="700" fill="#FFFFFF">82 %</text>
+  <rect id="Graphique" x="260" y="270" width="960" height="410" rx="18" fill="#FFFFFF" filter="url(#carte)"/>
+  <text id="Graphique titre" x="290" y="315" font-family="Fira Sans" font-size="18" font-weight="700" fill="#0F172A">Visites par mois</text>
+  <rect id="Barre 1" x="320" y="520" width="56" height="120" rx="8" fill="url(#barre)"/>
+  <rect id="Barre 2" x="430" y="470" width="56" height="170" rx="8" fill="url(#barre)"/>
+  <rect id="Barre 3" x="540" y="500" width="56" height="140" rx="8" fill="url(#barre)"/>
+  <rect id="Barre 4" x="650" y="420" width="56" height="220" rx="8" fill="url(#barre)"/>
+  <rect id="Barre 5" x="760" y="380" width="56" height="260" rx="8" fill="url(#barre)"/>
+  <rect id="Barre 6" x="870" y="440" width="56" height="200" rx="8" fill="url(#barre)"/>
+  <rect id="Barre 7" x="980" y="360" width="56" height="280" rx="8" fill="url(#barre)"/>
+  <rect id="Barre 8" x="1090" y="340" width="56" height="300" rx="8" fill="url(#barre)"/>
+  <path id="Tendance" d="M348 500 C 420 440 500 480 568 470 C 640 460 680 390 788 350 C 860 330 900 420 1008 330 C 1060 290 1100 310 1118 300"
+    fill="none" stroke="#0F172A" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 10"/>
+</svg>

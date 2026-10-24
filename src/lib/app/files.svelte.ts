@@ -1,4 +1,5 @@
 import { isTauri, invoke } from '@tauri-apps/api/core';
+import { base } from '$app/paths';
 import { message, open as openPanel, save as savePanel } from '@tauri-apps/plugin-dialog';
 import { L } from '$lib/i18n';
 import { type Doc, pushRecent } from '$lib/document/doc.svelte';
@@ -17,6 +18,12 @@ const isSVG = (path: string) => path.toLowerCase().endsWith('.svg');
 const jsonFilter = { name: L('Plume document'), extensions: ['json'] };
 const svgFilter = { name: L('SVG image'), extensions: ['svg'] };
 const fileName = (s: string) => s.replace(/[\\/:*?"<>|]/g, '-').trim();
+
+/** File › Examples: SVGs bundled with the app (static/exemples/), by file name, with their menu title. */
+export const EXAMPLES = [
+  ['illustration', L('Illustration')], ['icone-app', L('App Icon')], ['affiche', L('Poster')],
+  ['tableau-de-bord', L('Dashboard')], ['pictogrammes', L('Pictograms')], ['motif', L('Pattern')],
+] as const;
 
 /** Most recent first; the first one is reopened at launch. Per-machine convenience → localStorage. */
 function loadRecents(): string[] {
@@ -73,9 +80,24 @@ export class Files {
     this.#load(text, path);
   }
 
-  /** At launch: the file given on the command line, else the last document. */
+  /** An example, as a new untitled document (its artboard named `title`); not added to the recents. */
+  async openExample(file: string, title: string) {
+    if (!(await this.confirmDiscardChanges())) return;
+    try {
+      const r = await fetch(`${base}/exemples/${file}.svg`);
+      if (!r.ok) throw new Error(`${file}.svg: HTTP ${r.status}`);
+      this.doc.load(await r.text(), true, title);
+    } catch (e) {
+      return this.#error(L('Could not open the file.'), e);
+    }
+    this.doc.filePath = null;
+    this.doc.markSaved();
+  }
+
+  /** At launch: the file given on the command line, else the last document. In a browser: the first example,
+   *  so the web version shows something to try. */
   async openAtLaunch() {
-    if (!isTauri()) return;
+    if (!isTauri()) return this.openExample(...EXAMPLES[0]);
     const path = (await invoke<string | null>('launch_file')) ?? this.recents[0];
     if (path) await this.openPath(path).catch(() => {});
   }

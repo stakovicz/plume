@@ -10,6 +10,8 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 - Test: `npm test` (vitest; `// @vitest-environment jsdom` for files that need `DOMParser`; `tests/setup.ts` lets paper.js load without a canvas)
 - Types: `npm run check` · Style rules: `npm run lint` (stylelint)
 - Build the app: `npm run tauri build`
+- Examples (File › Examples; the web version opens the first at launch): SVGs in `static/exemples/`, listed in
+  `EXAMPLES` (app/files); `svg.test.ts` checks each one imports and is listed
 - Presentation site: `npm run site` → `_site/` (site/ pages, docs/ and CHANGELOG.md as HTML, the web editor under app/,
   built with `BASE_PATH=/plume/app`); `.github/workflows/pages.yml` publishes it to GitHub Pages from main
 
