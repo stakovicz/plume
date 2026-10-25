@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Plume
+Comment=Vector editor
+Comment[fr]=Éditeur vectoriel
+Exec=plume %f
+Icon=cz.stakovi.plume
+Terminal=false
+Categories=Graphics;VectorGraphics;
+Keywords=vector;svg;drawing;illustration;icon;
+Keywords[fr]=vectoriel;svg;dessin;illustration;icône;
+MimeType=application/x-plume;
+StartupWMClass=plume

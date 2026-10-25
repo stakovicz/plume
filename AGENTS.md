@@ -104,5 +104,6 @@ Logic that can be tested without a window belongs in model/document, not in comp
 2. `npm version patch|minor|major`: runs tests, type check and lint, bumps package.json (tauri.conf.json reads it),
    Cargo.toml and Cargo.lock, dates the changelog section, commits `Plume x.y.z`, tags `vx.y.z` and pushes.
 3. The tag triggers `.github/workflows/release.yml`: macOS and Linux bundles, release notes from the changelog.
-   Then package managers: Homebrew cask (stakovicz/homebrew-tap), AUR (`packaging/aur/`), Snap Store (`snap/`);
+   Then package managers: Homebrew cask (stakovicz/homebrew-tap), AUR (`packaging/aur/`), Snap Store (`snap/`), Flathub (`flatpak/`, source lists from
+   `scripts/flatpak-sources.sh`, checked by flatpak.yml);
    pages.yml rebuilds the APT and RPM repositories on the site (`scripts/linux-repos.sh`). User guide: docs/guides/installer.md.
