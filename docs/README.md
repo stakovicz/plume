@@ -1,6 +1,6 @@
 # Documentation de Plume
 
-Plume est un éditeur vectoriel pour macOS et Linux, qui fonctionne aussi dans un navigateur.
+Plume est un éditeur vectoriel pour macOS, Windows et Linux, qui fonctionne aussi dans un navigateur.
 Quatre parties, chacune pour un besoin différent.
 
 | Vous voulez… | Lisez |
@@ -19,7 +19,7 @@ Quatre parties, chacune pour un besoin différent.
 
 ## Guides pratiques
 
-- [Installer Plume](guides/installer.md) : Homebrew, APT (Synaptic), Snap, DNF
+- [Installer Plume](guides/installer.md) : winget, Scoop, Homebrew, APT (Synaptic), Snap, DNF
 - [Organiser les calques](guides/organiser-les-calques.md) : sélectionner, grouper, ordonner, masquer, verrouiller.
 - [Travailler avec des plans de travail](guides/plans-de-travail.md)
 - [Modifier les points d'un tracé](guides/editer-des-points.md)
@@ -45,4 +45,4 @@ Quatre parties, chacune pour un besoin différent.
 - [Annulation et enregistrement](explications/annulation-et-enregistrement.md)
 - [Fidélité du rendu et des exports](explications/rendu-et-exports.md)
 
-Les raccourcis sont donnés pour macOS (⌘). Sous Linux et dans un navigateur hors Mac, ⌘ correspond à Ctrl.
+Les raccourcis sont donnés pour macOS (⌘). Sous Windows, Linux et dans un navigateur hors Mac, ⌘ correspond à Ctrl.

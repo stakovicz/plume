@@ -3,6 +3,24 @@
 Installer Plume avec le gestionnaire de paquets de votre système, pour recevoir les mises à jour avec les autres
 applications. Sinon, téléchargez le fichier de la dernière version sur la [page des versions](https://github.com/stakovicz/plume/releases).
 
+## Windows : winget
+
+```powershell
+winget install Stakovicz.Plume
+```
+
+Mise à jour : `winget upgrade Stakovicz.Plume`. L'application n'est pas encore signée : si SmartScreen bloque
+l'installation, cliquez sur **Informations complémentaires**, puis **Exécuter quand même**.
+
+## Windows : Scoop
+
+```powershell
+scoop bucket add stakovicz https://github.com/stakovicz/scoop-bucket
+scoop install stakovicz/plume-editor
+```
+
+Version portable, sans installateur. Mise à jour : `scoop update plume-editor`.
+
 ## macOS et Linux : Homebrew
 
 ```sh

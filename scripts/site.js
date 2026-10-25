@@ -10,7 +10,7 @@ const OUT = '_site';
 const REPO = 'stakovicz/plume';
 const RELEASES = `https://github.com/${REPO}/releases/latest`;
 const SITE = 'https://stakovicz.github.io/plume/';
-const DESCRIPTION = 'Éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Linux et le navigateur. Sans compte, sans abonnement.';
+const DESCRIPTION = 'Éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Windows, Linux et le navigateur. Sans compte, sans abonnement.';
 
 /** schema.org description of the app for search engines (JSON-LD), the release's version and date when known.
  *  `<` escaped so nothing in it can close the <script> element. */
@@ -22,7 +22,7 @@ function softwareJSON(release) {
     description: DESCRIPTION,
     url: SITE,
     applicationCategory: 'DesignApplication',
-    operatingSystem: 'macOS, Linux, Web',
+    operatingSystem: 'macOS, Windows, Linux, Web',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
     license: 'https://opensource.org/licenses/MIT',
     author: { '@type': 'Person', name: 'Stakovicz', url: `https://github.com/${REPO.split('/')[0]}` },
@@ -128,6 +128,7 @@ writeFileSync(join(OUT, 'index.html'), githubInNewTab(fill(readFileSync('site/in
   version: release?.tag_name ?? '',
   jsonld: softwareJSON(release),
   mac: buttons(release, 'macOS', [['Apple Silicon', /aarch64\.dmg$/], ['Intel', /x64\.dmg$/]]),
+  windows: buttons(release, 'Windows', [['Installateur (.exe)', /setup\.exe$/], ['MSI', /\.msi$/]]),
   linux: buttons(release, 'Linux', [['AppImage', /\.AppImage$/], ['Debian, Ubuntu (.deb)', /\.deb$/], ['Fedora (.rpm)', /\.rpm$/]]),
 })));
 cpSync('site/style.css', join(OUT, 'style.css'));
@@ -165,7 +166,7 @@ writeFileSync(join(OUT, 'llms.txt'), `# Plume
 > ${DESCRIPTION}
 
 Plume dessine en vectoriel (formes, plume, crayon, texte, plans de travail), combine les formes, applique dégradés et
-effets, ouvre et exporte le SVG, et exporte en PDF, PNG et JPG. Licence MIT. Application de bureau pour macOS et Linux
+effets, ouvre et exporte le SVG, et exporte en PDF, PNG et JPG. Licence MIT. Application de bureau pour macOS, Windows et Linux
 (Tauri), version web : ${SITE}app/. Code : https://github.com/${REPO}. Documentation en français.
 
 ${sections.map(([dir, name]) => `## ${name}\n\n${pages.filter((p) => p.path.startsWith(`docs/${dir}/`)).map(entry).join('\n')}`).join('\n\n')}

@@ -64,7 +64,7 @@ fn open_url(url: String) -> Result<(), String> {
     if !url.starts_with("https://") {
         return Err(format!("not a web page: {url}"));
     }
-    let opener = if cfg!(target_os = "macos") { "open" } else { "xdg-open" };
+    let opener = if cfg!(target_os = "macos") { "open" } else if cfg!(windows) { "explorer" } else { "xdg-open" };
     std::process::Command::new(opener).arg(&url).spawn().map(|_| ()).map_err(|e| format!("{url}: {e}"))
 }
 

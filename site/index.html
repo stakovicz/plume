@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Plume — éditeur vectoriel simple, léger et libre</title>
   <meta name="google-site-verification" content="QwQobztHQ7iToqCtbaMxKPQFRgHZjPHsmq04MD6V-lU">
-  <meta name="description" content="Plume est un éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Linux et le navigateur. Sans compte, sans abonnement.">
+  <meta name="description" content="Plume est un éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Windows, Linux et le navigateur. Sans compte, sans abonnement.">
   <link rel="canonical" href="https://stakovicz.github.io/plume/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Plume">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:title" content="Plume — éditeur vectoriel simple, léger et libre">
-  <meta property="og:description" content="Plume est un éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Linux et le navigateur. Sans compte, sans abonnement.">
+  <meta property="og:description" content="Plume est un éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Windows, Linux et le navigateur. Sans compte, sans abonnement.">
   <meta property="og:url" content="https://stakovicz.github.io/plume/">
   <meta property="og:image" content="https://stakovicz.github.io/plume/img/partage.jpg">
   <meta property="og:image:width" content="1200">
@@ -39,7 +39,7 @@
     <section class="hero">
       <h1>Un éditeur vectoriel <em>simple</em>, <em>léger</em> et <em>libre</em>.</h1>
       <p class="lead">Dessinez, retouchez vos SVG et exportez en PDF, PNG ou JPG. Gratuit, sans compte, sans abonnement :
-        une application légère pour macOS et Linux, ou directement dans votre navigateur.</p>
+        une application légère pour macOS, Windows et Linux, ou directement dans votre navigateur.</p>
       <div class="actions">
         <a class="button primary" href="#telecharger">Télécharger {{version}}</a>
         <a class="button" href="app/">Essayer dans le navigateur</a>
@@ -134,9 +134,14 @@
           <p class="note">Application non signée : au premier lancement, clic droit sur Plume.app, puis <em>Ouvrir</em>.</p>
         </div>
         <div class="platform">
+          <h3>Windows</h3>
+          {{windows}}
+          <p class="note">Application non signée : si SmartScreen bloque l'installation, <em>Informations complémentaires</em>, puis <em>Exécuter quand même</em>.</p>
+        </div>
+        <div class="platform">
           <h3>Linux</h3>
           {{linux}}
-          <p class="note">Ou depuis votre gestionnaire de paquets (APT, Snap, DNF, Homebrew) : <a href="docs/guides/installer.html">installer Plume</a>.</p>
+          <p class="note">Ou depuis votre gestionnaire de paquets (winget, Scoop, APT, Snap, DNF, Homebrew) : <a href="docs/guides/installer.html">installer Plume</a>.</p>
         </div>
       </div>
       <p class="intro"><a href="https://github.com/stakovicz/plume/releases">Toutes les versions</a> · <a href="changelog.html">Nouveautés</a></p>
