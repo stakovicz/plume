@@ -1,8 +1,10 @@
 import { isTauri, invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { base } from '$app/paths';
 import { message, open as openPanel, save as savePanel } from '@tauri-apps/plugin-dialog';
 import { L } from '$lib/i18n';
 import { type Doc, pushRecent } from '$lib/document/doc.svelte';
+import { packFile, unpackFile } from '$lib/model/codable';
 import { type Framed, framedArtboard, framedLayers } from '$lib/svg/export';
 import { artboards } from '$lib/document/artboards';
 import { type Format, render } from './render';
@@ -10,12 +12,12 @@ import { type Format, render } from './render';
 /** What the export dialog exports: the whole document, one file per visible artboard, or the selected layers. */
 export type ExportTarget = 'document' | 'artboards' | 'selection';
 
-/** File menu actions around `doc.load` / `doc.json` / exports: native panels and the Rust
+/** File menu actions around `doc.load` / `doc.json` (zipped as `.plm`) / exports: native panels and the Rust
  *  read/write commands under Tauri, file input and downloads in a plain browser. */
 
 const baseName = (path: string) => path.split(/[\\/]/).pop() ?? path;
 const isSVG = (path: string) => path.toLowerCase().endsWith('.svg');
-const jsonFilter = { name: L('Plume document'), extensions: ['json'] };
+const plmFilter = { name: L('Plume document'), extensions: ['plm'] };
 const svgFilter = { name: L('SVG image'), extensions: ['svg'] };
 const fileName = (s: string) => s.replace(/[\\/:*?"<>|]/g, '-').trim();
 
@@ -59,7 +61,7 @@ export class Files {
   async open() {
     if (!(await this.confirmDiscardChanges())) return;
     if (!isTauri()) return this.#browserOpen();
-    const path = await openPanel({ filters: [{ name: 'Plume', extensions: ['json', 'svg'] }, jsonFilter, svgFilter] });
+    const path = await openPanel({ filters: [{ name: 'Plume', extensions: ['plm', 'svg'] }, plmFilter, svgFilter] });
     if (path) await this.openPath(path);
   }
 
@@ -70,14 +72,14 @@ export class Files {
   clearRecents() { this.recents = []; }
 
   async openPath(path: string) {
-    let text: string;
+    let content: string | Uint8Array;
     try {
-      text = await invoke<string>('read_text', { path });
+      content = isSVG(path) ? await invoke<string>('read_text', { path }) : new Uint8Array(await invoke<ArrayBuffer>('read_bytes', { path }));
     } catch (e) {
       this.recents = this.recents.filter((p) => p !== path);
       return this.#error(L('Could not open the file.'), e);
     }
-    this.#load(text, path);
+    this.#load(content, path);
   }
 
   /** An example, as a new untitled document (its artboard named `title`); not added to the recents. */
@@ -94,21 +96,24 @@ export class Files {
     this.doc.markSaved();
   }
 
-  /** At launch: the file given on the command line, else the last document. In a browser: the first example,
-   *  so the web version shows something to try. */
+  /** At launch: the file given on the command line or by the Finder, else the last document. In a browser: the
+   *  first example, so the web version shows something to try. Later Finder opens arrive as `open-file`. */
   async openAtLaunch() {
     if (!isTauri()) return this.openExample(...EXAMPLES[0]);
+    listen<string>('open-file', (e) => this.openRecent(e.payload));
     const path = (await invoke<string | null>('launch_file')) ?? this.recents[0];
     if (path) await this.openPath(path).catch(() => {});
   }
 
-  #load(text: string, path: string) {
+  /** `content`: an SVG's text, or a `.plm` file's bytes. */
+  #load(content: string | Uint8Array, path: string) {
     try {
+      const text = typeof content === 'string' ? content : unpackFile(content);
       this.doc.load(text, isSVG(path), baseName(path).replace(/\.svg$/i, ''));
     } catch (e) {
       return this.#error(L('Could not open the file.'), e);
     }
-    // An SVG import is an untitled document (saving writes a .json) but starts clean: the
+    // An SVG import is an untitled document (saving writes a .plm) but starts clean: the
     // source file is untouched, so quitting without edits doesn't ask to save.
     this.doc.filePath = isSVG(path) ? null : path;
     this.doc.markSaved();
@@ -122,13 +127,13 @@ export class Files {
   }
 
   async saveAs(): Promise<boolean> {
-    const name = this.doc.filePath ? baseName(this.doc.filePath) : `${L('Untitled')}.json`;
+    const name = this.doc.filePath ? baseName(this.doc.filePath) : `${L('Untitled')}.plm`;
     if (!isTauri()) {
-      download(name, this.doc.json(), 'application/json');
+      download(name, packFile(this.doc.json()), 'application/zip');
       this.doc.markSaved();
       return true;
     }
-    const path = await savePanel({ defaultPath: name, filters: [jsonFilter] });
+    const path = await savePanel({ defaultPath: name, filters: [plmFilter] });
     return path ? this.#write(path) : false;
   }
 
@@ -140,7 +145,7 @@ export class Files {
   }
 
   #exports(what: ExportTarget): { base: string; framed: Framed }[] {
-    const title = this.title().replace(/\.json$/i, '');
+    const title = this.title().replace(/\.plm$/i, '');
     if (what === 'document') return [{ base: title, framed: framedLayers(this.doc.layers, 10) }];
     if (what === 'artboards') {
       return artboards(this.doc.layers).filter((a) => !a.hidden).map((a) => ({ base: fileName(a.name) || L('Artboard'), framed: framedArtboard(a) }));
@@ -202,7 +207,7 @@ export class Files {
 
   async #write(path: string) {
     try {
-      await invoke('write_text', { path, contents: this.doc.json() });
+      await invoke('write_bytes', withPath(path, packFile(this.doc.json())));
     } catch (e) {
       this.#error(L('Could not save the file.'), e);
       return false;
@@ -214,10 +219,10 @@ export class Files {
   }
 
   #browserOpen() {
-    const input = Object.assign(document.createElement('input'), { type: 'file', accept: '.json,.svg' });
+    const input = Object.assign(document.createElement('input'), { type: 'file', accept: '.plm,.svg' });
     input.onchange = async () => {
       const f = input.files?.[0];
-      if (f) this.#load(await f.text(), f.name);
+      if (f) this.#load(isSVG(f.name) ? await f.text() : new Uint8Array(await f.arrayBuffer()), f.name);
     };
     input.click();
   }

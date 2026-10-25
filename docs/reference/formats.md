@@ -2,9 +2,10 @@
 
 Le format des documents Plume, ce que l'import SVG reprend et ignore, les formats d'export et les tailles prédéfinies de plans de travail.
 
-## Document Plume (`.json`)
+## Document Plume (`.plm`)
 
 Le seul format qui conserve tout : calques, groupes, plans de travail, styles, couleurs du document.
+C'est une archive zip qui contient le document en JSON, `document.json` :
 
 ```json
 { "layers": [ … ], "palette": [ { "r": 1, "g": 0.72, "b": 0, "a": 1 } ] }
@@ -12,8 +13,9 @@ Le seul format qui conserve tout : calques, groupes, plans de travail, styles, c
 
 - Les points sont écrits `[x, y]`.
 - Les nombres sont arrondis au millième (au millionième pour les angles et les dégradés).
-- Un simple tableau de calques (anciens fichiers) s'ouvre aussi.
 - Un calque enregistré par une version plus ancienne reçoit les valeurs par défaut des réglages apparus depuis.
+- Double-cliquer sur un `.plm` l'ouvre dans Plume.
+- Les documents `.json` des versions 0.3 et antérieures ne s'ouvrent plus.
 - L'enregistrement est atomique : un échec ne laisse jamais un fichier à moitié écrit.
 
 ## Import SVG

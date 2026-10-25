@@ -18,7 +18,7 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 ## Layout
 
 ```
-src-tauri/src/lib.rs   Rust commands: read_text, read_bytes, write_text / write_bytes (atomic), launch_file, system_fonts (fontdb); dialog plugin
+src-tauri/src/lib.rs   Rust commands: read_text, read_bytes, write_bytes (atomic), launch_file (+ macOS Finder opens), system_fonts (fontdb); dialog plugin
 src/lib/
   model/      Layer (+ transforms, border), geometry (Pt, Affine, Bézier bounds/hit), path-data,
               point-editing, curve-fit, layer-tree helpers, color, effects, codable (file format),
@@ -92,8 +92,9 @@ Logic that can be tested without a window belongs in model/document, not in comp
 - **Commands.** Menu items and their shortcuts are defined once in `app/commands.ts`: native menu under
   Tauri, keydown matching in a browser.
 - **Files.** `doc.filePath` is the current document; `isDirty` compares layers and palette with the
-  last save. On disk: `{ layers, palette }`; a bare `[Layer]` array
-  (older files) still loads. Anything that replaces the document calls `files.confirmDiscardChanges()` first.
+  last save. On disk: a `.plm` zip holding `{ layers, palette }` as
+  `document.json` (`packFile` / `unpackFile`); a bare `[Layer]` array still decodes. Finder opens arrive as `open-file`.
+  Anything that replaces the document calls `files.confirmDiscardChanges()` first.
 - **Colors** in views use `ColorField` (kit): it offers the document palette; undo comes from `styleEdit`.
 - Deliberate shortcuts are marked `// ponytail:` with their limit and upgrade path.
 
@@ -103,3 +104,5 @@ Logic that can be tested without a window belongs in model/document, not in comp
 2. `npm version patch|minor|major`: runs tests, type check and lint, bumps package.json (tauri.conf.json reads it),
    Cargo.toml and Cargo.lock, dates the changelog section, commits `Plume x.y.z`, tags `vx.y.z` and pushes.
 3. The tag triggers `.github/workflows/release.yml`: macOS and Linux bundles, release notes from the changelog.
+   Then package managers: Homebrew cask (stakovicz/homebrew-tap), AUR (`packaging/aur/`), Snap Store (`snap/`);
+   pages.yml rebuilds the APT and RPM repositories on the site (`scripts/linux-repos.sh`). User guide: docs/guides/installer.md.

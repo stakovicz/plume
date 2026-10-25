@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Merged into the generated Info.plist, each key replacing the generated one (arrays are not merged). Tauri's
+     fileAssociations has no icon key: the .plm type is restated here with its icon (plm.icns, copied by
+     bundle.macOS.files). Keep in step with fileAssociations in tauri.conf.json. -->
+<plist version="1.0">
+<dict>
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeName</key><string>Plume document</string>
+      <key>CFBundleTypeExtensions</key><array><string>plm</string></array>
+      <key>CFBundleTypeIconFile</key><string>plm.icns</string>
+      <key>LSItemContentTypes</key><array><string>cz.stakovi.plume.document</string></array>
+      <key>CFBundleTypeRole</key><string>Editor</string>
+      <key>LSHandlerRank</key><string>Owner</string>
+    </dict>
+  </array>
+  <key>UTExportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeIdentifier</key><string>cz.stakovi.plume.document</string>
+      <key>UTTypeDescription</key><string>Plume document</string>
+      <key>UTTypeIconFile</key><string>plm.icns</string>
+      <key>UTTypeConformsTo</key><array><string>public.data</string></array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.mime-type</key><string>application/x-plume</string>
+        <key>public.filename-extension</key><array><string>plm</string></array>
+      </dict>
+    </dict>
+  </array>
+</dict>
+</plist>

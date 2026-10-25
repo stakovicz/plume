@@ -31,7 +31,7 @@ Fermer la fenêtre, quitter, ouvrir un autre document ou en créer un nouveau pr
 
 ## Fichiers ouverts et SVG
 
-Un document `.json` ouvert est enregistré à sa place par ⌘S. Un SVG ouvert devient un document sans titre :
-Plume ne réécrit jamais un SVG, car le format `.json` garde des informations que le SVG ne sait pas porter
+Un document `.plm` ouvert est enregistré à sa place par ⌘S. Un SVG ouvert devient un document sans titre :
+Plume ne réécrit jamais un SVG, car le format `.plm` garde des informations que le SVG ne sait pas porter
 (plans de travail, verrouillage, couleurs du document…). Au lancement, l'application de bureau rouvre le
 dernier document.
