@@ -1,5 +1,11 @@
 # Changelog
 
+## Non publié
+
+### Ajouts
+
+- **Windows** : programme d'installation `.exe` ou `.msi`, et `winget install Stakovicz.Plume`.
+
 ## 0.4.0 — 2026-10-25
 
 ### Modifications

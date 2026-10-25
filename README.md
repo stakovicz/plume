@@ -1,6 +1,6 @@
 # Plume
 
-Éditeur vectoriel : application de bureau macOS (Tauri 2) dont toute la logique est en
+Éditeur vectoriel : application de bureau macOS, Windows et Linux (Tauri 2) dont toute la logique est en
 TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne aussi dans un navigateur.
 
 ## Fonctionnalités
@@ -25,6 +25,7 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 
 ## Installation
 
+- **winget** (Windows) : `winget install Stakovicz.Plume`
 - **Homebrew** (macOS, Linux x86_64) : `brew install --cask stakovicz/tap/plume-editor`
 - **Snap** : `sudo snap install plume-editor`
 - **APT** (Debian, Ubuntu) et **DNF** (Fedora) : dépôts signés, voir [Installer Plume](docs/guides/installer.md)

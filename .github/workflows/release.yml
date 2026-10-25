@@ -22,6 +22,8 @@ jobs:
             target: x86_64-apple-darwin
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -74,6 +76,8 @@ jobs:
             macOS : Apple Silicon (aarch64) ou Intel (x64). Application non signée : au premier lancement,
             clic droit sur Plume.app → Ouvrir (ou `xattr -dr com.apple.quarantine /Applications/Plume.app`).
             Linux : .AppImage, .deb ou .rpm.
+            Windows : programme d'installation .exe ou .msi. Non signé : si Windows SmartScreen bloque, cliquez sur
+            Informations complémentaires, puis Exécuter quand même.
 
       - uses: actions/upload-artifact@v7
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -127,6 +131,23 @@ jobs:
           commit_email: stakovicz@users.noreply.github.com
           commit_message: plume-editor-bin ${{ github.ref_name }}
           ssh_private_key: ${{ env.AUR_KEY }}
+
+  # winget: Komac adds the version to Stakovicz.Plume and opens the pull request to microsoft/winget-pkgs
+  # (WINGET_TOKEN: a classic token with the public_repo scope). The package's first version is submitted by hand.
+  winget:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    env:
+      WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+    steps:
+      - if: env.WINGET_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsSL https://github.com/russellbanks/Komac/releases/download/v2.17.1/komac-2.17.1-x86_64-unknown-linux-gnu.tar.gz | tar xz komac
+          urls=$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].url | select(test("\\.(exe|msi)$"))')
+          ./komac update Stakovicz.Plume --version "${GITHUB_REF_NAME#v}" --urls $urls --submit --token "$WINGET_TOKEN"
 
   # The Snap Store (SNAPCRAFT_STORE_CREDENTIALS: `snapcraft export-login`), from snap/snapcraft.yaml. Run by hand
   # on a branch: the snap is built and kept as a workflow artifact.
