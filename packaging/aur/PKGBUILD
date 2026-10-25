@@ -1,7 +1,7 @@
 # Maintainer: Stakovicz
 # Published to the AUR by .github/workflows/release.yml, which recomputes the checksums; `npm version` sets pkgver.
 pkgname=plume-editor-bin
-pkgver=0.3.0
+pkgver=0.4.0
 pkgrel=1
 pkgdesc='Vector editor'
 arch=('x86_64')
