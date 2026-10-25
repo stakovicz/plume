@@ -24,10 +24,14 @@ jobs:
           name: flatpak-sources
           path: flatpak/*-sources.json
 
+      # The screenshot URLs point to main: checked here at the commit being built, where they already exist.
       - name: Flathub's checks of the AppStream metadata
+        env:
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           flatpak install -y --noninteractive flathub org.flatpak.Builder
-          flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream flatpak/cz.stakovi.plume.metainfo.xml
+          sed "s|/stakovicz/plume/main/|/stakovicz/plume/$SHA/|" flatpak/cz.stakovi.plume.metainfo.xml > "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
+          flatpak run --command=flatpak-builder-lint --filesystem="$RUNNER_TEMP" org.flatpak.Builder appstream "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
 
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
