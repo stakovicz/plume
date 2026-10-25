@@ -39,11 +39,11 @@ jobs:
           node-version: lts/*
           cache: npm
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           targets: ${{ matrix.target }}
 
-      - uses: swatinem/rust-cache@v2
+      - uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           workspaces: src-tauri -> target
 
@@ -60,7 +60,7 @@ jobs:
             echo EOF
           } >> "$GITHUB_OUTPUT"
 
-      - uses: tauri-apps/tauri-action@v1
+      - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,6 +85,7 @@ jobs:
           name: plume-${{ matrix.target }}
           path: ${{ join(fromJSON(steps.tauri.outputs.artifactPaths), fromJSON('"\n"')) }}
 
+  # Publishing secrets live in the `release` environment (tags v* and main only).
   # Package managers follow each release: the Homebrew cask in stakovicz/homebrew-tap (TAP_TOKEN: a token
   # with write access to that repository) and plume-editor-bin on the AUR (AUR_SSH_PRIVATE_KEY: the key
   # registered on the AUR account).
@@ -92,6 +93,7 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - uses: actions/checkout@v7
         with:
@@ -117,6 +119,7 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+    environment: release
     env:
       AUR_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
     steps:
@@ -138,6 +141,7 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - uses: actions/checkout@v7
         with:
@@ -171,6 +175,7 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+    environment: release
     env:
       WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
     steps:
@@ -182,24 +187,34 @@ jobs:
           urls=$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].url | select(test("\\.(exe|msi)$"))')
           ./komac update Stakovicz.Plume --version "${GITHUB_REF_NAME#v}" --urls $urls --submit --token "$WINGET_TOKEN"
 
-  # The Snap Store (SNAPCRAFT_STORE_CREDENTIALS: `snapcraft export-login`), from snap/snapcraft.yaml. Run by hand
-  # on a branch: the snap is built and kept as a workflow artifact.
+  # The Snap Store (SNAPCRAFT_STORE_CREDENTIALS: `snapcraft export-login`), from snap/snapcraft.yaml: built on
+  # every run (kept as a workflow artifact), published on a tag.
   snap:
     needs: build
     runs-on: ubuntu-24.04
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v7
       - run: sudo snap install snapcraft --classic
       - run: sudo snapcraft pack --destructive-mode # the runner is Ubuntu 24.04, like the snap's core24 base
-      - if: startsWith(github.ref, 'refs/tags/') && env.SNAPCRAFT_STORE_CREDENTIALS != ''
-        run: snapcraft upload --release=stable plume-editor_*.snap
       - uses: actions/upload-artifact@v7
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         with:
           name: plume-editor-snap
           path: plume-editor_*.snap
+
+  snap-publish:
+    needs: snap
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    environment: release
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: plume-editor-snap
+      - run: sudo snap install snapcraft --classic
+      - if: env.SNAPCRAFT_STORE_CREDENTIALS != ''
+        run: snapcraft upload --release=stable plume-editor_*.snap
 
   # Once the bundles are attached, rebuild the site so its download buttons point to this release. Triggered
   # explicitly: a release created with GITHUB_TOKEN doesn't fire pages.yml's `release` event.

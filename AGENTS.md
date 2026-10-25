@@ -106,4 +106,6 @@ Logic that can be tested without a window belongs in model/document, not in comp
 3. The tag triggers `.github/workflows/release.yml`: macOS, Linux and Windows bundles, release notes from the changelog.
    Then package managers: winget (Komac), Scoop (`packaging/scoop/`, stakovicz/scoop-bucket), Homebrew cask (stakovicz/homebrew-tap), AUR (`packaging/aur/`), Snap Store (`snap/`), Flathub (`flatpak/`, source lists from
    `scripts/flatpak-sources.sh`, checked by flatpak.yml);
-   pages.yml rebuilds the APT and RPM repositories on the site (`scripts/linux-repos.sh`). User guide: docs/guides/installer.md.
+   pages.yml rebuilds the APT and RPM repositories on the site (`scripts/linux-repos.sh`).
+   Their secrets live in the `release` environment (tags v* and main only); third-party actions are pinned by SHA
+   (Dependabot updates them). User guide: docs/guides/installer.md.
