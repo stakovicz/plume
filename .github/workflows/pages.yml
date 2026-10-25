@@ -22,6 +22,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: release # REPO_GPG_KEY
     env:
       REPO_GPG_KEY: ${{ secrets.REPO_GPG_KEY }} # signs the APT and RPM repositories
     steps:
