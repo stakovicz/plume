@@ -1,0 +1,21 @@
+# Maintainer: Stakovicz
+# Published to the AUR by .github/workflows/release.yml, which recomputes the checksums; `npm version` sets pkgver.
+pkgname=plume-editor-bin
+pkgver=0.3.0
+pkgrel=1
+pkgdesc='Vector editor'
+arch=('x86_64')
+url='https://stakovicz.github.io/plume/'
+license=('MIT')
+depends=('webkit2gtk-4.1' 'gtk3')
+provides=('plume-editor')
+conflicts=('plume-editor')
+source=("https://github.com/stakovicz/plume/releases/download/v$pkgver/Plume_${pkgver}_amd64.deb"
+        "LICENSE-$pkgver::https://raw.githubusercontent.com/stakovicz/plume/v$pkgver/LICENSE")
+sha256sums=('887430f60d38c88bcebf406b430ef40ac9ed5914a51df18e09d9bcaa021aa427'
+            'e067123f4f72fdca7c56c52335dccb0a32eb0d762e0ef0844b754c54f0e2889e')
+
+package() {
+  bsdtar -xf data.tar.gz -C "$pkgdir"
+  install -Dm644 "LICENSE-$pkgver" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -15,11 +15,11 @@ Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj
 | Commande | Raccourci | Effet |
 |---|---|---|
 | Nouveau | ⌘N | document vide (propose d'enregistrer les modifications) |
-| Ouvrir… | ⌘O | document `.json` ou image `.svg` |
+| Ouvrir… | ⌘O | document `.plm` ou image `.svg` |
 | Ouvrir l'élément récent | | dix derniers fichiers (application de bureau) ; Effacer le menu |
 | Exemples | | Illustration, Icône d'application, Affiche, Tableau de bord, Pictogrammes, Motif : ouverts comme un nouveau document sans titre |
 | Enregistrer | ⌘S | dans le fichier en cours, ou demande où (navigateur : téléchargement) |
-| Enregistrer sous… | ⇧⌘S | nouveau fichier `.json` |
+| Enregistrer sous… | ⇧⌘S | nouveau fichier `.plm` |
 | Exporter… | ⌘E | PDF, SVG, PNG, JPG (voir [Exporter](../guides/exporter.md)) |
 
 ## Édition

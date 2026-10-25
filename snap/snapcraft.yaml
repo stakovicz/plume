@@ -1,0 +1,40 @@
+# Plume on the Snap Store, built from the release's .deb (no rebuild). `npm version` updates the version and the
+# .deb's URL; the snap job of release.yml builds and publishes it.
+name: plume-editor
+title: Plume
+version: '0.3.0'
+summary: Vector editor
+description: |
+  Plume is a simple, light vector editor: shapes, pen, text, gradients, artboards, boolean operations,
+  SVG import, PDF, SVG, PNG and JPG export.
+license: MIT
+website: https://stakovicz.github.io/plume/
+source-code: https://github.com/stakovicz/plume
+issues: https://github.com/stakovicz/plume/issues
+icon: src-tauri/icons/icon.png
+base: core24
+grade: stable
+confinement: strict
+platforms:
+  amd64:
+
+apps:
+  plume-editor:
+    command: usr/bin/plume
+    desktop: usr/share/applications/Plume.desktop
+    extensions: [gnome]
+    plugs: [home, removable-media]
+
+layout:
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/webkit2gtk-4.1:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/webkit2gtk-4.1
+
+parts:
+  plume:
+    plugin: dump
+    source: https://github.com/stakovicz/plume/releases/download/v0.3.0/Plume_0.3.0_amd64.deb
+    source-type: deb
+    stage-packages: [libwebkit2gtk-4.1-0]
+    override-prime: |
+      craftctl default
+      sed -i 's|^Icon=plume$|Icon=${SNAP}/usr/share/icons/hicolor/128x128/apps/plume.png|' usr/share/applications/Plume.desktop

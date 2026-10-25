@@ -1,0 +1,47 @@
+# Flatpak build from source (Flathub). node-sources.json and cargo-sources.json list every npm and cargo download
+# for the offline build: scripts/flatpak-sources.sh writes them. Test locally from the repository root:
+#   flatpak-builder --user --install --force-clean flatpak/build flatpak/cz.stakovi.plume.yml
+# On Flathub the first source is the release's git tag instead of this directory.
+id: cz.stakovi.plume
+runtime: org.gnome.Platform
+runtime-version: '49'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node24
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: plume
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # The file dialogs are GTK's, not the portal's, and recent documents reopen by path: Plume reads and
+  # writes the files the user picks anywhere in their home folder.
+  - --filesystem=home
+
+modules:
+  - name: plume
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/node24/bin:/usr/lib/sdk/rust-stable/bin
+      env:
+        CARGO_HOME: /run/build/plume/cargo
+        XDG_CACHE_HOME: /run/build/plume/flatpak-node/cache
+        npm_config_cache: /run/build/plume/flatpak-node/npm-cache
+        npm_config_offline: 'true'
+    build-commands:
+      - npm ci --offline
+      - npm run build
+      - cargo --offline build --release --features tauri/custom-protocol --manifest-path src-tauri/Cargo.toml
+      - install -Dm755 src-tauri/target/release/plume -t /app/bin
+      - install -Dm644 icon/app-icon.svg /app/share/icons/hicolor/scalable/apps/cz.stakovi.plume.svg
+      - install -Dm644 icon/plm-icon.svg /app/share/icons/hicolor/scalable/mimetypes/cz.stakovi.plume.document.svg
+      - install -Dm644 flatpak/cz.stakovi.plume.desktop -t /app/share/applications
+      - install -Dm644 flatpak/cz.stakovi.plume.metainfo.xml -t /app/share/metainfo
+      - install -Dm644 flatpak/cz.stakovi.plume.mime.xml /app/share/mime/packages/cz.stakovi.plume.xml
+    sources:
+      - type: dir
+        path: ..
+        skip: [node_modules, build, _site, .svelte-kit, src-tauri/target, src-tauri/gen, flatpak/build, .flatpak-builder]
+      - node-sources.json
+      - cargo-sources.json

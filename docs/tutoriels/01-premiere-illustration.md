@@ -100,7 +100,7 @@ Glissez le groupe sur le canevas : le soleil et le texte bougent ensemble.
 
 ## 7. Enregistrer
 
-**Fichier › Enregistrer** (⌘S), nommez le fichier `banniere` et validez. Plume enregistre un document `banniere.json`
+**Fichier › Enregistrer** (⌘S), nommez le fichier `banniere` et validez. Plume enregistre un document `banniere.plm`
 que vous pourrez rouvrir et modifier.
 
 ## 8. Exporter en PNG

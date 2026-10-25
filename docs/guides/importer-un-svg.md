@@ -10,7 +10,7 @@ Ouvrir un fichier SVG comme document, coller un SVG copié ailleurs ou glisser d
   nommé d'après le fichier, contient tout le dessin ;
 - les éléments `<g>` deviennent des groupes, les formes des tracés.
 
-Le document est **sans titre** : ⌘S enregistre un nouveau document `.json`, le fichier SVG d'origine n'est jamais modifié.
+Le document est **sans titre** : ⌘S enregistre un nouveau document `.plm`, le fichier SVG d'origine n'est jamais modifié.
 
 Pour essayer sans fichier : **Fichier › Exemples** ouvre l'un des SVG d'exemple fournis avec Plume.
 

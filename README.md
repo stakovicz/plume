@@ -19,9 +19,16 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
   extérieure, pointillés, extrémités et angles, opacité, flou, ombre, palette de couleurs du document.
 - **Presse-papier** : copier / couper / coller / dupliquer des calques, groupes et plans de travail ;
   coller un SVG copié depuis une autre application.
-- **Fichiers** : document `.json`, ouverture de SVG (avec dégradés, masques, filtres), export PDF (vectoriel),
+- **Fichiers** : document `.plm`, ouverture de SVG (avec dégradés, masques, filtres), export PDF (vectoriel),
   SVG, PNG et JPG (1×, 2×, 3×) du document, des plans de travail ou de la sélection.
 - **Interface** en anglais et en français.
+
+## Installation
+
+- **Homebrew** (macOS, Linux x86_64) : `brew install --cask stakovicz/tap/plume-editor`
+- **Snap** : `sudo snap install plume-editor`
+- **APT** (Debian, Ubuntu) et **DNF** (Fedora) : dépôts signés, voir [Installer Plume](docs/guides/installer.md)
+- Sinon : `.dmg`, `.deb`, `.rpm` ou `.AppImage` sur la [page des versions](https://github.com/stakovicz/plume/releases).
 
 ## Documentation
 
@@ -63,8 +70,8 @@ L'architecture et les conventions du code sont décrites dans [AGENTS.md](AGENTS
 
 ## Format de fichier
 
-Un document est un JSON `{ "layers": [...], "palette": [...] }`, les points écrits `[x, y]` ; un simple
-tableau de calques (fichiers plus anciens) s'ouvre aussi.
+Un document `.plm` est une archive zip contenant `document.json` : `{ "layers": [...], "palette": [...] }`,
+les points écrits `[x, y]`.
 
 ## Licence
 

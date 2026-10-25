@@ -1,5 +1,16 @@
 # Changelog
 
+## Non publié
+
+### Modifications
+
+- **Format `.plm`** : les documents sont enregistrés compressés (archive zip), avec l'extension `.plm` et leur icône, et
+  s'ouvrent d'un double-clic depuis le Finder. Les anciens documents `.json` ne s'ouvrent plus.
+- **Gestionnaires de paquets** : Homebrew (macOS et Linux), Snap Store, dépôts APT (Debian, Ubuntu, Synaptic) et DNF (Fedora).
+  Sous Linux, Plume est rangé dans la catégorie Graphisme des menus.
+  Voir le guide [Installer Plume](docs/guides/installer.md).
+- **Identifiant de l'application** : `cz.stakovi.plume`. La liste des documents récents repart à vide.
+
 ## 0.3.0 — 2026-10-24
 
 ### Ajouts

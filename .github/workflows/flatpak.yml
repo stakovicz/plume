@@ -1,0 +1,40 @@
+name: Flatpak
+
+# Builds the Flatpak as Flathub does (offline, from flatpak/cz.stakovi.plume.yml), after generating the npm and
+# cargo source lists. The bundle and the two lists are kept as artifacts: the lists go into the Flathub repository.
+on:
+  pull_request:
+    paths: ['flatpak/**', 'package-lock.json', 'src-tauri/Cargo.lock', 'scripts/flatpak-sources.sh', '.github/workflows/flatpak.yml']
+  workflow_dispatch:
+
+jobs:
+  flatpak:
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: npm and cargo source lists
+        run: scripts/flatpak-sources.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: flatpak-sources
+          path: flatpak/*-sources.json
+
+      # The screenshot URLs point to main: checked here at the commit being built, where they already exist.
+      - name: Flathub's checks of the AppStream metadata
+        env:
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          flatpak install -y --noninteractive flathub org.flatpak.Builder
+          sed "s|/stakovicz/plume/main/|/stakovicz/plume/$SHA/|" flatpak/cz.stakovi.plume.metainfo.xml > "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
+          flatpak run --command=flatpak-builder-lint --filesystem="$RUNNER_TEMP" org.flatpak.Builder appstream "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          manifest-path: flatpak/cz.stakovi.plume.yml
+          bundle: plume.flatpak
+          cache-key: flatpak-builder-${{ hashFiles('package-lock.json', 'src-tauri/Cargo.lock') }}

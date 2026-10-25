@@ -1,4 +1,5 @@
 use std::fs;
+use std::sync::Mutex;
 
 /// Reads a text file chosen by the user (open panel, recents, command line).
 #[tauri::command]
@@ -6,17 +7,8 @@ fn read_text(path: String) -> Result<String, String> {
     fs::read_to_string(&path).map_err(|e| format!("{path}: {e}"))
 }
 
-/// Writes atomically: a temp file next to the target, then a rename, so a failed save never
-/// leaves a half-written document.
-#[tauri::command]
-fn write_text(path: String, contents: String) -> Result<(), String> {
-    let tmp = format!("{path}.tmp");
-    fs::write(&tmp, contents)
-        .and_then(|_| fs::rename(&tmp, &path))
-        .map_err(|e| format!("{path}: {e}"))
-}
-
-/// Binary exports (PNG, JPG, PDF). The raw request body is the UTF-8 path, a NUL byte, then the
+/// Documents (.plm) and exports (PNG, JPG, PDF), written atomically: a temp file next to the target, then a
+/// rename, so a failed save never leaves a half-written file. The raw request body is the UTF-8 path, a NUL byte, then the
 /// file's bytes: no JSON encoding of megabytes of image data.
 #[tauri::command]
 fn write_bytes(request: tauri::ipc::Request) -> Result<(), String> {
@@ -76,17 +68,34 @@ fn open_url(url: String) -> Result<(), String> {
     std::process::Command::new(opener).arg(&url).spawn().map(|_| ()).map_err(|e| format!("{url}: {e}"))
 }
 
-/// `Plume file.svg` / `Plume file.json` opens that file at launch.
+/// A file the Finder asked to open before the window could listen for `open-file` (macOS double-click at launch).
+#[derive(Default)]
+struct OpenedAtLaunch(Mutex<Option<String>>);
+
+/// `Plume file.svg` / `Plume file.plm` (or a Finder double-click) opens that file at launch.
 #[tauri::command]
-fn launch_file() -> Option<String> {
-    std::env::args().skip(1).find(|a| !a.starts_with('-'))
+fn launch_file(opened: tauri::State<OpenedAtLaunch>) -> Option<String> {
+    opened.0.lock().unwrap().take().or_else(|| std::env::args().skip(1).find(|a| !a.starts_with('-')))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![read_text, write_text, write_bytes, launch_file, system_fonts, read_bytes, open_url])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .manage(OpenedAtLaunch::default())
+        .invoke_handler(tauri::generate_handler![read_text, write_bytes, launch_file, system_fonts, read_bytes, open_url])
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(|_app, _event| {
+            // Finder › Open With / double-click on a .plm: stored for `launch_file`, and sent to a running window.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Opened { urls } = _event {
+                use tauri::{Emitter, Manager};
+                if let Some(path) = urls.iter().find_map(|u| u.to_file_path().ok()) {
+                    let path = path.to_string_lossy().into_owned();
+                    *_app.state::<OpenedAtLaunch>().0.lock().unwrap() = Some(path.clone());
+                    let _ = _app.emit("open-file", path);
+                }
+            }
+        });
 }

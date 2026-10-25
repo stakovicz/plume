@@ -1,8 +1,9 @@
+import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import type { RGBA } from './color';
 import { type Layer, newLayer } from './layer';
 
-/** On-disk format: `{ layers, palette }`, points as `[x, y]`.
- *  Files saved before the palette existed are a bare `[Layer]` array. */
+/** Document format: `{ layers, palette }`, points as `[x, y]`. On disk, a `.plm` zip holding it as
+ *  `document.json` (`packFile`). Documents saved before the palette existed are a bare `[Layer]` array. */
 export type DocFile = { layers: Layer[]; palette: RGBA[] };
 
 const isPt = (v: object): v is { x: number; y: number } => 'x' in v && 'y' in v && Object.keys(v).length === 2;
@@ -41,4 +42,13 @@ export function decodeFile(text: string): DocFile {
   const file = Array.isArray(raw) ? { layers: raw, palette: [] } : raw;
   if (!Array.isArray(file?.layers)) throw new Error('Not a Plume document');
   return { layers: file.layers.map(decodeLayer), palette: file.palette ?? [] };
+}
+
+/** A `.plm` file: a zip archive with the document as `document.json`, room for other entries later. */
+export const packFile = (json: string) => zipSync({ 'document.json': strToU8(json) });
+
+export function unpackFile(bytes: Uint8Array): string {
+  const json = unzipSync(bytes, { filter: (f) => f.name === 'document.json' })['document.json'];
+  if (!json) throw new Error('Not a Plume document');
+  return strFromU8(json);
 }

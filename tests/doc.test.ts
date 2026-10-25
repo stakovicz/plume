@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { Doc, pushRecent } from '$lib/document/doc.svelte';
+import { packFile, unpackFile } from '$lib/model/codable';
 import { BLACK } from '$lib/model/color';
 import { pt } from '$lib/model/geometry';
 import { asPath, bounds, toWorld } from '$lib/model/layer';
@@ -61,6 +62,17 @@ describe('doc', () => {
     const copy = new Doc();
     copy.load(d.json(), false);
     expect(copy.layers).toEqual(d.layers);
+  });
+
+  test('.plm round trip, smaller than the JSON', () => {
+    const d = new Doc();
+    for (let i = 0; i < 20; i++) d.add('rect', pt(i, i));
+    const bytes = packFile(d.json());
+    expect(bytes.length).toBeLessThan(d.json().length / 2);
+    const copy = new Doc();
+    copy.load(unpackFile(bytes), false);
+    expect(copy.layers).toEqual(d.layers);
+    expect(() => unpackFile(new TextEncoder().encode(d.json()))).toThrow();
   });
 
   test('dirty until saved', () => {

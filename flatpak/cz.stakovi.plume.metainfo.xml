@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>cz.stakovi.plume</id>
+  <name>Plume</name>
+  <summary>Draw vector illustrations, icons and posters</summary>
+  <summary xml:lang="fr">Dessinez illustrations, icônes et affiches vectorielles</summary>
+  <developer id="cz.stakovi">
+    <name>Stakovicz</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+
+  <description>
+    <p>Plume is a simple, light vector editor. Draw shapes and paths, write text, color with gradients, and export
+      to PDF, SVG, PNG or JPG.</p>
+    <p xml:lang="fr">Plume est un éditeur vectoriel simple et léger. Dessinez formes et tracés, écrivez du texte,
+      colorez avec des dégradés, et exportez en PDF, SVG, PNG ou JPG.</p>
+    <ul>
+      <li>Rectangle, ellipse, pen, pencil and text tools, artboards</li>
+      <li xml:lang="fr">Outils rectangle, ovale, plume, crayon et texte, plans de travail</li>
+      <li>Point editing, boolean operations, outline stroke, alignment guides</li>
+      <li xml:lang="fr">Édition de points, combinaison de formes, vectorisation du contour, repères d'alignement</li>
+      <li>Fills and borders with linear or radial gradients, opacity, blur, shadow</li>
+      <li xml:lang="fr">Remplissages et bordures en dégradé linéaire ou radial, opacité, flou, ombre</li>
+      <li>Opens SVG files; exports the document, each artboard or the selection</li>
+      <li xml:lang="fr">Ouvre les SVG ; exporte le document, chaque plan de travail ou la sélection</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">cz.stakovi.plume.desktop</launchable>
+  <url type="homepage">https://stakovicz.github.io/plume/</url>
+  <url type="help">https://stakovicz.github.io/plume/docs/</url>
+  <url type="bugtracker">https://github.com/stakovicz/plume/issues</url>
+  <url type="vcs-browser">https://github.com/stakovicz/plume</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/stakovicz/plume/main/flatpak/screenshots/editor.png</image>
+      <caption>An illustration, its layers and the inspector</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/stakovicz/plume/main/flatpak/screenshots/gradient.png</image>
+      <caption>Radial gradient on a shape</caption>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.1"/>
+  <branding>
+    <color type="primary" scheme_preference="light">#ffc999</color>
+    <color type="primary" scheme_preference="dark">#7a3300</color>
+  </branding>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+  <provides>
+    <binary>plume</binary>
+    <mediatype>application/x-plume</mediatype>
+  </provides>
+
+  <releases>
+    <release version="0.3.0" date="2026-10-24"/>
+  </releases>
+</component>

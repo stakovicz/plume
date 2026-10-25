@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-plume">
+    <comment>Plume document</comment>
+    <comment xml:lang="fr">Document Plume</comment>
+    <sub-class-of type="application/zip"/>
+    <icon name="cz.stakovi.plume.document"/>
+    <glob pattern="*.plm"/>
+  </mime-type>
+</mime-info>
