@@ -132,6 +132,39 @@ jobs:
           commit_message: plume-editor-bin ${{ github.ref_name }}
           ssh_private_key: ${{ env.AUR_KEY }}
 
+  # Scoop: stakovicz/scoop-bucket gets packaging/scoop/plume-editor.json filled with the version and the .msi's
+  # checksum (TAP_TOKEN also needs write access to that repository).
+  scoop:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: plume
+          sparse-checkout: packaging/scoop
+      - uses: actions/checkout@v7
+        with:
+          repository: stakovicz/scoop-bucket
+          token: ${{ secrets.TAP_TOKEN }}
+          path: bucket
+      - name: Version and checksum of the new .msi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=${GITHUB_REF_NAME#v}
+          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --pattern "Plume_${v}_x64_en-US.msi" --dir "$RUNNER_TEMP"
+          hash=$(sha256sum "$RUNNER_TEMP/Plume_${v}_x64_en-US.msi" | cut -d' ' -f1)
+          jq --indent 4 --arg v "$v" --arg h "$hash" \
+            '.version = $v | .architecture."64bit".hash = $h | .architecture."64bit".url |= gsub("\\$version"; $v)' \
+            plume/packaging/scoop/plume-editor.json > bucket/bucket/plume-editor.json
+          cd bucket
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add bucket/plume-editor.json
+          git commit -m "plume-editor $v"
+          git push
+
   # winget: Komac adds the version to Stakovicz.Plume and opens the pull request to microsoft/winget-pkgs
   # (WINGET_TOKEN: a classic token with the public_repo scope). The package's first version is submitted by hand.
   winget:

@@ -19,7 +19,7 @@ Quatre parties, chacune pour un besoin différent.
 
 ## Guides pratiques
 
-- [Installer Plume](guides/installer.md) : winget, Homebrew, APT (Synaptic), Snap, DNF
+- [Installer Plume](guides/installer.md) : winget, Scoop, Homebrew, APT (Synaptic), Snap, DNF
 - [Organiser les calques](guides/organiser-les-calques.md) : sélectionner, grouper, ordonner, masquer, verrouiller.
 - [Travailler avec des plans de travail](guides/plans-de-travail.md)
 - [Modifier les points d'un tracé](guides/editer-des-points.md)

@@ -4,7 +4,7 @@
 
 ### Ajouts
 
-- **Windows** : programme d'installation `.exe` ou `.msi`, et `winget install Stakovicz.Plume`.
+- **Windows** : programme d'installation `.exe` ou `.msi`, `winget install Stakovicz.Plume` ou Scoop (`stakovicz/plume-editor`).
 
 ## 0.4.0 — 2026-10-25
 

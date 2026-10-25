@@ -12,6 +12,15 @@ winget install Stakovicz.Plume
 Mise à jour : `winget upgrade Stakovicz.Plume`. L'application n'est pas encore signée : si SmartScreen bloque
 l'installation, cliquez sur **Informations complémentaires**, puis **Exécuter quand même**.
 
+## Windows : Scoop
+
+```powershell
+scoop bucket add stakovicz https://github.com/stakovicz/scoop-bucket
+scoop install stakovicz/plume-editor
+```
+
+Version portable, sans installateur. Mise à jour : `scoop update plume-editor`.
+
 ## macOS et Linux : Homebrew
 
 ```sh

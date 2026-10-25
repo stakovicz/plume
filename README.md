@@ -26,6 +26,7 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 ## Installation
 
 - **winget** (Windows) : `winget install Stakovicz.Plume`
+- **Scoop** (Windows) : `scoop bucket add stakovicz https://github.com/stakovicz/scoop-bucket`, puis `scoop install stakovicz/plume-editor`
 - **Homebrew** (macOS, Linux x86_64) : `brew install --cask stakovicz/tap/plume-editor`
 - **Snap** : `sudo snap install plume-editor`
 - **APT** (Debian, Ubuntu) et **DNF** (Fedora) : dépôts signés, voir [Installer Plume](docs/guides/installer.md)
