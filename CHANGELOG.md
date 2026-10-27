@@ -6,6 +6,10 @@
 
 - **Windows** : programme d'installation `.exe` ou `.msi`, `winget install Stakovicz.Plume` ou Scoop (`stakovicz/plume-editor`).
 
+### Corrections
+
+- **À propos de Plume** : le panneau affiche l'icône de l'application.
+
 ## 0.4.0 — 2026-10-25
 
 ### Modifications

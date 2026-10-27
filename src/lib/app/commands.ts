@@ -1,3 +1,4 @@
+import { defaultWindowIcon } from '@tauri-apps/api/app';
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { IconMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu';
 import { Image } from '@tauri-apps/api/image';
@@ -195,7 +196,7 @@ export async function installNativeMenu(specs: MenuSpec[]) {
   const plain: (MenuItem | IconMenuItem)[] = [];
   const build = (items: Item[]): Promise<MenuItem | Submenu | PredefinedMenuItem>[] =>
     items.map(async (i) => {
-      if ('native' in i) return PredefinedMenuItem.new({ item: i.native === 'About' ? { About: about() } : i.native, text: nativeText()[i.native] });
+      if ('native' in i) return PredefinedMenuItem.new({ item: i.native === 'About' ? { About: { ...about(), icon: (await defaultWindowIcon().catch(() => null)) ?? undefined } } : i.native, text: nativeText()[i.native] });
       if ('submenu' in i) {
         const sub = await Submenu.new({ text: i.submenu, items: await Promise.all(build(i.items)) });
         if (i.icon) await sub.setIcon(await menuIcon(i.icon));
