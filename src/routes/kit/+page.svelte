@@ -89,7 +89,10 @@
       <ColorField label="color" {color} {palette} {disabled} onchange={(c) => (color = c)}
         onaddtopalette={(c) => (palette = [...palette, c])} onremovefrompalette={(i) => (palette = palette.filter((_, j) => j !== i))} />
     </Row>
-    <Toggle label="Shadow" checked={on} {disabled} onchange={(x) => (on = x)} />
+  </Section>
+  <Section title="Section with toggle">
+    {#snippet action()}<Toggle label="Section with toggle" checked={on} {disabled} onchange={(x) => (on = x)} />{/snippet}
+    {#if on}<Row label="Shown when on">…</Row>{/if}
   </Section>
 {/snippet}
 

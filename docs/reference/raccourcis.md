@@ -56,6 +56,7 @@ Actifs partout, sauf pendant la saisie dans un champ. Mêmes touches sur macOS e
 | Défiler | molette ou trackpad | molette ou pavé tactile |
 | Zoomer autour du curseur | ⌘ + molette, ou pincement | Ctrl + molette, ou pincement |
 | Zoom à 100 % | double-clic sur le pourcentage | double-clic sur le pourcentage |
+| Afficher/Masquer les grilles | ⌘' | Ctrl+' |
 
 ## Souris et modificateurs sur le canevas
 
@@ -73,6 +74,7 @@ Actifs partout, sauf pendant la saisie dans un champ. Mêmes touches sur macOS e
 | Carré, cercle ; proportions ; angle par 15° | ⇧ en dessinant, redimensionnant, pivotant | Maj |
 | Depuis le centre | ⌥ en dessinant ou redimensionnant | Alt |
 | Poignée de Bézier indépendante | ⌥ en la glissant | Alt |
+| Sans magnétisme (repères, grille) | ⌘ maintenu en glissant | Ctrl |
 
 Sous Linux, certains environnements de bureau réservent Alt + glisser au déplacement des fenêtres : appuyez sur Alt
 après avoir commencé à glisser, ou changez ce réglage du bureau.

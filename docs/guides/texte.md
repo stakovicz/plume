@@ -26,7 +26,8 @@ Section **Texte** de l'inspecteur ; un style par calque texte :
 | Police | Fira Sans, PT Serif, Fira Mono (fournies), puis les polices **installées** sur l'ordinateur (application de bureau) ; tapez pour filtrer |
 | Graisse | Normal ou Gras |
 | Taille | en pixels |
-| Ligne / Lettre | interligne (multiple de la taille) et espacement des lettres (pixels) |
+| Interligne | multiple de la taille |
+| Approche | espacement des lettres (pixels) |
 | Alignement | Gauche, Centre, Droite |
 | Largeur | Auto (s'adapte à la plus longue ligne) ou Fixe (retour à la ligne à la largeur de la zone) |
 | Couleur | couleur unie ou dégradé |

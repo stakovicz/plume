@@ -49,6 +49,9 @@ export class Doc {
   renaming = $state<{ id: string; where: 'list' | 'canvas' } | null>(null);
   shift = $state(false); // ⇧ held: keep proportions, snap angles, square/circle
   option = $state(false); // ⌥ held: resize/draw from the center
+  /** View settings, not saved: artboard grids drawn, and drags pulled onto them. */
+  showGrids = $state(true);
+  snapToGrid = $state(true);
 
   // File state
   filePath = $state<string | null>(null);

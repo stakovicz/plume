@@ -5,6 +5,14 @@
 ### Ajouts
 
 - **Windows** : programme d'installation `.exe` ou `.msi`, `winget install Stakovicz.Plume` ou Scoop (`stakovicz/plume-editor`).
+- **Grille de plan de travail** : grille carrée (taille, lignes majeures) et colonnes de mise en page (nombre, gouttière,
+  marge), chacune activée dans l'inspecteur ; magnétisme en déplaçant, redimensionnant et dessinant (⌘ pour l'ignorer).
+  Présentation › Afficher/Masquer les grilles (⌘'). ([#28](https://github.com/stakovicz/plume/issues/28))
+
+### Modifications
+
+- **Inspecteur** : un champ par ligne pour Tiret et Espace (bordure), Interligne et Approche (texte), dont les libellés
+  étaient tronqués. L'ombre a sa propre section, activée par l'interrupteur à droite de son titre, comme Grille et Colonnes.
 
 ## 0.4.0 — 2026-10-25
 

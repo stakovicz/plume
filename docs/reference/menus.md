@@ -58,6 +58,8 @@ Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), 
 | Zoom avant / arrière | ⌘= / ⌘- |
 | Taille réelle | ⌘0 |
 | Tout afficher | ⌘1 |
+| Afficher/Masquer les grilles | ⌘' |
+| Activer/Désactiver le magnétisme de la grille | |
 | Afficher/Masquer le navigateur | ⌥⌘1 |
 | Afficher/Masquer l'inspecteur | ⌥⌘2 |
 

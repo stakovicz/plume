@@ -3,6 +3,7 @@
   import type { Doc } from '$lib/document/doc.svelte';
   import type { RGBA } from '$lib/model/color';
   import { defaultShadow } from '$lib/model/effects';
+  import { type Columns, type Grid, defaultColumns, defaultGrid } from '$lib/model/grid';
   import { type Rect, POINT_TYPES, apply, pt, rectOf, union } from '$lib/model/geometry';
   import { pointType } from '$lib/model/point-editing';
   import {
@@ -85,6 +86,9 @@
   const style = (patch: Patch) => doc.styleEdits(patched(sel, patch));
   /** Same, for fill, border and text (`painted`). */
   const pStyle = (patch: Patch) => doc.styleEdits(patched(painted, patch));
+  /** Continuous grid or columns change (artboards). */
+  const gridStyle = (patch: Partial<Grid>) => style((c) => ({ grid: { ...c.grid!, ...patch } }));
+  const columnsStyle = (patch: Partial<Columns>) => style((c) => ({ columns: { ...c.columns!, ...patch } }));
   /** Continuous text style change: each box refits to its restyled lines. */
   function textStyle(patch: Partial<TextStyle>) {
     doc.styleEdits(targets(painted).filter((c) => c.text).map((c) => [c.id, refit({ ...c, text: { ...c.text!, ...patch } }, c)]));
@@ -288,9 +292,11 @@
         <Row label={L('Size')} single>
           <NumberField label={L('Size')} value={pNum((x) => x.text!.size)} min={1} disabled={locked} onchange={(size) => textStyle({ size })} />
         </Row>
-        <Row label={L('Line / Letter')}>
+        <Row label={L('Line height')} single>
           <NumberField label={L('Line height')} value={pNum((x) => x.text!.lineHeight)} digits={2} min={0.5} max={5} suffix="×" disabled={locked}
             onchange={(lineHeight) => textStyle({ lineHeight })} />
+        </Row>
+        <Row label={L('Tracking')} single>
           <NumberField label={L('Letter spacing')} value={pNum((x) => x.text!.letterSpacing)} digits={1} disabled={locked}
             onchange={(letterSpacing) => textStyle({ letterSpacing })} />
         </Row>
@@ -333,8 +339,10 @@
           <Segmented label={L('Position')} value={pPick((x) => x.borderPosition)} options={options(BORDER_POSITIONS)} disabled={locked || !pAll(isClosed)}
             onchange={(borderPosition) => pStyle({ borderPosition })} />
         </Row>
-        <Row label={L('Dash / Gap')}>
+        <Row label={L('Dash')} single>
           <NumberField label={L('Dash')} value={pNum((x) => x.dash[0] ?? 0)} min={0} disabled={locked} onchange={(v) => dashPart(0, v)} />
+        </Row>
+        <Row label={L('Gap')} single>
           <NumberField label={L('Gap')} value={pNum((x) => x.dash[1] ?? 0)} min={0} disabled={locked} onchange={(v) => dashPart(1, v)} />
         </Row>
         <Row label={L('Ends')}>
@@ -346,11 +354,50 @@
       </Section>
     {/if}
 
+    {#if !multi && l.kind === 'artboard'}
+      <!-- drawn on the canvas only; View › Show/Hide Grids and Snap to Grid apply to all of them -->
+      <Section title={L('Grid')}>
+        {#snippet action()}
+          <Toggle label={L('Grid')} checked={!!l.grid} disabled={locked} onchange={(on) => style((c) => ({ grid: on ? (c.grid ?? defaultGrid()) : undefined }))} />
+        {/snippet}
+        {#if l.grid}
+          {@const g = l.grid}
+          <Row label={L('Size')} single>
+            <NumberField label={L('Grid size')} value={g.size} min={1} disabled={locked} onchange={(size) => gridStyle({ size })} />
+          </Row>
+          <Row label={L('Major')} single>
+            <!-- a stronger line every N squares; 0: none -->
+            <NumberField label={L('Major line every')} value={g.major} min={0} digits={0} disabled={locked} onchange={(major) => gridStyle({ major: Math.round(major) })} />
+          </Row>
+        {/if}
+      </Section>
+      <Section title={L('Columns')}>
+        {#snippet action()}
+          <Toggle label={L('Columns')} checked={!!l.columns} disabled={locked}
+            onchange={(on) => style((c) => ({ columns: on ? (c.columns ?? defaultColumns()) : undefined }))} />
+        {/snippet}
+        {#if l.columns}
+          {@const c = l.columns}
+          <Row label={L('Number')} single>
+            <NumberField label={L('Number of columns')} value={c.count} min={1} max={48} digits={0} disabled={locked} onchange={(count) => columnsStyle({ count: Math.round(count) })} />
+          </Row>
+          <Row label={L('Gutter')} single>
+            <NumberField label={L('Gutter')} value={c.gutter} min={0} disabled={locked} onchange={(gutter) => columnsStyle({ gutter })} />
+          </Row>
+          <Row label={L('Margin')} single>
+            <NumberField label={L('Margin')} value={c.margin} min={0} disabled={locked} onchange={(margin) => columnsStyle({ margin })} />
+          </Row>
+        {/if}
+      </Section>
+    {/if}
+
     {#if all((x) => x.kind !== 'artboard')}
-    <Section title={L('Effects')}>
+    <Section title={L('Shadow')}>
       <!-- several layers: the shadow's fields appear when they all have one -->
-      <Toggle label={L('Shadow')} checked={all((x) => !!x.shadow)} disabled={locked}
-        onchange={(on) => style((c) => ({ shadow: on ? (c.shadow ?? defaultShadow()) : undefined }))} />
+      {#snippet action()}
+        <Toggle label={L('Shadow')} checked={all((x) => !!x.shadow)} disabled={locked}
+          onchange={(on) => style((c) => ({ shadow: on ? (c.shadow ?? defaultShadow()) : undefined }))} />
+      {/snippet}
       {#if all((x) => !!x.shadow)}
         {@const s = l.shadow!}
         <Row label={L('Color')} single>
@@ -365,6 +412,8 @@
             onchange={(blur) => style((c) => ({ shadow: { ...c.shadow!, blur } }))} />
         </Row>
       {/if}
+    </Section>
+    <Section title={L('Effects')}>
       <Row label={L('Layer blur')} single>
         <NumberField label={L('Layer blur')} value={num((x) => x.blur)} min={0} max={100} disabled={locked} onchange={(blur) => style({ blur })} />
       </Row>

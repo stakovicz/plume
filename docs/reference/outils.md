@@ -30,6 +30,8 @@ Une forme tracée d'un simple clic (moins de 2 pixels à l'écran) est abandonn�
 
 - **Repères d'alignement** : en déplaçant, redimensionnant ou dessinant, bords et centres s'aimantent à moins
   de 5 pixels écran de ceux des autres calques visibles ; une ligne de repère s'affiche.
+- **Grille** d'un plan de travail : à défaut de repère, les bords s'aimantent à ses lignes et aux bords de ses
+  colonnes (voir [Plans de travail](../guides/plans-de-travail.md)). ⌘ maintenu en glissant ignore repères et grille.
 - **Bulle d'information** près du curseur en redimensionnant ou pivotant : mode (libre, proportionnel,
   depuis le centre) ou angle.
 - **Zoom** : de 5 % à 6400 %.

@@ -21,7 +21,7 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 src-tauri/src/lib.rs   Rust commands: read_text, read_bytes, write_bytes (atomic), launch_file (+ macOS Finder opens), system_fonts (fontdb); dialog plugin
 src/lib/
   model/      Layer (+ transforms, border), geometry (Pt, Affine, Bézier bounds/hit), path-data,
-              point-editing, curve-fit, layer-tree helpers, color, effects, codable (file format),
+              point-editing, curve-fit, layer-tree helpers, color, effects, grid (artboard grid, snapping), codable (file format),
               boolean (union/subtract/… via paper.js), outline (border → filled shape),
               text (layout, measuring, glyph outlines via fontkit; fonts bundled in static/fonts or installed)
   document/   Doc (state, undo, editing ops, zoom, load/save data), Tool
