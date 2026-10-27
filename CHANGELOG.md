@@ -14,6 +14,10 @@
 - **Inspecteur** : un champ par ligne pour Tiret et Espace (bordure), Interligne et Approche (texte), dont les libellés
   étaient tronqués. L'ombre a sa propre section, activée par l'interrupteur à droite de son titre, comme Grille et Colonnes.
 
+### Corrections
+
+- **À propos de Plume** : le panneau affiche l'icône de l'application.
+
 ## 0.4.0 — 2026-10-25
 
 ### Modifications
