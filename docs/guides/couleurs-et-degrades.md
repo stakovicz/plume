@@ -40,13 +40,13 @@ Section **Bordure** :
 
 - **Épaisseur** : 0 retire la bordure ;
 - **Position** : Centre, Intérieur ou Extérieur (formes fermées seulement, voir [Bordures](../explications/bordures.md)) ;
-- **Tiret / Espace** : longueurs des pointillés ; Tiret à 0 = trait plein, Espace à 0 = même longueur que le tiret ;
+- **Tiret** et **Espace** : longueurs des pointillés ; Tiret à 0 = trait plein, Espace à 0 = même longueur que le tiret ;
 - **Extrémités** (Plate, Arrondi, Carré) et **Angles** (Onglet, Arrondi, Biseau).
 
 ## Opacité et effets
 
 - **Calque › Opacité** : la transparence du calque entier (un groupe est rendu comme une seule image).
-- **Effets › Ombre** : activez-la, puis réglez **Couleur**, décalage **X / Y** et **Flou**.
+- **Ombre** : activez l'interrupteur à droite du titre, puis réglez **Couleur**, décalage **X / Y** et **Flou**.
 - **Effets › Flou du calque** : floute tout le calque.
 
 L'ombre et le flou ne passent pas dans les exports PDF ; ils sont conservés en SVG, PNG et JPG.

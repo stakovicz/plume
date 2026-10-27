@@ -40,9 +40,9 @@ export function layerSVG(l: Layer): string {
     attrs += ` filter="url(#fx-${key})"`;
   }
   if (l.kind === 'group') return defs.join('') + `<g${attrs}>${l.children.map(layerSVG).join('')}</g>`;
-  if (l.kind === 'artboard') { // background + content clipped to the frame; import recognizes data-artboard
+  if (l.kind === 'artboard') { // background + content clipped to the frame; import recognizes data-artboard (and its grid settings, never drawn)
     const box = `x="${f(b.x)}" y="${f(b.y)}" width="${f(b.width)}" height="${f(b.height)}"`;
-    return defs.join('') + `<g${attrs} data-artboard="${escapeXML(l.name)}"><clipPath id="ab-${key}"><rect ${box}/></clipPath>` +
+    return defs.join('') + `<g${attrs} data-artboard="${escapeXML(l.name)}"${l.grid ? ` data-grid="${escapeXML(JSON.stringify(l.grid))}"` : ''}${l.columns ? ` data-columns="${escapeXML(JSON.stringify(l.columns))}"` : ''}><clipPath id="ab-${key}"><rect ${box}/></clipPath>` +
       `<rect ${box} ${paintAttr(l.fill, l.fillGradient, 'fill')}/><g clip-path="url(#ab-${key})">${l.children.map(layerSVG).join('')}</g></g>`;
   }
 

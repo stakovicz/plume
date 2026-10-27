@@ -4,6 +4,7 @@ import { type RGBA, GRAY } from '$lib/model/color';
 import { type GradientFill, gradient as makeGradient } from '$lib/model/effects';
 import { type Layer, LINE_CAPS, LINE_JOINS, bounds, localBounds, mapped, newArtboard, newLayer, rotated } from '$lib/model/layer';
 import { DEFAULT_TEXT, TEXT_ALIGNS, fitted, firstBaseline } from '$lib/model/text';
+import { defaultColumns, defaultGrid } from '$lib/model/grid';
 import { number, parsePath, shapeData, tokens } from '$lib/model/path-data';
 import { paint, parseTransform, strict } from './syntax';
 
@@ -154,6 +155,10 @@ class Builder {
     if (bg) a.fill = paint(bg.attrs.fill ?? 'white', strict(bg.attrs['fill-opacity']) ?? 1);
     a.children = content ? this.layers(content.children, style, ctm) : [];
     a.hidden = style.display === 'none';
+    try {
+      if (e.attrs['data-grid']) a.grid = { ...defaultGrid(), ...JSON.parse(e.attrs['data-grid']) };
+      if (e.attrs['data-columns']) a.columns = { ...defaultColumns(), ...JSON.parse(e.attrs['data-columns']) };
+    } catch { /* settings from another version or hand-edited: left out */ }
     return a;
   }
 

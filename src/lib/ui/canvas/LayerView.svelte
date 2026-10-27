@@ -8,13 +8,15 @@
     type Layer, bounds, center, clipShape, drawnStrokeWidth, effectiveBorderPosition, hasVisibleStroke, localBounds, localShape,
   } from '$lib/model/layer';
   import { layout } from '$lib/model/text';
+  import { columnEdges, gridLines } from '$lib/model/grid';
 
   /** One layer as SVG, in document space. Order: clip → opacity/filters
    *  composited over the whole layer (a group as one image) → content. */
-  let { l, preview = null, typing = null }: {
+  let { l, preview = null, typing = null, gridZoom = null }: {
     l: Layer;
     preview?: { ids: Set<string>; t: Affine } | null;
     typing?: string | null; // text layer being typed into: the canvas's text field draws it
+    gridZoom?: number | null; // the canvas's zoom when artboard grids are shown
   } = $props();
 
   const id = $derived(l.id);
@@ -29,6 +31,8 @@
   const d = $derived(l.kind === 'group' || l.kind === 'text' ? '' : pathData(localShape(l), 3));
   const lines = $derived(l.kind === 'text' ? layout(l) : []);
   const frame = $derived(l.kind === 'artboard' ? localBounds(l) : null);
+  const gridPaths = $derived(frame && l.grid && gridZoom ? gridLines(frame, l.grid, gridZoom) : null);
+  const columns = $derived(frame && l.columns && gridZoom ? columnEdges(frame, l.columns) : []);
   const rotate = $derived(l.rotation ? `rotate(${(l.rotation * 180) / Math.PI} ${center(l).x} ${center(l).y})` : undefined);
   const border = $derived(effectiveBorderPosition(l));
   const mask = $derived(inset(localBounds(l), -l.strokeWidth * 10 - 1)); // outside border: everything but the shape
@@ -84,6 +88,14 @@
       <!-- artboard: background, then the content clipped to the frame -->
       <clipPath id="ab-{id}"><rect x={frame.x} y={frame.y} width={frame.width} height={frame.height} /></clipPath>
       <rect x={frame.x} y={frame.y} width={frame.width} height={frame.height} fill={paint(l.fill, l.fillGradient, 'fill')} />
+      <!-- grid and columns: canvas only (svg/export.ts leaves them out); lines one screen pixel wide at any zoom -->
+      {#each columns as [x0, x1], i (i)}
+        <rect x={x0} y={frame.y} width={x1 - x0} height={frame.height} fill="var(--grid)" pointer-events="none" />
+      {/each}
+      {#if gridPaths}
+        <path d={gridPaths.minor} stroke="var(--grid)" opacity="0.5" vector-effect="non-scaling-stroke" pointer-events="none" />
+        <path d={gridPaths.major} stroke="var(--grid)" vector-effect="non-scaling-stroke" pointer-events="none" />
+      {/if}
       <g clip-path="url(#ab-{id})">
         {#each l.children as c (c.id)}<Self l={c} {preview} {typing} />{/each}
       </g>

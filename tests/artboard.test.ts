@@ -262,3 +262,33 @@ test('a click on a layer of a multiple selection selects it alone; a drag moves 
   expect(d.selectedIDs.size).toBe(2);
   expect(d.layers.map((l) => bounds(l).x)).toEqual([10, 30]);
 });
+
+describe('grid', () => {
+  const gridded = () => ({ ...board(0, 0, 200, 100), grid: { size: 10, major: 5 }, columns: { count: 2, gutter: 20, margin: 10 } }); // column edges 10, 90, 110, 190
+
+  test('a moved layer snaps to the grid of its artboard; ⌘ or Snap to Grid off leave it free', () => {
+    const d = new Doc(), a = gridded();
+    a.children.push(rect(20, 20, 40, 40, 'r'));
+    d.layers = [a];
+    const g = new Gestures(d), x = () => bounds(d.get(a.children[0].id)!).x;
+    let y = 33; // between the handles, each drag 6 px from the last: not a double click
+    const drag = (dx: number, free = false) => { const o = x() + 5; y = 60 - y; g.down(pt(o, y), false); g.move(pt(o + dx, y), free); g.up(); };
+    drag(7); // left edge 27 → 30
+    expect(x()).toBe(30);
+    drag(-3, true);
+    expect(x()).toBe(27);
+    d.snapToGrid = false;
+    drag(2);
+    expect(x()).toBe(29);
+  });
+
+  test('settings survive the .plm file and our SVG; no grid drawn in the export', () => {
+    const a = gridded();
+    expect(decodeFile(encodeFile({ layers: [a], palette: [] })).layers[0]).toMatchObject({ grid: a.grid, columns: a.columns });
+    const svg = artboardSVG(a);
+    expect(svg).not.toContain('<path');
+    expect(importSVG(svg)[0]).toMatchObject({ grid: a.grid, columns: a.columns });
+    const plain = importSVG(artboardSVG(board()))[0];
+    expect([plain.grid, plain.columns]).toEqual([undefined, undefined]);
+  });
+});

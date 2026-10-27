@@ -92,7 +92,7 @@ il s'aligne sur le centre du plan de travail ou du soleil : relâchez à ce mome
 Dans le navigateur, un calque « Groupe 1 » contient maintenant le soleil et le texte.
 
 3. Triple-cliquez sur « Groupe 1 » dans le navigateur, tapez `Motif` et **Retour**.
-4. Dans l'inspecteur, section **Effets**, activez **Ombre** : le soleil et le titre reçoivent une ombre portée.
+4. Dans l'inspecteur, activez l'interrupteur de la section **Ombre** : le soleil et le titre reçoivent une ombre portée.
 
 ![Le groupe Motif, déplié dans le navigateur ; dans l'inspecteur, l'ombre activée](../img/tuto1-groupe.webp)
 

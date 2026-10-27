@@ -27,6 +27,24 @@ Un plan de travail ne pivote pas et ne se retourne pas.
 
 Section **Fond** de l'inspecteur. Un fond transparent (opacité 0) donne un PNG transparent à l'export.
 
+## Grille
+
+Dans l'inspecteur, l'interrupteur à droite du titre de chaque section :
+
+- **Grille** ajoute une grille carrée depuis le coin supérieur gauche du plan de travail :
+  **taille** des cases (8 px par défaut) et une ligne **majeure** toutes les N cases (8 par défaut ; 0 = aucune) ;
+- **Colonnes** ajoute des colonnes de mise en page : **nombre** (6 par défaut), **gouttière** et **marge**.
+
+Les deux s'utilisent seules ou ensemble, toujours de la même couleur.
+
+- Les lignes gardent la même épaisseur à l'écran ; trop serrées quand on dézoome, elles disparaissent.
+- Grille et colonnes ne sont ni sélectionnables ni exportées. Leurs réglages sont enregistrés avec le document, et dans le SVG exporté.
+- **Magnétisme** : en déplaçant, redimensionnant, dessinant ou éditant un point dans le plan de travail, les bords
+  s'aimantent aux lignes et aux bords des colonnes (les repères d'alignement passent avant).
+  Maintenez **⌘** (Ctrl) pour l'ignorer le temps d'un glissement.
+- Menu **Présentation** : **Afficher/Masquer les grilles** (⌘') et **Activer/Désactiver le magnétisme de la grille**,
+  pour tous les plans de travail. Grilles masquées, pas de magnétisme.
+
 ## Mettre des calques dedans ou les en sortir
 
 Déplacez simplement le calque : à la fin du déplacement, il appartient au plan de travail sous **son centre**,

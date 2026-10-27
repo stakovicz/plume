@@ -49,7 +49,7 @@
     e.preventDefault(); // no native mousedown focus change: it would blur a rename field opened by this click
     el.focus();
     el.setPointerCapture(e.pointerId);
-    gestures.down(view(e), e.shiftKey);
+    gestures.down(view(e), e.shiftKey, e.metaKey || e.ctrlKey); // ⌘ (Ctrl): no snapping
   }
 
   /** Scroll = pan, ⌘-scroll / pinch (ctrl-wheel in WebKit) = zoom around the cursor. */
@@ -118,7 +118,7 @@
   role="application"
   aria-label={L('Canvas')}
   onpointerdown={pointerdown}
-  onpointermove={(e) => gestures.move(view(e))}
+  onpointermove={(e) => gestures.move(view(e), e.metaKey || e.ctrlKey)}
   onpointerup={() => gestures.up()}
   onpointercancel={() => gestures.up()}
   onwheel={wheel}
@@ -126,7 +126,7 @@
 >
   <svg>
     <g transform="translate({doc.pan.x} {doc.pan.y}) scale({doc.zoom})">
-      {#each doc.layers as l (l.id)}<LayerView {l} preview={doc.preview} typing={doc.editingText} />{/each}
+      {#each doc.layers as l (l.id)}<LayerView {l} preview={doc.preview} typing={doc.editingText} gridZoom={doc.showGrids ? doc.zoom : null} />{/each}
 
       <g class="overlay">
         <!-- artboard names: how an artboard is picked (see labelRect) -->

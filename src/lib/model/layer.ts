@@ -4,6 +4,7 @@ import {
 } from './geometry';
 import { type RGBA, BLACK, GRAY } from './color';
 import { type GradientFill, type Shadow, mapGradient } from './effects';
+import type { Columns, Grid } from './grid';
 import { parsePath, roundedRect, shapeData } from './path-data';
 import { type TextStyle, fitted, glyphOutlines, textScaled } from './text';
 
@@ -50,6 +51,8 @@ export type Layer = {
   blur: number;
   shadow?: Shadow;
   text?: TextStyle; // text layers only; `points` is the text box (model/text.ts)
+  grid?: Grid; // artboards only (model/grid.ts)
+  columns?: Columns; // artboards only
 };
 
 export function newLayer(name: string, kind: Kind, points: Pt[] = [], extra: Partial<Layer> = {}): Layer {
