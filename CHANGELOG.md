@@ -6,6 +6,10 @@
 
 - **Windows** : programme d'installation `.exe` ou `.msi`, `winget install Stakovicz.Plume` ou Scoop (`stakovicz/plume-editor`).
 
+### Corrections
+
+- **macOS** : l'application téléchargée n'est plus refusée comme « endommagée » (signature ad hoc).
+
 ## 0.4.0 — 2026-10-25
 
 ### Modifications

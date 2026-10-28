@@ -73,8 +73,9 @@ jobs:
 
             ---
 
-            macOS : Apple Silicon (aarch64) ou Intel (x64). Application non signée : au premier lancement,
-            clic droit sur Plume.app → Ouvrir (ou `xattr -dr com.apple.quarantine /Applications/Plume.app`).
+            macOS : Apple Silicon (aarch64) ou Intel (x64). Application non notarisée : au premier lancement,
+            Réglages Système → Confidentialité et sécurité → Ouvrir quand même
+            (ou `xattr -dr com.apple.quarantine /Applications/Plume.app`).
             Linux : .AppImage, .deb ou .rpm.
             Windows : programme d'installation .exe ou .msi. Non signé : si Windows SmartScreen bloque, cliquez sur
             Informations complémentaires, puis Exécuter quand même.

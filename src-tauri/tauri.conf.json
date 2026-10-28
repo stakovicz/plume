@@ -52,6 +52,7 @@
       }
     ],
     "macOS": {
+      "signingIdentity": "-",
       "files": {
         "Resources/plm.icns": "icons/plm.icns"
       }

@@ -30,8 +30,8 @@ brew install --cask stakovicz/tap/plume-editor
 Mise à jour : `brew upgrade`. Sur Linux (x86_64), Homebrew installe l'AppImage dans `~/Applications`, sans entrée
 dans le menu des applications : préférez le paquet de votre distribution ci-dessous.
 
-L'application n'est pas encore signée : au premier lancement sur macOS, clic droit sur Plume.app, puis **Ouvrir**
-(ou `xattr -dr com.apple.quarantine /Applications/Plume.app`).
+L'application n'est pas encore notarisée par Apple : au premier lancement sur macOS, ouvrez **Réglages Système ›
+Confidentialité et sécurité**, puis **Ouvrir quand même** (ou `xattr -dr com.apple.quarantine /Applications/Plume.app`).
 
 ## Debian, Ubuntu, Linux Mint : APT
 
