@@ -48,8 +48,12 @@ jobs:
           targets: ${{ matrix.target }}
 
       - uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        # one cache per target (both macOS jobs share a runner OS); saved from main only: a tag can't read another
+        # tag's cache, only main's, so tag caches would just evict it
         with:
           workspaces: src-tauri -> target
+          key: ${{ matrix.target }}
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - run: npm ci
       - run: npm test
