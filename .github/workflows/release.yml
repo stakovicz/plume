@@ -25,9 +25,10 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
-    # The Apple secrets (Developer ID signing and notarization) live in the `release` environment: a tag build
-    # gets them, a manual run on a branch falls back to the ad hoc signature (signingIdentity "-").
-    environment: ${{ startsWith(github.ref, 'refs/tags/') && 'release' || '' }}
+    # The Apple secrets (Developer ID signing and notarization) live in the `release` environment: a tag build or a
+    # manual run on main gets them (signed bundles to check before a release), a manual run on another branch falls
+    # back to the ad hoc signature (signingIdentity "-").
+    environment: ${{ (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main') && 'release' || '' }}
     steps:
       - uses: actions/checkout@v7
 
