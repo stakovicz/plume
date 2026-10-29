@@ -8,7 +8,7 @@
 
 ### Corrections
 
-- **macOS** : l'application téléchargée n'est plus refusée comme « endommagée » (signature ad hoc).
+- **macOS** : l'application téléchargée est signée (Developer ID) et notarisée par Apple : elle n'est plus refusée comme « endommagée ».
 
 ## 0.4.0 — 2026-10-25
 
