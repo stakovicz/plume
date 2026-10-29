@@ -1,6 +1,6 @@
 # Organiser les calques
 
-Sélectionner, déplacer, grouper, ordonner, renommer, masquer et verrouiller les calques d'un document.
+Sélectionner, déplacer, aligner, répartir, grouper, ordonner, renommer, masquer et verrouiller les calques d'un document.
 
 ## Sélectionner
 
@@ -26,6 +26,20 @@ Sélectionner, déplacer, grouper, ordonner, renommer, masquer et verrouiller le
 - **Valeurs exactes** : section **Géométrie** de l'inspecteur (Position, Taille, Rotation, et Rayon des coins
   pour un rectangle, un même rayon ou un par coin). Un rectangle étiré garde ses coins ; redimensionné proportionnellement, ses coins suivent.
 - **Retourner** : **Outils › Retourner horizontalement / verticalement**.
+
+## Aligner et répartir
+
+Rangée d'icônes en haut de l'inspecteur, ou **Disposition › Aligner** et **Disposition › Répartir**.
+
+- **Aligner** : à gauche (⌥A), au centre (⌥H), à droite (⌥D), en haut (⌥W), au milieu (⌥V), en bas (⌥S).
+  Plusieurs calques s'alignent sur le cadre qui les englobe ; un calque seul, sur son groupe ou son plan de travail.
+  Les plans de travail sélectionnés s'alignent entre eux.
+- **Répartir** horizontalement (⌥⇧H) ou verticalement (⌥⇧V) : à partir de 3 calques, les deux extrêmes restent
+  en place et les autres se placent pour que les espaces entre calques soient égaux.
+
+Le cadre d'un calque pivoté est celui qui l'englobe une fois tourné ; un groupe bouge d'un bloc.
+Les calques verrouillés ne bougent pas mais comptent dans le cadre ; les calques masqués sont ignorés.
+Un calque qui sort de son plan de travail ou arrive sur un autre change de plan de travail, comme après un déplacement.
 
 ## Grouper et dégrouper
 

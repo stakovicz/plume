@@ -1,5 +1,13 @@
 # Changelog
 
+## Non publié
+
+### Ajouts
+
+- **Aligner et répartir** : Disposition › Aligner (⌥A, ⌥H, ⌥D, ⌥W, ⌥V, ⌥S) et Répartir (⌥⇧H, ⌥⇧V), et une rangée
+  d'icônes en haut de l'inspecteur. Plusieurs calques s'alignent sur leur cadre commun, un calque seul sur son groupe
+  ou son plan de travail. ([#29](https://github.com/stakovicz/plume/issues/29))
+
 ## 0.4.1 — 2026-10-29
 
 ### Ajouts
