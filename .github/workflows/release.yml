@@ -25,6 +25,10 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
+    # The Apple secrets (Developer ID signing and notarization) live in the `release` environment: a tag build or a
+    # manual run on main gets them (signed bundles to check before a release), a manual run on another branch falls
+    # back to the ad hoc signature (signingIdentity "-").
+    environment: ${{ (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main') && 'release' || '' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -64,6 +68,14 @@ jobs:
         id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # APPLE_CERTIFICATE: the Developer ID Application certificate exported as .p12, in base64;
+          # APPLE_PASSWORD: an app-specific password of the Apple ID (account.apple.com).
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           args: --target ${{ matrix.target }}
           tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
@@ -73,8 +85,7 @@ jobs:
 
             ---
 
-            macOS : Apple Silicon (aarch64) ou Intel (x64). Application non signée : au premier lancement,
-            clic droit sur Plume.app → Ouvrir (ou `xattr -dr com.apple.quarantine /Applications/Plume.app`).
+            macOS : Apple Silicon (aarch64) ou Intel (x64).
             Linux : .AppImage, .deb ou .rpm.
             Windows : programme d'installation .exe ou .msi. Non signé : si Windows SmartScreen bloque, cliquez sur
             Informations complémentaires, puis Exécuter quand même.
