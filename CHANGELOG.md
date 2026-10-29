@@ -18,6 +18,10 @@
 
 - **À propos de Plume** : le panneau affiche l'icône de l'application.
 
+### Corrections
+
+- **macOS** : l'application téléchargée est signée (Developer ID) et notarisée par Apple : elle n'est plus refusée comme « endommagée ».
+
 ## 0.4.0 — 2026-10-25
 
 ### Modifications

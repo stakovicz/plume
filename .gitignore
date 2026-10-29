@@ -6,6 +6,7 @@
 /build
 /_site
 /package
+certs/*
 dist/
 node_modules
 src-tauri/gen/
