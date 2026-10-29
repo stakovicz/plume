@@ -28,8 +28,7 @@ fontdb = "0.24.0"
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
 [profile.release]
-codegen-units = 1
-lto = true
+lto = "thin" # fat LTO with one codegen unit: slightly smaller binary, but a single-threaded link uncached by CI
 opt-level = 3
 panic = "abort"
 strip = true
