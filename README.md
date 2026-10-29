@@ -10,6 +10,8 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 - **Édition de points** : double-clic ou Retour sur un tracé ; poignées miroir, ⌥ pour les rendre indépendantes.
 - **Calques** : groupes, plans de travail, masquer / verrouiller, renommer, glisser-déposer dans la liste,
   ordre d'empilement (avancer, reculer, premier plan, arrière-plan).
+- **Aligner et répartir** : à gauche, au centre, à droite, en haut, au milieu, en bas (⌥A, ⌥H, ⌥D, ⌥W, ⌥V, ⌥S),
+  espacement égal horizontal ou vertical (⌥⇧H, ⌥⇧V) ; menu Disposition ou haut de l'inspecteur.
 - **Combiner** des formes : union, soustraction, intersection, différence (courbes conservées).
 - **Vectoriser le contour** : une bordure devient une forme pleine.
 - **Retourner** horizontalement ou verticalement (menu Outils).

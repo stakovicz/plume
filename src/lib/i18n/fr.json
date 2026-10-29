@@ -209,5 +209,15 @@
   "Margin": "Marge",
   "Show/Hide Grids": "Afficher/Masquer les grilles",
   "Turn Off Snap to Grid": "Désactiver le magnétisme de la grille",
-  "Turn On Snap to Grid": "Activer le magnétisme de la grille"
+  "Turn On Snap to Grid": "Activer le magnétisme de la grille",
+  "Align": "Aligner",
+  "Align Left": "Aligner à gauche",
+  "Align Horizontal Centers": "Centrer horizontalement",
+  "Align Right": "Aligner à droite",
+  "Align Top": "Aligner en haut",
+  "Align Vertical Centers": "Centrer verticalement",
+  "Align Bottom": "Aligner en bas",
+  "Distribute": "Répartir",
+  "Distribute Horizontally": "Répartir horizontalement",
+  "Distribute Vertically": "Répartir verticalement"
 }

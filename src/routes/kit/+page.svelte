@@ -20,7 +20,7 @@
   import Toggle from '$lib/ui/kit/Toggle.svelte';
 
   /** Dev-only gallery: every primitive in every state, light and dark side by side, to spot drift. */
-  const icons = ['select', 'pen', 'pencil', 'rect', 'ellipse', 'path', 'group', 'artboard', 'eye', 'eye-off', 'lock', 'lock-open', 'plus', 'corners', 'rotate', 'chevron', 'union', 'subtract', 'intersect', 'difference', 'sidebar-left', 'sidebar-right'] as const;
+  const icons = ['select', 'pen', 'pencil', 'rect', 'ellipse', 'path', 'group', 'artboard', 'eye', 'eye-off', 'lock', 'lock-open', 'plus', 'corners', 'rotate', 'chevron', 'union', 'subtract', 'intersect', 'difference', 'align-left', 'align-center', 'align-right', 'align-top', 'align-middle', 'align-bottom', 'distribute-horizontal', 'distribute-vertical', 'sidebar-left', 'sidebar-right'] as const;
   let dialog = $state(false);
   let renaming = $state(false), pick = $state(''), font = $state('Fira Sans'), n = $state(42), text = $state('Rectangle 1'), seg = $state<'a' | 'b' | 'c'>('a'), point = $state<PointType>('straight'), on = $state(true), v = $state(0.6);
   let color = $state<RGBA>({ r: 0.2, g: 0.5, b: 0.9, a: 0.8 }), palette = $state<RGBA[]>([BLACK, GRAY]);

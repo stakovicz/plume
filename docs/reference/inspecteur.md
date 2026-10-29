@@ -10,6 +10,16 @@ Une modification s'applique à tous les calques non verrouillés, en une seule �
 
 « Aucune sélection ». Avec l'outil Plan de travail : la liste des tailles prédéfinies (voir ci-dessous).
 
+## Aligner et répartir
+
+Rangée d'icônes en haut, dès qu'un calque est sélectionné (mêmes commandes que Disposition › Aligner et Répartir).
+
+| Contrôle | Effet |
+|---|---|
+| Aligner à gauche, Centrer horizontalement, Aligner à droite | sur le cadre de la sélection ; un seul calque : sur son groupe ou son plan de travail |
+| Aligner en haut, Centrer verticalement, Aligner en bas | idem, verticalement |
+| Répartir horizontalement, verticalement | espacement égal entre 3 calques ou plus, les deux extrêmes restent en place |
+
 ## N calques sélectionnés
 
 Plusieurs calques uniquement.

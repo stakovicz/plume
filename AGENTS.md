@@ -12,6 +12,8 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 - Build the app: `npm run tauri build`
 - Examples (File › Examples; the web version opens the first at launch): SVGs in `static/exemples/`, listed in
   `EXAMPLES` (app/files); `svg.test.ts` checks each one imports and is listed
+- Screenshots: `npm run captures` with `npm run dev` running (Chrome via playwright-core) redoes the whole-window
+  captures of docs/img and site/img as WebP; cropped ones are taken by hand
 - Presentation site: `npm run site` → `_site/` (site/ pages, docs/ and CHANGELOG.md as HTML, the web editor under app/,
   built with `BASE_PATH=/plume/app`); `.github/workflows/pages.yml` publishes it to GitHub Pages from main
 

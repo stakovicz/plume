@@ -3,7 +3,7 @@
 Dans ce tutoriel, vous allez créer une bannière : un soleil, un sol en dégradé et un titre,
 puis l'exporter en image PNG. Comptez un quart d'heure. Aucune connaissance préalable n'est nécessaire.
 
-À la fin, vous saurez dessiner des formes, les colorer, écrire du texte, grouper des calques,
+À la fin, vous saurez dessiner des formes, les colorer, écrire du texte, aligner et grouper des calques,
 enregistrer un document et l'exporter.
 
 ## 1. Ouvrir un document vide
@@ -84,19 +84,22 @@ il s'aligne sur le centre du plan de travail ou du soleil : relâchez à ce mome
 
 ![Le titre Bonjour sous le soleil ; la section Texte de l'inspecteur : PT Serif, Gras, taille 120](../img/tuto1-texte.webp)
 
-## 6. Grouper le soleil et le titre
+## 6. Aligner et grouper le soleil et le titre
 
 1. Cliquez sur le soleil, puis **⇧-clic** sur le titre : les deux sont sélectionnés.
-2. **Disposition › Grouper** (⌘G).
+2. **Disposition › Aligner › Centrer horizontalement** (⌥H), ou la deuxième icône de la rangée en haut de
+   l'inspecteur : le titre est exactement centré sous le soleil, sans chercher le repère à la souris.
+3. **Disposition › Grouper** (⌘G).
 
 Dans le navigateur, un calque « Groupe 1 » contient maintenant le soleil et le texte.
 
-3. Triple-cliquez sur « Groupe 1 » dans le navigateur, tapez `Motif` et **Retour**.
-4. Dans l'inspecteur, activez l'interrupteur de la section **Ombre** : le soleil et le titre reçoivent une ombre portée.
+4. Triple-cliquez sur « Groupe 1 » dans le navigateur, tapez `Motif` et **Retour**.
+5. Dans l'inspecteur, activez l'interrupteur de la section **Ombre** : le soleil et le titre reçoivent une ombre portée.
 
-![Le groupe Motif, déplié dans le navigateur ; dans l'inspecteur, l'ombre activée](../img/tuto1-groupe.webp)
+![Le groupe Motif, centré et déplié dans le navigateur ; dans l'inspecteur, la rangée d'icônes d'alignement et l'ombre activée](../img/tuto1-groupe.webp)
 
-Glissez le groupe sur le canevas : le soleil et le texte bougent ensemble.
+Glissez le groupe sur le canevas : le soleil et le texte bougent ensemble. Pour le remettre au milieu du plan
+de travail, gardez-le sélectionné et appuyez sur **⌥H** : seul, un calque s'aligne sur son plan de travail.
 
 ## 7. Enregistrer
 
@@ -121,6 +124,7 @@ Ouvrez l'image : 3840 × 2160 pixels, avec le soleil, le titre, l'ombre et le d�
 - Chaque outil a sa touche (O, R, T, A), hors de la saisie dans un champ, et rend la main à la Sélection après le dessin ;
   **⇧** contraint (cercle, carré).
 - L'**inspecteur** règle la sélection : couleur, dégradé, bordure, texte, effets.
+- **Aligner** place les calques les uns par rapport aux autres, ou un calque seul sur son plan de travail.
 - **Grouper** fait bouger et styler plusieurs calques ensemble.
 
 Ensuite : [Dessiner à la plume](02-dessiner-a-la-plume.md).

@@ -37,6 +37,15 @@
     backward: '<path d="M2.5 2.5h7v4h-3v3h-4Z" fill="currentColor"/><rect x="6.5" y="6.5" width="7" height="7"/>',
     front: '<rect x="1.5" y="1.5" width="6" height="6"/><rect x="4.5" y="4.5" width="6" height="6"/><rect x="8" y="8" width="6.5" height="6.5" fill="currentColor"/>',
     back: '<path d="M1.5 1.5h6v3h-3v3h-3Z" fill="currentColor"/><rect x="4.5" y="4.5" width="6" height="6"/><rect x="8" y="8" width="6.5" height="6.5"/>',
+    // Align: two bars against the reference line; Distribute: a layer centered between two
+    'align-left': '<path d="M2.5 1.5v13"/><rect x="4.5" y="3.5" width="9" height="3"/><rect x="4.5" y="9.5" width="5" height="3"/>',
+    'align-center': '<path d="M8 1.5v13"/><rect x="3" y="3.5" width="10" height="3"/><rect x="5" y="9.5" width="6" height="3"/>',
+    'align-right': '<path d="M13.5 1.5v13"/><rect x="2.5" y="3.5" width="9" height="3"/><rect x="6.5" y="9.5" width="5" height="3"/>',
+    'align-top': '<path d="M1.5 2.5h13"/><rect x="3.5" y="4.5" width="3" height="9"/><rect x="9.5" y="4.5" width="3" height="5"/>',
+    'align-middle': '<path d="M1.5 8h13"/><rect x="3.5" y="3" width="3" height="10"/><rect x="9.5" y="5" width="3" height="6"/>',
+    'align-bottom': '<path d="M1.5 13.5h13"/><rect x="3.5" y="2.5" width="3" height="9"/><rect x="9.5" y="6.5" width="3" height="5"/>',
+    'distribute-horizontal': '<path d="M2.5 2v12M13.5 2v12"/><rect x="6" y="4.5" width="4" height="7" fill="currentColor"/>',
+    'distribute-vertical': '<path d="M2 2.5h12M2 13.5h12"/><rect x="4.5" y="6" width="7" height="4" fill="currentColor"/>',
     'sidebar-left': '<rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M6 2.5v11"/>',
     'sidebar-right': '<rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10 2.5v11"/>',
   };

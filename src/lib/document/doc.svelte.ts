@@ -480,6 +480,56 @@ export class Doc {
     this.rehome(ls.map((l) => l.id));
   }
 
+  // MARK: Align & distribute
+
+  /** Align (⌥A/H/D, ⌥W/V/S): several layers on the bounds of them all, a single one on its group or artboard.
+   *  Bounds are in document space (rotation included); a group moves as a block. Hidden layers are left out,
+   *  locked ones stay put but count in the bounds. */
+  align(to: Align) {
+    const ls = this.selectedLayers.filter((l) => !this.isHidden(l.id));
+    const home = ls.length === 1 ? parent(this.layers, ls[0].id) : null;
+    const ref = ls.length > 1 ? ls.map(bounds).reduce<Rect | null>(union, null) : home && bounds(home);
+    if (!ref) return;
+    const end = (r: Rect, h: boolean) => (h ? r.x + r.width : r.y + r.height);
+    this.#moveBy(ls.map((l) => {
+      const b = bounds(l);
+      switch (to) {
+        case 'left': return [l, pt(ref.x - b.x, 0)];
+        case 'center': return [l, pt(midX(ref) - midX(b), 0)];
+        case 'right': return [l, pt(end(ref, true) - end(b, true), 0)];
+        case 'top': return [l, pt(0, ref.y - b.y)];
+        case 'middle': return [l, pt(0, midY(ref) - midY(b))];
+        case 'bottom': return [l, pt(0, end(ref, false) - end(b, false))];
+      }
+    }));
+  }
+
+  /** Distribute (⌥⇧H, ⌥⇧V): equal gaps between 3 layers or more, the outermost ones staying put.
+   *  ponytail: locked layers keep their place, so one in the middle leaves the gaps around it uneven. */
+  distribute(horizontal: boolean) {
+    const ls = this.selectedLayers.filter((l) => !this.isHidden(l.id));
+    if (ls.length < 3) return;
+    const [x, w] = horizontal ? (['x', 'width'] as const) : (['y', 'height'] as const);
+    const items = ls.map((l) => ({ l, b: bounds(l) })).sort((p, q) => p.b[x] - q.b[x]);
+    const start = items[0].b[x], span = Math.max(...items.map((i) => i.b[x] + i.b[w])) - start;
+    const gap = (span - items.reduce((s, i) => s + i.b[w], 0)) / (items.length - 1);
+    let at = start;
+    this.#moveBy(items.map(({ l, b }) => {
+      const d = at - b[x];
+      at += b[w] + gap;
+      return [l, horizontal ? pt(d, 0) : pt(0, d)];
+    }));
+  }
+
+  /** One undo step moving each layer by its own offset; locked layers stay. Moved layers may change artboard. */
+  #moveBy(moves: [Layer, Pt][]) {
+    const ms = moves.filter(([l, d]) => !this.isLocked(l.id) && (d.x || d.y));
+    if (!ms.length) return;
+    this.checkpoint();
+    for (const [l, d] of ms) this.set(l.id, moved($state.snapshot(l) as Layer, d));
+    this.rehome(ms.map(([l]) => l.id));
+  }
+
   // MARK: Groups
 
   /** Selected layers that share one parent, in paint order; null if they don't. */
@@ -606,6 +656,8 @@ export class Doc {
     this.pan = pt(w / 2 - midX(b) * this.zoom, h / 2 - midY(b) * this.zoom);
   }
 }
+
+export type Align = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';
 
 /** Undo history size, in snapshot characters (≈ bytes): about a hundred steps of a 2 MB document. */
 const UNDO_BUDGET = 200_000_000;

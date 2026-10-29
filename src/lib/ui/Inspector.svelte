@@ -6,6 +6,7 @@
   import { type Columns, type Grid, defaultColumns, defaultGrid } from '$lib/model/grid';
   import { type Rect, POINT_TYPES, apply, pt, rectOf, union } from '$lib/model/geometry';
   import { pointType } from '$lib/model/point-editing';
+  import { parent } from '$lib/model/layer-tree';
   import {
     type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
   } from '$lib/model/layer';
@@ -32,6 +33,11 @@
 
   // L() keys stay literal so the localization test finds them
   const COMBINE = [['union', L('Union'), 'U'], ['subtract', L('Subtract'), 'S'], ['intersect', L('Intersect'), 'I'], ['difference', L('Difference'), 'X']] as const;
+  const ALIGN = [
+    ['left', L('Align Left'), 'A'], ['center', L('Align Horizontal Centers'), 'H'], ['right', L('Align Right'), 'D'],
+    ['top', L('Align Top'), 'W'], ['middle', L('Align Vertical Centers'), 'V'], ['bottom', L('Align Bottom'), 'S'],
+  ] as const;
+  const DISTRIBUTE = [[true, 'distribute-horizontal', L('Distribute Horizontally'), 'H'], [false, 'distribute-vertical', L('Distribute Vertically'), 'V']] as const;
 
   /** Several layers: the sections they all have, values shown when they agree (`same`), edits applied to all
    *  the unlocked ones as one undo step. `l` is the first one, the reference for what is shown. */
@@ -66,6 +72,8 @@
     value: t, icon: t, title: { straight: L('Straight'), mirrored: L('Mirrored'), disconnected: L('Disconnected'), asymmetric: L('Asymmetric') }[t],
   }));
   const locked = $derived(sel.length > 0 && all((x) => doc.isLocked(x.id)));
+  /** A single layer aligns on its group or artboard: none at the top level. */
+  const alignable = $derived(!locked && (multi || (!!l && !!parent(doc.layers, l.id))));
   // frame: the layer's unrotated one; several layers: their bounds together. Once per change: costly for big groups
   const r = $derived(multi ? sel.map(bounds).reduce<Rect | null>(union, null) : l && localBounds(l));
   const b = $derived.by(() => {
@@ -184,6 +192,16 @@
       </Section>
     {/each}
   {:else if l && b}
+    <Section>
+      <div class="align" role="toolbar" aria-label={L('Align')}>
+        {#each ALIGN as [to, text, key] (to)}
+          <IconButton quiet icon="align-{to}" label="{text} (⌥{key})" disabled={!alignable} onclick={() => doc.align(to)} />
+        {/each}
+        {#each DISTRIBUTE as [horizontal, icon, text, key] (icon)}
+          <IconButton quiet {icon} label="{text} (⌥⇧{key})" disabled={locked || sel.length < 3} onclick={() => doc.distribute(horizontal)} />
+        {/each}
+      </div>
+    </Section>
     {#if multi}
       <!-- several layers: what can be done with them together, then the sections they all have -->
       <Section title={L('%d layers selected', sel.length)}>
@@ -431,6 +449,10 @@
   .combine {
     display: flex;
     gap: var(--space-1);
+  }
+  .align {
+    display: flex;
+    justify-content: space-between;
   }
   .empty {
     display: grid;

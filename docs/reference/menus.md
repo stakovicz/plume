@@ -48,6 +48,9 @@ Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), 
 | Grouper / Dégrouper | ⌘G / ⇧⌘G |
 | Avancer / Reculer | ⌥⌘↑ / ⌥⌘↓ |
 | Mettre au premier plan / à l'arrière-plan | ⌃⌥⌘↑ / ⌃⌥⌘↓ (Linux : Ctrl+Maj+Alt+↑ / ↓) |
+| Aligner › à gauche / Centrer horizontalement / à droite | ⌥A / ⌥H / ⌥D |
+| Aligner › en haut / Centrer verticalement / en bas | ⌥W / ⌥V / ⌥S |
+| Répartir › horizontalement / verticalement | ⌥⇧H / ⌥⇧V |
 | Afficher/Masquer | ⇧⌘H |
 | Verrouiller/Déverrouiller | ⇧⌘L |
 
