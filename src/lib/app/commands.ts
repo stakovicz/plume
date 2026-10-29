@@ -114,6 +114,29 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
         { text: L('Bring to Front'), icon: 'front', accelerator: `${FRONT}+Up`, run: () => doc.arrange('front') },
         { text: L('Send to Back'), icon: 'back', accelerator: `${FRONT}+Down`, run: () => doc.arrange('back') },
         sep,
+        // ⌥ + letter, as in Figma: disabled while typing like the tool keys (⌥ types accented characters)
+        {
+          submenu: L('Align'),
+          icon: 'align-left',
+          items: [
+            { text: L('Align Left'), icon: 'align-left', accelerator: 'Alt+A', run: () => doc.align('left') },
+            { text: L('Align Horizontal Centers'), icon: 'align-center', accelerator: 'Alt+H', run: () => doc.align('center') },
+            { text: L('Align Right'), icon: 'align-right', accelerator: 'Alt+D', run: () => doc.align('right') },
+            sep,
+            { text: L('Align Top'), icon: 'align-top', accelerator: 'Alt+W', run: () => doc.align('top') },
+            { text: L('Align Vertical Centers'), icon: 'align-middle', accelerator: 'Alt+V', run: () => doc.align('middle') },
+            { text: L('Align Bottom'), icon: 'align-bottom', accelerator: 'Alt+S', run: () => doc.align('bottom') },
+          ],
+        },
+        {
+          submenu: L('Distribute'),
+          icon: 'distribute-horizontal',
+          items: [
+            { text: L('Distribute Horizontally'), icon: 'distribute-horizontal', accelerator: 'Alt+Shift+H', run: () => doc.distribute(true) },
+            { text: L('Distribute Vertically'), icon: 'distribute-vertical', accelerator: 'Alt+Shift+V', run: () => doc.distribute(false) },
+          ],
+        },
+        sep,
         { text: L('Show/Hide'), icon: 'eye', accelerator: 'CmdOrCtrl+Shift+H', run: () => doc.toggleHidden(doc.selectedIDs) },
         { text: L('Lock/Unlock'), icon: 'lock', accelerator: 'CmdOrCtrl+Shift+L', run: () => doc.toggleLocked(doc.selectedIDs) },
       ],
@@ -165,7 +188,7 @@ const nativeText = (): Partial<Record<Native['native'], string>> => ({
   Cut: L('Cut'), Copy: L('Copy'), Paste: L('Paste'), Minimize: L('Minimize'), CloseWindow: L('Close Window'),
 });
 
-/** Items with a modifier-less accelerator (tool keys), disabled while a text field has focus so the key reaches it:
+/** Items whose accelerator has no ⌘ (tool keys, ⌥ + letter), disabled while a text field has focus so the key reaches it:
  *  a disabled item doesn't take its key equivalent (AppKit's validateMenuItem). */
 let plainKeys: (MenuItem | IconMenuItem)[] = [];
 const syncPlainKeys = () => setTimeout(() => plainKeys.forEach((i) => i.setEnabled(!isTyping(document.activeElement))));
@@ -207,7 +230,7 @@ export async function installNativeMenu(specs: MenuSpec[]) {
       }
       const opts = { text: i.text, accelerator: i.accelerator, enabled: i.enabled ?? true, action: () => void i.run() };
       const item = i.icon ? await IconMenuItem.new({ ...opts, icon: await menuIcon(i.icon) }) : await MenuItem.new(opts);
-      if (i.accelerator && !i.accelerator.includes('+')) plain.push(item);
+      if (i.accelerator && !i.accelerator.includes('CmdOrCtrl')) plain.push(item);
       return item;
     });
   const menu = await Menu.new({
@@ -226,7 +249,8 @@ export async function installNativeMenu(specs: MenuSpec[]) {
 
 /** Browser only (Tauri's native menu handles accelerators itself). Returns true when handled. */
 export function runShortcut(specs: MenuSpec[], e: KeyboardEvent): boolean {
-  if (isTauri() || !(e.metaKey || e.ctrlKey)) return false;
+  const mod = e.metaKey || e.ctrlKey;
+  if (isTauri() || !(mod || (e.altKey && !isTyping(e.target)))) return false; // ⌥ alone: never while typing
   // ⌥ changes e.key on macOS (⌥1 = ¡, ⌥U = dead key): digits, and letters with ⌥, are read from the physical key
   // ponytail: ⌥ + letter uses the QWERTY position (wrong for AZERTY's A/Q/Z/W/M); map by layout if it bites
   const key = e.code.startsWith('Digit') ? e.code.slice(5)
@@ -235,7 +259,7 @@ export function runShortcut(specs: MenuSpec[], e: KeyboardEvent): boolean {
   const all = (items: Item[]): Command[] => items.flatMap((i) => ('native' in i ? [] : 'submenu' in i ? all(i.items) : [i]));
   const cmd = specs.flatMap((m) => all(m.items)).find((c) => {
     const parts = c.accelerator?.toLowerCase().split('+');
-    return parts?.includes('cmdorctrl') && parts.at(-1) === key && parts.includes('shift') === e.shiftKey && parts.includes('alt') === e.altKey
+    return parts?.includes('cmdorctrl') === mod && parts.at(-1) === key && parts.includes('shift') === e.shiftKey && parts.includes('alt') === e.altKey
       && parts.includes('ctrl') === (e.metaKey && e.ctrlKey); // 'Ctrl+…CmdOrCtrl' = ⌃⌘ (macOS). ponytail: unreachable in a browser elsewhere (⌃ is already ⌘'s stand-in)
   });
   if (!cmd || cmd.text === L('Quit Plume')) return false;
