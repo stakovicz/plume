@@ -1,6 +1,6 @@
 [package]
 name = "plume"
-version = "0.4.0"
+version = "0.4.1"
 description = "Plume, vector editor"
 authors = ["Stakovicz"]
 license = "MIT"
