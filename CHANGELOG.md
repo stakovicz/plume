@@ -7,6 +7,10 @@
 - **Aligner et répartir** : Disposition › Aligner (⌥A, ⌥H, ⌥D, ⌥W, ⌥V, ⌥S) et Répartir (⌥⇧H, ⌥⇧V), et une rangée
   d'icônes en haut de l'inspecteur. Plusieurs calques s'alignent sur leur cadre commun, un calque seul sur son groupe
   ou son plan de travail. ([#29](https://github.com/stakovicz/plume/issues/29))
+- **Bloc de texte** : hauteur Auto ou Fixe, alignement vertical (haut, milieu, bas), texte justifié, marges intérieures,
+  fond (couleur ou dégradé), bordure et coins arrondis de la zone, dans une nouvelle section Bloc de l'inspecteur.
+  Redimensionner un bloc change sa zone, pas la taille du texte ; vectorisé, il devient un groupe fond + texte.
+  ([#30](https://github.com/stakovicz/plume/issues/30))
 
 ## 0.4.1 — 2026-10-29
 

@@ -1,7 +1,9 @@
-import { type Node, type Pt, type Subpath, add, cubicPoint, dist, node, pt, segments, sub } from './geometry';
+import { type Node, type Pt, type Subpath, add, apply, cubicPoint, dist, mapSubpaths, node, pt, segments, sub } from './geometry';
 import { fitCurve } from './curve-fit';
 import { fromPaper, toPaper } from './boolean';
-import { type Layer, type LineCap, type LineJoin, effectiveBorderPosition, hasVisibleStroke, isContainer, keepingPlace, localShape } from './layer';
+import {
+  type Layer, type LineCap, type LineJoin, effectiveBorderPosition, hasVisibleStroke, isContainer, keepingPlace, localShape, newLayer, textBox, transform,
+} from './layer';
 
 /** Convert to Outlines (⌥⌘O): the border becomes a filled shape. */
 
@@ -114,11 +116,21 @@ export function strokeShape(subpaths: Subpath[], width: number, cap: LineCap, jo
 }
 
 /** The layer with its border turned into its fill (color or gradient), and no border. Null if it has no visible border.
- *  A text layer becomes its glyphs, filled as the text was (null before the fonts are loaded). */
-export function outlined(l: Layer): Layer | null {
+ *  A text layer becomes its glyphs, filled as the text was (null before the fonts are loaded); a text block,
+ *  a group of its box (a rect, border kept) under the glyphs, the effects on the group. */
+export function outlined(l: Layer, boxName = 'Background'): Layer | null {
   if (l.kind === 'text') {
     const subpaths = localShape(l);
-    return subpaths.length ? keepingPlace({ ...l, kind: 'path', points: [], subpaths, evenOdd: false, text: undefined }, l) : null;
+    if (!subpaths.length) return null;
+    const glyphs: Layer = keepingPlace({ ...l, kind: 'path', points: [], subpaths, evenOdd: false, text: undefined, strokeWidth: 0 }, l);
+    const box = textBox(l);
+    if (!box) return glyphs;
+    const plain = { opacity: 1, clip: [], blur: 0, shadow: undefined, background: newLayer('', 'rect').background, backgroundGradient: undefined };
+    return {
+      ...newLayer(l.name, 'group'), id: l.id, opacity: l.opacity, clip: l.clip.length ? mapSubpaths(l.clip, (p) => apply(transform(l), p)) : [],
+      blur: l.blur, shadow: l.shadow, lockRatio: true,
+      children: [{ ...box, ...plain, id: crypto.randomUUID(), name: boxName }, { ...glyphs, ...plain, id: crypto.randomUUID() }],
+    };
   }
   if (isContainer(l) || !hasVisibleStroke(l)) return null;
   const subpaths = strokeShape(localShape(l), l.strokeWidth, l.lineCap, l.lineJoin, effectiveBorderPosition(l), l.evenOdd);

@@ -31,7 +31,7 @@ C'est une archive zip qui contient le document en JSON, `document.json` :
 | Dégradés | `linearGradient`, `radialGradient` |
 | Découpe | `clipPath`, et `mask` traité comme une découpe |
 | Filtres | flou gaussien, ombre portée (`feDropShadow`, ou `feOffset` + `feGaussianBlur`) |
-| Texte | un calque par `<text>`, une ligne par `<tspan>` positionné ; un style par texte |
+| Texte | un calque par `<text>`, une ligne par `<tspan>` positionné ; un style par texte ; un bloc de texte exporté par Plume revient en rectangle + texte |
 | Masqué | `display="none"`, `visibility="hidden"` |
 | Cadre | `viewBox`, sinon `width`/`height`, sinon le contenu → plan de travail |
 | Plans de travail | `<g data-artboard>` (exports de Plume) reviennent comme plans de travail |
