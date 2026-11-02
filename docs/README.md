@@ -29,6 +29,7 @@ Quatre parties, chacune pour un besoin différent.
 - [Écrire et mettre en forme du texte](guides/texte.md)
 - [Faire un bouton, une étiquette ou un encadré](guides/bouton.md) : fond, marges, bordure, alignement vertical
 - [Importer un SVG](guides/importer-un-svg.md) : ouvrir, coller, glisser-déposer
+- [Importer une image](guides/importer-une-image.md) : PNG, JPG, WebP, GIF
 - [Exporter en PDF, SVG, PNG ou JPG](guides/exporter.md)
 
 ## Référence

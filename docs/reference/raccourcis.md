@@ -8,6 +8,7 @@ Les quelques raccourcis qui diffèrent davantage sont indiqués dans la colonne 
 | Action | macOS | Linux |
 |---|---|---|
 | Nouveau / Ouvrir / Enregistrer / Enregistrer sous | ⌘N / ⌘O / ⌘S / ⇧⌘S | Ctrl+N / Ctrl+O / Ctrl+S / Ctrl+Maj+S |
+| Importer une image | ⇧⌘I | Ctrl+Maj+I |
 | Exporter | ⌘E | Ctrl+E |
 | Navigateur / Inspecteur | ⌥⌘1 / ⌥⌘2 | Ctrl+Alt+1 / Ctrl+Alt+2 |
 | Réduire | ⌘M | menu Fenêtre › Réduire |

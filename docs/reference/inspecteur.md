@@ -59,6 +59,12 @@ Absente pour les plans de travail.
 Des rayons trop grands pour le rectangle sont tous réduits du même facteur, jusqu'à ce que chaque côté
 contienne ses deux coins (comme en CSS) : un rayon de 50 sur un rectangle de 100 × 40 donne une pilule.
 
+## Image
+
+Calque image seul. **Origine** : taille en pixels de l'image. **Taille d'origine** : redonne cette taille, même
+centre. **Remplacer…** : autre image, même largeur, hauteur selon ses proportions. Une image n'a ni Remplissage
+ni Bordure.
+
 ## Point
 
 En édition de points, quand un point est sélectionné. **Type** : Droit, Miroir, Déconnecté, Asymétrique.

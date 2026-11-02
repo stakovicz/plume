@@ -7,8 +7,9 @@ import { type GradientFill, type Shadow, mapGradient } from './effects';
 import type { Columns, Grid } from './grid';
 import { parsePath, roundedRect, shapeData } from './path-data';
 import { type TextStyle, fitted, glyphOutlines, textScaled } from './text';
+import type { ImageRef } from './images';
 
-export type Kind = 'rect' | 'ellipse' | 'path' | 'group' | 'artboard' | 'text';
+export type Kind = 'rect' | 'ellipse' | 'path' | 'group' | 'artboard' | 'text' | 'image';
 export const BORDER_POSITIONS = ['center', 'inside', 'outside'] as const;
 export const LINE_CAPS = ['butt', 'round', 'square'] as const;
 export const LINE_JOINS = ['miter', 'round', 'bevel'] as const;
@@ -23,6 +24,8 @@ export type LineJoin = (typeof LINE_JOINS)[number];
  *  An artboard is a top-level frame: `points` are its corners, `fill` its background; its
  *  children are in document space too, drawn clipped to the frame. It never rotates, and resizing it
  *  changes the frame only, not the content.
+ *  An image is drawn stretched over its frame, `points` (two corners, in drawing order: a flip or a resize past
+ *  the opposite edge swaps them, which mirrors the picture; `imageFlip`).
  *  New property → add its default in `newLayer` (old files decode with it) and to SVG import/export. */
 export type Layer = {
   id: string;
@@ -55,6 +58,7 @@ export type Layer = {
   text?: TextStyle; // text layers only; `points` is the text box (model/text.ts)
   grid?: Grid; // artboards only (model/grid.ts)
   columns?: Columns; // artboards only
+  image?: ImageRef; // image layers only (model/images.ts)
 };
 
 export function newLayer(name: string, kind: Kind, points: Pt[] = [], extra: Partial<Layer> = {}): Layer {
@@ -101,7 +105,7 @@ export function localShape(l: Layer): Subpath[] {
   switch (l.kind) {
     case 'group': return l.children.flatMap(shape);
     case 'path': return l.subpaths;
-    case 'artboard': return boxShape(l);
+    case 'artboard': case 'image': return boxShape(l);
     case 'text': return glyphOutlines(l); // what Combine and Convert to Outlines work on
     case 'rect': { const b = localBounds(l); return parsePath(roundedRect(b.x, b.y, b.width, b.height, cornerRadii(l).map((r) => [r, r]))); }
     default: return parsePath(boxData('ellipse', localBounds(l)));
@@ -178,6 +182,30 @@ export const textBox = (l: Layer): Layer | null =>
     }
     : null;
 
+/** An image's mirroring, from the order of its corners: -1 on a flipped axis. */
+export const imageFlip = (l: Layer) => ({ x: l.points[0].x > l.points[1].x ? -1 : 1, y: l.points[0].y > l.points[1].y ? -1 : 1 });
+
+/** An image layer of `image` at its size in pixels, scaled down to fit `fit` (an artboard's frame), centered on `at`. */
+export function newImage(name: string, image: ImageRef, at: Pt, fit?: Rect | null): Layer {
+  const k = fit ? Math.min(1, fit.width / image.width, fit.height / image.height) : 1;
+  const w = (image.width * k) / 2, h = (image.height * k) / 2;
+  return newLayer(name, 'image', [pt(at.x - w, at.y - h), pt(at.x + w, at.y + h)], { image, fill: { ...GRAY, a: 0 }, strokeWidth: 0, lockRatio: true });
+}
+
+/** Inspector "Original Size": the image at its size in pixels, same center, rotation and flip. */
+export function atOriginalSize(l: Layer): Layer {
+  const b = localBounds(l);
+  if (!l.image || !b.width || !b.height) return l;
+  return resized(l, l.image.width / b.width, l.image.height / b.height, rectCenter(b));
+}
+
+/** Inspector "Replace": another picture in the same place, as wide as before, its height from the new proportions. */
+export function withImage(l: Layer, image: ImageRef): Layer {
+  const b = localBounds(l);
+  const r = b.width && b.height ? resized(l, 1, (b.width * image.height) / image.width / b.height, rectCenter(b)) : l;
+  return { ...r, image };
+}
+
 /** Document-space vector expressed in the layer's local (unrotated) frame. */
 export function localDelta(l: Layer, d: Pt): Pt {
   const cs = Math.cos(l.rotation), sn = Math.sin(l.rotation);
@@ -191,7 +219,7 @@ export function hit(l: Layer, p: Pt, tol: number): boolean {
   if (l.kind === 'artboard') return rectContains(localBounds(l), p) && l.children.some((c) => hit(c, p, tol)); // content is clipped; the background is picked by its name
   const q = toLocal(l, p);
   const near = rectContains(inset(localBounds(l), -tol), q); // cheap rejection before flattening curves
-  if (l.kind === 'text' || !near) return near; // text: the box, not just the glyphs
+  if (l.kind === 'text' || l.kind === 'image' || !near) return near; // text: the box, not just the glyphs
   return l.fill.a > 0 ? pathContains(localShape(l), q, l.evenOdd) : near;
 }
 

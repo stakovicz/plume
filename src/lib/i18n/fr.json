@@ -228,5 +228,11 @@
   "Box height": "Hauteur",
   "Padding": "Marges",
   "Independent sides": "Marges indépendantes",
-  "Horizontal": "Horizontal"
+  "Horizontal": "Horizontal",
+  "Image": "Image",
+  "Import Image…": "Importer une image…",
+  "Original": "Origine",
+  "Original Size": "Taille d’origine",
+  "Replace…": "Remplacer…",
+  "Not a PNG, JPEG, WebP or GIF image.": "Ce n’est pas une image PNG, JPEG, WebP ou GIF."
 }

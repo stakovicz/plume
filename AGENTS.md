@@ -25,7 +25,8 @@ src/lib/
   model/      Layer (+ transforms, border), geometry (Pt, Affine, Bézier bounds/hit), path-data,
               point-editing, curve-fit, layer-tree helpers, color, effects, grid (artboard grid, snapping), codable (file format),
               boolean (union/subtract/… via paper.js), outline (border → filled shape),
-              text (layout, measuring, glyph outlines via fontkit; fonts bundled in static/fonts or installed)
+              text (layout, measuring, glyph outlines via fontkit; fonts bundled in static/fonts or installed),
+              images (bitmap store: bytes by key, header sniffing; layers hold only the key)
   document/   Doc (state, undo, editing ops, zoom, load/save data), Tool
   svg/        import (DOMParser → element tree → layers; gradients, masks as clips, filters), export, syntax
   app/        files (panels/read/write, recents, save prompt, export), render (PNG/JPG/PDF from SVG),

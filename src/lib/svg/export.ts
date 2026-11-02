@@ -1,7 +1,8 @@
 import { type Rect, inset, midX, midY, union } from '$lib/model/geometry';
 import { type RGBA, hex } from '$lib/model/color';
 import type { GradientFill } from '$lib/model/effects';
-import { type Layer, bounds, cornerRadii, localBounds, localShape, textBox } from '$lib/model/layer';
+import { type Layer, bounds, cornerRadii, imageFlip, localBounds, localShape, textBox } from '$lib/model/layer';
+import { dataURL } from '$lib/model/images';
 import { pathData } from '$lib/model/path-data';
 import { layout } from '$lib/model/text';
 
@@ -44,6 +45,17 @@ export function layerSVG(l: Layer): string {
     const box = `x="${f(b.x)}" y="${f(b.y)}" width="${f(b.width)}" height="${f(b.height)}"`;
     return defs.join('') + `<g${attrs} data-artboard="${escapeXML(l.name)}"${l.grid ? ` data-grid="${escapeXML(JSON.stringify(l.grid))}"` : ''}${l.columns ? ` data-columns="${escapeXML(JSON.stringify(l.columns))}"` : ''}><clipPath id="ab-${key}"><rect ${box}/></clipPath>` +
       `<rect ${box} ${paintAttr(l.fill, l.fillGradient, 'fill')}/><g clip-path="url(#ab-${key})">${l.children.map(layerSVG).join('')}</g></g>`;
+  }
+
+  if (l.image) { // embedded, so the SVG stands alone; mirrored about its center, inside the rotation
+    const fl = imageFlip(l), cx = midX(b), cy = midY(b), href = dataURL(l.image.src);
+    const rotate = l.rotation ? `rotate(${f((l.rotation * 180) / Math.PI)} ${f(cx)} ${f(cy)})` : '';
+    const flip = fl.x < 0 || fl.y < 0 ? `matrix(${fl.x} 0 0 ${fl.y} ${f((1 - fl.x) * cx)} ${f((1 - fl.y) * cy)})` : '';
+    const img = (t: string) => `<image x="${f(b.x)}" y="${f(b.y)}" width="${f(b.width)}" height="${f(b.height)}" preserveAspectRatio="none"` +
+      `${t ? ` transform="${t}"` : ''} href="${href}"`;
+    // a clip is in the unmirrored frame: a mirrored, clipped image keeps the clip on a <g> around it
+    if (flip && l.clip.length) return defs.join('') + `<g${attrs}${rotate ? ` transform="${rotate}"` : ''}>${img(flip)}/></g>`;
+    return defs.join('') + `${img([rotate, flip].filter(Boolean).join(' '))}${attrs}/>`;
   }
 
   const fx = attrs; // a text block puts them on the <g> holding its box and its text

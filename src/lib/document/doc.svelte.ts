@@ -1,7 +1,8 @@
 import { L } from '$lib/i18n';
 import { type Affine, type PointType, type Pt, type Rect, intersects, midX, midY, node, pt, union } from '$lib/model/geometry';
 import { type RGBA, BLACK, CLEAR, SHAPE_FILL, eqColor } from '$lib/model/color';
-import { type Kind, type Layer, asPath, bounds, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newLayer, refit } from '$lib/model/layer';
+import { type Kind, type Layer, asPath, bounds, center, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newImage, newLayer, refit } from '$lib/model/layer';
+import type { ImageRef } from '$lib/model/images';
 import { DEFAULT_TEXT } from '$lib/model/text';
 import { ancestors, find, inTreeOrder, nextName, parent, remove, siblings, update } from '$lib/model/layer-tree';
 import { artboardAt, homeOf, inside } from './artboards';
@@ -168,7 +169,7 @@ export class Doc {
 
   /** New layer at `p`: inside the artboard under it (artboards themselves are always top-level). */
   add(kind: Kind, p: Pt) {
-    const base = { rect: L('Rectangle'), ellipse: L('Oval'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text') }[kind];
+    const base = { rect: L('Rectangle'), ellipse: L('Oval'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text'), image: L('Image') }[kind];
     const host = kind === 'artboard' ? null : artboardAt(this.layers, p);
     const list = host ? host.children : this.layers;
     const name = kind === 'text' ? base : nextName(this.layers, base); // text: named after its content
@@ -228,6 +229,7 @@ export class Doc {
     const l = this.selected;
     if (!l || isContainer(l) || this.isLocked(l.id) || this.isHidden(l.id)) return;
     if (l.kind === 'text') return this.editText(l.id);
+    if (l.kind === 'image') return; // no points to edit
     if (l.kind !== 'path') {
       this.checkpoint();
       this.selected = asPath(l);
@@ -425,6 +427,16 @@ export class Doc {
     this.selectedIDs = new Set(copies.map((l) => l.id));
   }
 
+  /** File › Import Image, a pasted or dropped bitmap: at its size in pixels, scaled down to fit the artboard it lands in.
+   *  `name`: the file's, else "Image n". `at` (dropped): centered there. Otherwise in the middle of the selection's artboard, else of the view. */
+  placeImage(image: ImageRef, name?: string, at?: Pt) {
+    const first = this.selectedLayers[0];
+    const board = at || !first ? null : first.kind === 'artboard' ? first : ancestors(this.layers, first.id).find((a) => a.kind === 'artboard');
+    const p = at ?? (board ? center(board) : this.toDoc(pt(this.viewSize.width / 2, this.viewSize.height / 2)));
+    const host = board ?? artboardAt(this.layers, p);
+    this.paste([newImage(name || nextName(this.layers, L('Image')), image, p, host && localBounds(host))], p);
+  }
+
   /** ⌘D: pastes a copy of the selection right above it, without touching the clipboard. */
   duplicate() { this.paste(this.copySelection()); }
 
@@ -541,6 +553,8 @@ export class Doc {
     return s;
   }
   get canGroup() { return this.#groupableSiblings !== null; }
+  /** Combine works on shapes: never on an image, nor a group holding one. */
+  get canCombine() { return this.canGroup && !this.#groupableSiblings!.some(holdsImage); }
   get canUngroup() { const g = this.selected; return !!g && g.kind === 'group' && !this.isLocked(g.id); }
 
   /** ⌘G: wraps the selected sibling layers in a group placed where the topmost one was. */
@@ -561,7 +575,7 @@ export class Doc {
    *  bottom to top, placed where the topmost one was. Nothing happens if the result is empty. */
   combine(op: BooleanOp) {
     const kids = this.#groupableSiblings;
-    if (!kids) return;
+    if (!kids || !this.canCombine) return;
     const result = combined(kids.map((l) => $state.snapshot(l) as Layer), op);
     if (!result) return;
     this.checkpoint();
@@ -664,6 +678,8 @@ const UNDO_BUDGET = 200_000_000;
 
 /** A text layer's automatic name: its first line. */
 const textName = (content: string) => content.trim().split('\n')[0].slice(0, 40) || L('Text');
+
+const holdsImage = (l: Layer): boolean => l.kind === 'image' || l.children.some(holdsImage);
 
 /** A copy with fresh ids, children included. */
 const withNewIDs = (l: Layer): Layer => ({ ...l, id: crypto.randomUUID(), children: l.children.map(withNewIDs) });

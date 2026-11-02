@@ -2,6 +2,7 @@ import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import type { RGBA } from './color';
 import { type Layer, newLayer } from './layer';
 import { DEFAULT_TEXT } from './text';
+import { imageBytes, imagesUsed, putImage } from './images';
 
 /** Document format: `{ layers, palette }`, points as `[x, y]`. On disk, a `.plm` zip holding it as
  *  `document.json` (`packFile`). Documents saved before the palette existed are a bare `[Layer]` array. */
@@ -46,11 +47,22 @@ export function decodeFile(text: string): DocFile {
   return { layers: file.layers.map(decodeLayer), palette: file.palette ?? [] };
 }
 
-/** A `.plm` file: a zip archive with the document as `document.json`, room for other entries later. */
-export const packFile = (json: string) => zipSync({ 'document.json': strToU8(json) });
+/** A `.plm` file: a zip archive with the document as `document.json` and the images `layers` use as
+ *  `images/<key>` (stored, not compressed: they are already). */
+export function packFile(json: string, layers: Layer[] = []) {
+  const files: Record<string, Uint8Array | [Uint8Array, { level: 0 }]> = { 'document.json': strToU8(json) };
+  for (const src of imagesUsed(layers)) {
+    const b = imageBytes(src);
+    if (b) files[`images/${src}`] = [b, { level: 0 }];
+  }
+  return zipSync(files);
+}
 
+/** The document's JSON; its images go to the image store (model/images.ts). */
 export function unpackFile(bytes: Uint8Array): string {
-  const json = unzipSync(bytes, { filter: (f) => f.name === 'document.json' })['document.json'];
+  const entries = unzipSync(bytes, { filter: (f) => f.name === 'document.json' || f.name.startsWith('images/') });
+  const json = entries['document.json'];
   if (!json) throw new Error('Not a Plume document');
+  for (const [name, b] of Object.entries(entries)) if (name.startsWith('images/')) putImage(name.slice(7), b);
   return strFromU8(json);
 }

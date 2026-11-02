@@ -20,6 +20,7 @@ Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj
 | Exemples | | Illustration, Icône d'application, Affiche, Tableau de bord, Pictogrammes, Motif : ouverts comme un nouveau document sans titre |
 | Enregistrer | ⌘S | dans le fichier en cours, ou demande où (navigateur : téléchargement) |
 | Enregistrer sous… | ⇧⌘S | nouveau fichier `.plm` |
+| Importer une image… | ⇧⌘I | PNG, JPG, WebP ou GIF dans le plan de travail de la sélection (voir [Importer une image](../guides/importer-une-image.md)) |
 | Exporter… | ⌘E | PDF, SVG, PNG, JPG (voir [Exporter](../guides/exporter.md)) |
 
 ## Édition
@@ -27,7 +28,7 @@ Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj
 | Commande | Raccourci | Effet |
 |---|---|---|
 | Annuler / Rétablir | ⌘Z / ⇧⌘Z | |
-| Couper / Copier / Coller | ⌘X / ⌘C / ⌘V | calques (ou texte dans un champ) ; colle aussi du SVG |
+| Couper / Copier / Coller | ⌘X / ⌘C / ⌘V | calques (ou texte dans un champ) ; colle aussi du SVG et des images |
 | Dupliquer | ⌘D | copie juste au-dessus, sans toucher au presse-papier |
 | Tout sélectionner | ⌘A | calques visibles du niveau en cours (ou texte du champ) |
 

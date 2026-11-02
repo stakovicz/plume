@@ -65,6 +65,7 @@ export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
         { text: L('Save'), accelerator: 'CmdOrCtrl+S', run: () => files.save() },
         { text: L('Save As…'), accelerator: 'CmdOrCtrl+Shift+S', run: () => files.saveAs() },
         sep,
+        { text: L('Import Image…'), accelerator: 'CmdOrCtrl+Shift+I', run: () => files.importImage() },
         { text: L('Export…'), accelerator: 'CmdOrCtrl+E', run: () => panels.openExport() },
       ],
     },
