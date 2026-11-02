@@ -2,11 +2,12 @@
   import { untrack } from 'svelte';
   import type { Doc } from '$lib/document/doc.svelte';
   import { toolForKey } from '$lib/document/tool';
-  import { type Node, type Pt, type Rect, apply, eqPt, mapNode, pt } from '$lib/model/geometry';
+  import { type Node, type Pt, type Rect, apply, eqPt, mapNode, pt, rectCenter } from '$lib/model/geometry';
   import { type Layer, bounds, localBounds, shape, toWorld } from '$lib/model/layer';
   import { css } from '$lib/model/color';
   import { parent } from '$lib/model/layer-tree';
   import { pathData } from '$lib/model/path-data';
+  import { linesBox } from '$lib/model/text';
   import { L } from '$lib/i18n';
   import Icon from '$lib/ui/kit/Icon.svelte';
   import InlineName from '$lib/ui/kit/InlineName.svelte';
@@ -211,8 +212,9 @@
     {@const l = doc.get(doc.editingText)}
     {#if l?.text}
       {@const t = l.text}
-      {@const b = localBounds(l)}
-      <!-- typing: a text field laid out like the SVG text it stands for (same font, box, line height) -->
+      {@const b = linesBox(l)}
+      {@const c = rectCenter(localBounds(l))}
+      <!-- typing: a text field laid out like the SVG text it stands for (same font, lines, line height), rotated about the box's center -->
       <textarea
         class="typing"
         aria-label={L('Text')}
@@ -224,6 +226,7 @@
         style:width="{b.width * doc.zoom + 2}px"
         style:height="{b.height * doc.zoom}px"
         style:rotate={l.rotation ? `${l.rotation}rad` : undefined}
+        style:transform-origin={l.rotation ? `${(c.x - b.x) * doc.zoom}px ${(c.y - b.y) * doc.zoom}px` : undefined}
         style:font-family={t.font}
         style:font-size="{t.size * doc.zoom}px"
         style:font-weight={t.weight}

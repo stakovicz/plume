@@ -219,5 +219,14 @@
   "Align Bottom": "Aligner en bas",
   "Distribute": "Répartir",
   "Distribute Horizontally": "Répartir horizontalement",
-  "Distribute Vertically": "Répartir verticalement"
+  "Distribute Vertically": "Répartir verticalement",
+  "Justify": "Justifié",
+  "Middle": "Milieu",
+  "Vertical": "Vertical",
+  "Vertical alignment": "Alignement vertical",
+  "Block": "Bloc",
+  "Box height": "Hauteur",
+  "Padding": "Marges",
+  "Independent sides": "Marges indépendantes",
+  "Horizontal": "Horizontal"
 }

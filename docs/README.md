@@ -27,6 +27,7 @@ Quatre parties, chacune pour un besoin différent.
 - [Transformer une icône au trait en icône pleine](guides/icone-au-trait-en-icone-pleine.md)
 - [Appliquer des couleurs, dégradés et effets](guides/couleurs-et-degrades.md)
 - [Écrire et mettre en forme du texte](guides/texte.md)
+- [Faire un bouton, une étiquette ou un encadré](guides/bouton.md) : fond, marges, bordure, alignement vertical
 - [Importer un SVG](guides/importer-un-svg.md) : ouvrir, coller, glisser-déposer
 - [Exporter en PDF, SVG, PNG ou JPG](guides/exporter.md)
 

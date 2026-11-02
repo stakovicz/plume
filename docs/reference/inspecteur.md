@@ -51,7 +51,7 @@ Absente pour les plans de travail.
 | Position X, Y | coin supérieur gauche du cadre (non pivoté) ; plusieurs calques : de leur ensemble |
 | Taille L, H | dimensions ; plusieurs calques : mis à l'échelle depuis le coin supérieur gauche |
 | Cadenas (Verrouiller les proportions) | redimensionner garde les proportions sans ⇧ |
-| Rayon | rectangles : rayon des quatre coins ; 0 = coins droits ; « Multiple » quand ils diffèrent |
+| Rayon | rectangles et zones de texte : rayon des quatre coins ; 0 = coins droits ; « Multiple » quand ils diffèrent |
 | Coins indépendants (bouton à droite du Rayon) | affiche **Haut** (gauche, droit) et **Bas** (gauche, droit) pour régler chaque coin ; si les coins diffèrent, un clic leur redonne à tous le rayon du coin haut gauche |
 | Préréglage | plans de travail : taille prédéfinie, ou Personnalisé |
 | Rotation | en degrés ; ni groupes, ni plans de travail |
@@ -81,14 +81,22 @@ Grille et colonnes sont dessinées sous les calques, toujours de la même couleu
 
 ## Texte
 
-Calques texte. Police, Graisse (Normal, Gras), Taille, Interligne (×), Approche (espacement des lettres en px),
-Alignement (Gauche, Centre, Droite), Largeur (Auto, Fixe), Couleur ou dégradé.
+Calques texte. Couleur ou dégradé, Police, Graisse (Normal, Gras), Taille, Interligne (×), Approche (espacement des lettres en px),
+Alignement (Gauche, Centre, Droite, Justifié), Vertical (Haut, Milieu, Bas ; zone de hauteur Fixe seulement).
+
+## Bloc
+
+Calques texte : la zone du texte. Fond (couleur ou dégradé), Largeur (Auto, Fixe), Hauteur (Auto, Fixe), Marges (une valeur, ou **Vertical**
+haut et bas et **Horizontal** gauche et droite avec le bouton Marges indépendantes).
+Sa bordure se règle dans la section **Bordure**, ses coins avec le **Rayon**.
 
 ## Remplissage
 
 Formes et tracés. **Couleur** ou **Dégradé** (linéaire, radial) via le panneau de couleur.
 
 ## Bordure
+
+Formes, tracés et zones de texte.
 
 | Contrôle | Valeurs |
 |---|---|

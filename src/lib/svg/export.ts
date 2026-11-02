@@ -1,7 +1,7 @@
 import { type Rect, inset, midX, midY, union } from '$lib/model/geometry';
 import { type RGBA, hex } from '$lib/model/color';
 import type { GradientFill } from '$lib/model/effects';
-import { type Layer, bounds, cornerRadii, localBounds, localShape } from '$lib/model/layer';
+import { type Layer, bounds, cornerRadii, localBounds, localShape, textBox } from '$lib/model/layer';
 import { pathData } from '$lib/model/path-data';
 import { layout } from '$lib/model/text';
 
@@ -46,19 +46,24 @@ export function layerSVG(l: Layer): string {
       `<rect ${box} ${paintAttr(l.fill, l.fillGradient, 'fill')}/><g clip-path="url(#ab-${key})">${l.children.map(layerSVG).join('')}</g></g>`;
   }
 
-  attrs += ` ${paintAttr(l.fill, l.fillGradient, 'fill')} ${paintAttr(l.stroke, l.strokeGradient, 'stroke')} stroke-width="${l.strokeWidth}"`;
+  const fx = attrs; // a text block puts them on the <g> holding its box and its text
+  attrs += ` ${paintAttr(l.fill, l.fillGradient, 'fill')}`;
+  if (!l.text) attrs += ` ${paintAttr(l.stroke, l.strokeGradient, 'stroke')} stroke-width="${l.strokeWidth}"`; // a text's border is its box's
   // ponytail: inside/outside borders export centered (SVG has no stroke alignment); add a clipPath/mask export if needed
   if (l.dash.length) attrs += ` stroke-dasharray="${l.dash.map(f).join(' ')}"`;
   if (l.lineCap !== 'butt') attrs += ` stroke-linecap="${l.lineCap}"`;
   if (l.lineJoin !== 'miter') attrs += ` stroke-linejoin="${l.lineJoin}"`;
   if (l.rotation !== 0) attrs += ` transform="rotate(${f((l.rotation * 180) / Math.PI)} ${f(midX(b))} ${f(midY(b))})"`;
 
-  if (l.text) { // one <tspan> per line as laid out here, so wrapping looks the same in any viewer
-    const t = l.text, anchor = { left: 'start', center: 'middle', right: 'end' }[t.align];
+  if (l.text) { // one <tspan> per line as laid out here (per word when justified), so wrapping looks the same in any viewer
+    const t = l.text, anchor = { left: 'start', center: 'middle', right: 'end', justify: 'start' }[t.align];
+    const box = textBox(l);
     attrs += ` font-family="${escapeXML(t.font)}" font-size="${f(t.size)}" font-weight="${t.weight}" text-anchor="${anchor}" xml:space="preserve"`;
     if (t.letterSpacing) attrs += ` letter-spacing="${f(t.letterSpacing)}"`;
-    const spans = layout(l).map((s) => `<tspan x="${f(s.x)}" y="${f(s.y)}">${escapeXML(s.text)}</tspan>`).join('');
-    return defs.join('') + `<text${attrs}>${spans}</text>`;
+    const spans = layout(l).flatMap((s) => s.words?.map((w) => ({ ...w, y: s.y })) ?? [s])
+      .map((s) => `<tspan x="${f(s.x)}" y="${f(s.y)}">${escapeXML(s.text)}</tspan>`).join('');
+    if (!box) return defs.join('') + `<text${attrs}>${spans}</text>`;
+    return defs.join('') + `<g${fx}>${layerSVG(box)}<text${attrs.slice(fx.length)}>${spans}</text></g>`;
   }
 
   const radii = l.kind === 'rect' ? cornerRadii(l) : [];

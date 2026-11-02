@@ -576,7 +576,7 @@ export class Doc {
    *  text becomes its glyphs. Layers without a visible border, groups and locked layers are left as they are. */
   outline() {
     const done = [...this.selectedIDs].filter((id) => !this.isLocked(id))
-      .map((id) => [id, this.get(id) && outlined($state.snapshot(this.get(id)!) as Layer)] as const)
+      .map((id) => [id, this.get(id) && outlined($state.snapshot(this.get(id)!) as Layer, L('Background'))] as const)
       .filter(([, l]) => l);
     if (!done.length) return;
     this.checkpoint();

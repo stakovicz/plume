@@ -34,6 +34,15 @@ légèrement de l'original.
 Quand le rendu doit être exact partout, **vectorisez le texte** (⌥⌘O) : les lettres deviennent des tracés,
 qui ne dépendent plus d'aucune police.
 
+## Les blocs de texte
+
+SVG n'a pas de bloc de texte : un texte avec fond, marges ou bordure s'exporte comme un groupe `<g>` qui contient
+un rectangle (fond, bordure, coins arrondis) puis le texte. Chaque ligne est écrite à la position calculée par Plume ;
+une ligne justifiée, mot par mot, pour qu'elle remplisse la largeur dans n'importe quel lecteur.
+
+Rouvert dans Plume, ce SVG donne un rectangle et un texte séparés, qui ne sont plus un bloc : changer le texte
+n'agrandit plus le fond. Pour continuer à modifier un bloc, gardez le document en `.plm`.
+
 ## L'import SVG est une traduction
 
 Un SVG peut décrire bien plus que ce que Plume sait éditer (feuilles de style, motifs, images, filtres variés).

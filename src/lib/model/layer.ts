@@ -46,6 +46,8 @@ export type Layer = {
   locked: boolean; // selectable, but can't be moved, transformed, edited or deleted
   fillGradient?: GradientFill; // overrides `fill` when set (`fill` keeps a representative color)
   strokeGradient?: GradientFill;
+  background: RGBA; // text: the box's background (`textBox`), under the text; `fill` is the text's color
+  backgroundGradient?: GradientFill;
   opacity: number; // whole layer, composited as one
   clip: Subpath[]; // clipping region (SVG mask/clipPath), same space as the geometry; empty = none
   blur: number;
@@ -60,7 +62,7 @@ export function newLayer(name: string, kind: Kind, points: Pt[] = [], extra: Par
     id: crypto.randomUUID(), name, kind, points, corners: [0, 0, 0, 0], subpaths: [], children: [],
     fill: GRAY, stroke: BLACK, strokeWidth: 1, borderPosition: 'center', dash: [], lineCap: 'butt', lineJoin: 'miter',
     evenOdd: false, rotation: 0, lockRatio: false, hidden: false, locked: false, opacity: 1, clip: [], blur: 0,
-    ...extra,
+    background: { r: 1, g: 1, b: 1, a: 0 }, ...extra,
   };
 }
 
@@ -148,6 +150,7 @@ export function mapped(l: Layer, f: (p: Pt) => Pt): Layer {
     clip: mapSubpaths(l.clip, f),
     fillGradient: l.fillGradient && mapGradient(l.fillGradient, f),
     strokeGradient: l.strokeGradient && mapGradient(l.strokeGradient, f),
+    backgroundGradient: l.backgroundGradient && mapGradient(l.backgroundGradient, f),
   };
 }
 
@@ -159,6 +162,21 @@ export const keepingPlace = (l: Layer, original: Layer) => moved(l, sub(toWorld(
 
 /** A text layer after a change to its content or style: box fitted to the lines, rotated text kept in place. */
 export const refit = (l: Layer, original: Layer) => keepingPlace(fitted(l), original);
+
+const hasBackground = (l: Layer) => l.background.a > 0 || l.backgroundGradient != null;
+
+/** A text block: background, border or fixed height. Resizing it changes the box, never the type. */
+export const isBlock = (l: Layer) => l.kind === 'text' && (!l.text!.autoHeight || hasBackground(l) || hasVisibleStroke(l));
+
+/** A text layer's background and border as a rect of its box, drawn under the text (no effects: the
+ *  text layer's apply to both); null when it has neither. */
+export const textBox = (l: Layer): Layer | null =>
+  l.kind === 'text' && (hasBackground(l) || hasVisibleStroke(l))
+    ? {
+      ...l, id: `${l.id}-box`, kind: 'rect', text: undefined, fill: l.background, fillGradient: l.backgroundGradient,
+      backgroundGradient: undefined, opacity: 1, clip: [], blur: 0, shadow: undefined, hidden: false,
+    }
+    : null;
 
 /** Document-space vector expressed in the layer's local (unrotated) frame. */
 export function localDelta(l: Layer, d: Pt): Pt {
@@ -220,15 +238,19 @@ export function strokeScaled(l: Layer, sx: number, sy: number): Layer {
 export function resized(l: Layer, sx: number, sy: number, a: Pt): Layer {
   if (l.kind === 'group') return scaled(l, sx, sy, a);
   if (l.kind === 'artboard') return { ...l, points: l.points.map((p) => scalePoint(p, a, sx, sy)) }; // the frame, not the content
-  if (l.kind === 'text') { // proportional: the type scales; otherwise the box width changes and the lines rewrap
+  if (l.kind === 'text') { // proportional: the type scales; otherwise (or a block) the box changes and the lines rewrap
     const t = l.text!, k = Math.abs(sx);
-    if (k === Math.abs(sy)) {
+    if (!isBlock(l) && k === Math.abs(sy)) {
       return keepingPlace(strokeScaled({ ...mapped(l, (p) => scalePoint(p, a, k, k)), text: { ...t, size: t.size * k, letterSpacing: t.letterSpacing * k } }, k, k), l);
     }
-    return sx === 1 ? l : refit({ ...mapped(l, (p) => scalePoint(p, a, sx, 1)), text: { ...t, autoWidth: false } }, l);
+    return sx === 1 && sy === 1 ? l : refit(boxResized(mapped(l, (p) => scalePoint(p, a, sx, sy)), sx, sy), l);
   }
   return keepingPlace(strokeScaled(mapped(l, (p) => scalePoint(p, a, sx, sy)), sx, sy), l);
 }
+
+/** A text box whose width or height was changed by hand: that side is now fixed (a fixed height makes it a block). */
+const boxResized = (l: Layer, sx: number, sy: number): Layer =>
+  ({ ...l, text: { ...l.text!, autoWidth: l.text!.autoWidth && sx === 1, autoHeight: l.text!.autoHeight && sy === 1 } });
 
 /** Scales in document space about document point `a`. */
 // ponytail: a rotated child under a non-uniform scale is scaled along its own axes (approximation);
@@ -238,7 +260,12 @@ export function scaled(l: Layer, sx: number, sy: number, a: Pt): Layer {
   if (l.kind === 'group') {
     return { ...mappingClip(l, (p) => scalePoint(p, a, sx, sy)), children: l.children.map((c) => scaled(c, sx, sy, a)) };
   }
-  const c = center(l), s = strokeScaled(l, sx, sy);
+  const c = center(l);
+  if (isBlock(l)) { // the box, not the type
+    const b = boxResized(l.rotation === 0 ? mapped(l, (p) => scalePoint(p, a, sx, sy)) : moved(mapped(l, (p) => scalePoint(p, c, sx, sy)), sub(scalePoint(c, a, sx, sy), c)), sx, sy);
+    return refit(b, b);
+  }
+  const s = strokeScaled(l, sx, sy);
   if (l.kind === 'text') return moved(textScaled(s, Math.sqrt(Math.abs(sx * sy))), sub(scalePoint(c, a, sx, sy), c)); // keeps its proportions
   if (l.rotation === 0) return mapped(s, (p) => scalePoint(p, a, sx, sy));
   return moved(mapped(s, (p) => scalePoint(p, c, sx, sy)), sub(scalePoint(c, a, sx, sy), c));
