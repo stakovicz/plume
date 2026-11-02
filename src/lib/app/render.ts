@@ -72,7 +72,7 @@ async function pdf(f: Framed): Promise<Uint8Array<ArrayBuffer>> {
   const svg = new DOMParser().parseFromString(await uprightJPEGs(f.svg), 'image/svg+xml').documentElement;
   // svg2pdf only warns when an image fails (and leaves it out): make it an export error instead
   const failed: string[] = [], warn = console.warn;
-  console.warn = (...a: unknown[]) => (String(a[0]).startsWith('Could not load image') ? failed.push(String(a[0]).replace(/data:[^\s.]{60,}/g, (u) => `${u.slice(0, 30)}…`)) : warn(...a));
+  console.warn = (...a: unknown[]) => (String(a[0]).startsWith('Could not load image') ? failed.push(String(a[0]).split('\n')[0].replace(/data:[^\s.]{60,}/g, (u) => `${u.slice(0, 30)}…`)) : warn(...a));
   try {
     await doc.svg(svg, { x: 0, y: 0, width: w, height: h });
   } finally {
