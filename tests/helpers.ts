@@ -1,5 +1,5 @@
-import type { Pt, Rect } from '$lib/model/geometry';
-import { newLayer } from '$lib/model/layer';
+import type { Pt, Rect } from '#lib/model/geometry';
+import { newLayer } from '#lib/model/layer';
 
 export const nearRect = (a: Rect, b: Rect, eps = 0.01) =>
   Math.abs(a.x - b.x) < eps && Math.abs(a.y - b.y) < eps && Math.abs(a.width - b.width) < eps && Math.abs(a.height - b.height) < eps;

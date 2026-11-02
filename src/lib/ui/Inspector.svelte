@@ -1,32 +1,32 @@
 <script lang="ts">
-  import { L } from '$lib/i18n';
-  import type { Doc } from '$lib/document/doc.svelte';
-  import type { RGBA } from '$lib/model/color';
-  import { defaultShadow } from '$lib/model/effects';
-  import { type Columns, type Grid, defaultColumns, defaultGrid } from '$lib/model/grid';
-  import { type Rect, POINT_TYPES, apply, pt, rectOf, union } from '$lib/model/geometry';
-  import { pointType } from '$lib/model/point-editing';
-  import { parent } from '$lib/model/layer-tree';
+  import { L } from '#lib/i18n';
+  import type { Doc } from '#lib/document/doc.svelte';
+  import type { RGBA } from '#lib/model/color';
+  import { defaultShadow } from '#lib/model/effects';
+  import { type Columns, type Grid, defaultColumns, defaultGrid } from '#lib/model/grid';
+  import { type Rect, POINT_TYPES, apply, pt, rectOf, union } from '#lib/model/geometry';
+  import { pointType } from '#lib/model/point-editing';
+  import { parent } from '#lib/model/layer-tree';
   import {
     type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, atOriginalSize, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
     withImage,
-  } from '$lib/model/layer';
-  import { type TextStyle, FONTS, TEXT_ALIGNS, TEXT_VALIGNS } from '$lib/model/text';
-  import { loadFamily, systemFonts } from '$lib/app/fonts.svelte';
-  import { pickImage } from '$lib/app/files.svelte';
-  import Button from '$lib/ui/kit/Button.svelte';
-  import Select from '$lib/ui/kit/Select.svelte';
-  import FontField from '$lib/ui/kit/FontField.svelte';
-  import { PRESETS } from '$lib/document/artboards';
-  import ColorField from '$lib/ui/kit/ColorField.svelte';
-  import IconButton from '$lib/ui/kit/IconButton.svelte';
-  import NumberField from '$lib/ui/kit/NumberField.svelte';
-  import Row from '$lib/ui/kit/Row.svelte';
-  import Section from '$lib/ui/kit/Section.svelte';
-  import Segmented from '$lib/ui/kit/Segmented.svelte';
-  import Slider from '$lib/ui/kit/Slider.svelte';
-  import TextField from '$lib/ui/kit/TextField.svelte';
-  import Toggle from '$lib/ui/kit/Toggle.svelte';
+  } from '#lib/model/layer';
+  import { type TextStyle, FONTS, TEXT_ALIGNS, TEXT_VALIGNS } from '#lib/model/text';
+  import { loadFamily, systemFonts } from '#lib/app/fonts.svelte';
+  import { pickImage } from '#lib/app/files.svelte';
+  import Button from '#lib/ui/kit/Button.svelte';
+  import Select from '#lib/ui/kit/Select.svelte';
+  import FontField from '#lib/ui/kit/FontField.svelte';
+  import { PRESETS } from '#lib/document/artboards';
+  import ColorField from '#lib/ui/kit/ColorField.svelte';
+  import IconButton from '#lib/ui/kit/IconButton.svelte';
+  import NumberField from '#lib/ui/kit/NumberField.svelte';
+  import Row from '#lib/ui/kit/Row.svelte';
+  import Section from '#lib/ui/kit/Section.svelte';
+  import Segmented from '#lib/ui/kit/Segmented.svelte';
+  import Slider from '#lib/ui/kit/Slider.svelte';
+  import TextField from '#lib/ui/kit/TextField.svelte';
+  import Toggle from '#lib/ui/kit/Toggle.svelte';
 
   /** Right column, in order: what it is, where it is, then how it looks.
    *  Continuous edits (slider, typing, picker) go through `styleEdit` and merge into one undo step;

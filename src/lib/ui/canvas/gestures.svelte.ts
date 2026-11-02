@@ -1,18 +1,18 @@
-import { L } from '$lib/i18n';
-import type { Doc } from '$lib/document/doc.svelte';
-import type { Tool } from '$lib/document/tool';
-import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectCenter, rectContains, rectOf, rotateAround, scaleAround, translate, union } from '$lib/model/geometry';
-import { type Guide, pointRect, snapAlong, snapRect } from '$lib/model/snapping';
-import { snapToGrid } from '$lib/model/grid';
-import { fitCurve } from '$lib/model/curve-fit';
-import { fitted } from '$lib/model/text';
+import { L } from '#lib/i18n';
+import type { Doc } from '#lib/document/doc.svelte';
+import type { Tool } from '#lib/document/tool';
+import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectCenter, rectContains, rectOf, rotateAround, scaleAround, translate, union } from '#lib/model/geometry';
+import { type Guide, pointRect, snapAlong, snapRect } from '#lib/model/snapping';
+import { snapToGrid } from '#lib/model/grid';
+import { fitCurve } from '#lib/model/curve-fit';
+import { fitted } from '#lib/model/text';
 import {
   type Layer, bounds, center, hit, keepingPlace, localBounds, localDelta, moved, resizeGesture, resized, rotated, toLocal, toWorld,
-} from '$lib/model/layer';
-import { parent, remove } from '$lib/model/layer-tree';
-import { artboards } from '$lib/document/artboards';
-import { type Target, insertNode, movedHandle, segmentAt, target, toggleCurve } from '$lib/model/point-editing';
-import type { IconName } from '$lib/ui/kit/Icon.svelte';
+} from '#lib/model/layer';
+import { parent, remove } from '#lib/model/layer-tree';
+import { artboards } from '#lib/document/artboards';
+import { type Target, insertNode, movedHandle, segmentAt, target, toggleCurve } from '#lib/model/point-editing';
+import type { IconName } from '#lib/ui/kit/Icon.svelte';
 
 /** What a click-drag does for each tool. */
 

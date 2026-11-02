@@ -3,10 +3,10 @@ import { invoke, isTauri } from '@tauri-apps/api/core';
 import { IconMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu';
 import { Image } from '@tauri-apps/api/image';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { L } from '$lib/i18n';
-import type { Doc } from '$lib/document/doc.svelte';
-import { TOOLS, toolKey, toolTitle } from '$lib/document/tool';
-import { type IconName, iconSVG } from '$lib/ui/kit/Icon.svelte';
+import { L } from '#lib/i18n';
+import type { Doc } from '#lib/document/doc.svelte';
+import { TOOLS, toolKey, toolTitle } from '#lib/document/tool';
+import { type IconName, iconSVG } from '#lib/ui/kit/Icon.svelte';
 import { type Files, EXAMPLES } from './files.svelte';
 import { isTyping } from './clipboard';
 

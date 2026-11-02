@@ -3,15 +3,15 @@ import { existsSync, readFileSync } from 'node:fs';
 import { type Font, type FontCollection, create } from 'fontkit';
 import { jsPDF } from 'jspdf';
 import { beforeAll, describe, expect, test } from 'vitest';
-import { pathBounds, pt } from '$lib/model/geometry';
-import { BLACK } from '$lib/model/color';
-import { type Layer, bounds, localBounds, newLayer, resized, rotated, scaled } from '$lib/model/layer';
-import { DEFAULT_TEXT, FONTS, type TextStyle, firstBaseline, fitted, layout, measure, registerFont, textLines, trueTypeFace } from '$lib/model/text';
-import { outlined } from '$lib/model/outline';
-import { decodeFile, encodeFile } from '$lib/model/codable';
-import { importSVG } from '$lib/svg/import';
-import { layerSVG } from '$lib/svg/export';
-import { Doc } from '$lib/document/doc.svelte';
+import { pathBounds, pt } from '#lib/model/geometry';
+import { BLACK } from '#lib/model/color';
+import { type Layer, bounds, localBounds, newLayer, resized, rotated, scaled } from '#lib/model/layer';
+import { DEFAULT_TEXT, FONTS, type TextStyle, firstBaseline, fitted, layout, measure, registerFont, textLines, trueTypeFace } from '#lib/model/text';
+import { outlined } from '#lib/model/outline';
+import { decodeFile, encodeFile } from '#lib/model/codable';
+import { importSVG } from '#lib/svg/import';
+import { layerSVG } from '#lib/svg/export';
+import { Doc } from '#lib/document/doc.svelte';
 import { near, nearRect } from './helpers';
 
 beforeAll(() => {

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { L } from '$lib/i18n';
+  import { L } from '#lib/i18n';
   import Icon from './Icon.svelte';
-  import type { Command, Item, MenuSpec } from '$lib/app/commands';
+  import type { Command, Item, MenuSpec } from '#lib/app/commands';
 
   /** Menu bar for the browser (Tauri shows the native one), from the same specs: each menu a native
    *  popover, submenus nested in it. Shortcuts are only shown here; `runShortcut` handles the keys.

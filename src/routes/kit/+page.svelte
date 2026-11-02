@@ -1,23 +1,23 @@
 <script lang="ts">
-  import { dev } from '$app/environment';
-  import { BLACK, GRAY, type RGBA } from '$lib/model/color';
-  import Button from '$lib/ui/kit/Button.svelte';
-  import ColorField from '$lib/ui/kit/ColorField.svelte';
-  import Dialog from '$lib/ui/kit/Dialog.svelte';
-  import Icon from '$lib/ui/kit/Icon.svelte';
-  import IconButton from '$lib/ui/kit/IconButton.svelte';
-  import MenuBar from '$lib/ui/kit/MenuBar.svelte';
-  import NumberField from '$lib/ui/kit/NumberField.svelte';
-  import Row from '$lib/ui/kit/Row.svelte';
-  import Section from '$lib/ui/kit/Section.svelte';
-  import Segmented from '$lib/ui/kit/Segmented.svelte';
-  import { POINT_TYPES, type PointType } from '$lib/model/geometry';
-  import Select from '$lib/ui/kit/Select.svelte';
-  import FontField from '$lib/ui/kit/FontField.svelte';
-  import InlineName from '$lib/ui/kit/InlineName.svelte';
-  import Slider from '$lib/ui/kit/Slider.svelte';
-  import TextField from '$lib/ui/kit/TextField.svelte';
-  import Toggle from '$lib/ui/kit/Toggle.svelte';
+  import { dev } from '$app/env';
+  import { BLACK, GRAY, type RGBA } from '#lib/model/color';
+  import Button from '#lib/ui/kit/Button.svelte';
+  import ColorField from '#lib/ui/kit/ColorField.svelte';
+  import Dialog from '#lib/ui/kit/Dialog.svelte';
+  import Icon from '#lib/ui/kit/Icon.svelte';
+  import IconButton from '#lib/ui/kit/IconButton.svelte';
+  import MenuBar from '#lib/ui/kit/MenuBar.svelte';
+  import NumberField from '#lib/ui/kit/NumberField.svelte';
+  import Row from '#lib/ui/kit/Row.svelte';
+  import Section from '#lib/ui/kit/Section.svelte';
+  import Segmented from '#lib/ui/kit/Segmented.svelte';
+  import { POINT_TYPES, type PointType } from '#lib/model/geometry';
+  import Select from '#lib/ui/kit/Select.svelte';
+  import FontField from '#lib/ui/kit/FontField.svelte';
+  import InlineName from '#lib/ui/kit/InlineName.svelte';
+  import Slider from '#lib/ui/kit/Slider.svelte';
+  import TextField from '#lib/ui/kit/TextField.svelte';
+  import Toggle from '#lib/ui/kit/Toggle.svelte';
 
   /** Dev-only gallery: every primitive in every state, light and dark side by side, to spot drift. */
   const icons = ['select', 'pen', 'pencil', 'rect', 'ellipse', 'path', 'group', 'artboard', 'image', 'eye', 'eye-off', 'lock', 'lock-open', 'plus', 'corners', 'rotate', 'chevron', 'union', 'subtract', 'intersect', 'difference', 'align-left', 'align-center', 'align-right', 'align-top', 'align-middle', 'align-bottom', 'distribute-horizontal', 'distribute-vertical', 'text-left', 'text-center', 'text-right', 'text-justify', 'text-top', 'text-middle', 'text-bottom', 'padding', 'sidebar-left', 'sidebar-right'] as const;

@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { describe, expect, test } from 'vitest';
 import { unzipSync } from 'fflate';
-import { pt } from '$lib/model/geometry';
-import { addImage, imageBytes, imageInfo } from '$lib/model/images';
-import { atOriginalSize, bounds, flipped, hit, imageFlip, localBounds, newArtboard, newImage, resized, rotated, toWorld, withImage } from '$lib/model/layer';
-import { packFile, unpackFile, encodeFile, decodeFile } from '$lib/model/codable';
-import { importSVG } from '$lib/svg/import';
-import { layerSVG } from '$lib/svg/export';
-import { Doc } from '$lib/document/doc.svelte';
+import { pt } from '#lib/model/geometry';
+import { addImage, imageBytes, imageInfo } from '#lib/model/images';
+import { atOriginalSize, bounds, flipped, hit, imageFlip, localBounds, newArtboard, newImage, resized, rotated, toWorld, withImage } from '#lib/model/layer';
+import { packFile, unpackFile, encodeFile, decodeFile } from '#lib/model/codable';
+import { importSVG } from '#lib/svg/import';
+import { layerSVG } from '#lib/svg/export';
+import { Doc } from '#lib/document/doc.svelte';
 import { near, nearRect, rect } from './helpers';
 
 const u32 = (n: number) => [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { cubicPoint, pt, type Pt } from '$lib/model/geometry';
-import { fitCurve } from '$lib/model/curve-fit';
+import { cubicPoint, pt, type Pt } from '#lib/model/geometry';
+import { fitCurve } from '#lib/model/curve-fit';
 
 const wave = (): Pt[] => Array.from({ length: 201 }, (_, i) => pt(i, 40 * Math.sin((i / 200) * 2 * Math.PI)));
 

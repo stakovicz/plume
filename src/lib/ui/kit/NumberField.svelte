@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { L } from '$lib/i18n';
+  import { L } from '#lib/i18n';
 
   /** Number input. Commits on Return/blur (one undo step), Escape reverts. `NaN`: values differ (multiple selection).
    *  ↑/↓ keys or the stepper buttons step by `step`, ⇧ by 10 × step, committed at once. */

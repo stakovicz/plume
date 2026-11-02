@@ -1,14 +1,14 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
-  import { L } from '$lib/i18n';
-  import { mac } from '$lib/app/commands';
-  import type { Doc } from '$lib/document/doc.svelte';
-  import { type Layer, isContainer } from '$lib/model/layer';
-  import { ancestors, find, parent } from '$lib/model/layer-tree';
-  import Icon, { type IconName } from '$lib/ui/kit/Icon.svelte';
-  import IconButton from '$lib/ui/kit/IconButton.svelte';
-  import InlineName from '$lib/ui/kit/InlineName.svelte';
+  import { L } from '#lib/i18n';
+  import { mac } from '#lib/app/commands';
+  import type { Doc } from '#lib/document/doc.svelte';
+  import { type Layer, isContainer } from '#lib/model/layer';
+  import { ancestors, find, parent } from '#lib/model/layer-tree';
+  import Icon, { type IconName } from '#lib/ui/kit/Icon.svelte';
+  import IconButton from '#lib/ui/kit/IconButton.svelte';
+  import InlineName from '#lib/ui/kit/InlineName.svelte';
 
   /** Left column: the layer tree, top of the stack first; ⌘-click for several, ⇧-click for a range.
    *  Follows the selection: groups containing a layer selected on the canvas open, and the list scrolls to it. */

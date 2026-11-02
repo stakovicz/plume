@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { L } from '$lib/i18n';
-  import type { ExportTarget, Files } from '$lib/app/files.svelte';
-  import { type Format, FORMATS } from '$lib/app/render';
-  import Button from '$lib/ui/kit/Button.svelte';
-  import Dialog from '$lib/ui/kit/Dialog.svelte';
-  import Row from '$lib/ui/kit/Row.svelte';
-  import Segmented from '$lib/ui/kit/Segmented.svelte';
+  import { L } from '#lib/i18n';
+  import type { ExportTarget, Files } from '#lib/app/files.svelte';
+  import { type Format, FORMATS } from '#lib/app/render';
+  import Button from '#lib/ui/kit/Button.svelte';
+  import Dialog from '#lib/ui/kit/Dialog.svelte';
+  import Row from '#lib/ui/kit/Row.svelte';
+  import Segmented from '#lib/ui/kit/Segmented.svelte';
 
   /** ⌘E: what to export (document, artboards, selection), as what (PDF, SVG, PNG, JPG), at which scale.
    *  Format and scale are kept between openings; the target starts at the selection when there is one. */

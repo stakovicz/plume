@@ -1,5 +1,5 @@
-import type { Framed } from '$lib/svg/export';
-import { base64, fromDataURL, imageInfo } from '$lib/model/images';
+import type { Framed } from '#lib/svg/export';
+import { base64, fromDataURL, imageInfo } from '#lib/model/images';
 import { fontsIn } from './fonts.svelte';
 
 /** Export formats: SVG is written as is, PNG/JPG are rendered by the web view, PDF is laid out by

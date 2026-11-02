@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { fromHex, fromHSV, hex, hsv } from '$lib/model/color';
+import { fromHex, fromHSV, hex, hsv } from '#lib/model/color';
 
 test('hsv round trip', () => {
   for (const c of [{ r: 1, g: 0, b: 0, a: 1 }, { r: 0.2, g: 0.6, b: 0.4, a: 0.5 }, { r: 0.9, g: 0.1, b: 0.7, a: 1 }]) {
