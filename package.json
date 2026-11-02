@@ -26,8 +26,8 @@
     "fflate": "^0.8.3",
     "fontkit": "^2.0.4",
     "jspdf": "4.2.1",
-    "paper": "0.12.18",
-    "svg2pdf.js": "2.8.1"
+    "paper": "0.16.0",
+    "svg2pdf.js": "2.9.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
