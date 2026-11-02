@@ -2,8 +2,10 @@ import { L } from '$lib/i18n';
 import { type Affine, type Rect, type Subpath, IDENTITY, apply, concat, determinant, mapSubpaths, pt, translate, union } from '$lib/model/geometry';
 import { type RGBA, GRAY } from '$lib/model/color';
 import { type GradientFill, gradient as makeGradient } from '$lib/model/effects';
-import { type Layer, LINE_CAPS, LINE_JOINS, bounds, localBounds, mapped, newArtboard, newLayer, rotated } from '$lib/model/layer';
+import { type Layer, LINE_CAPS, LINE_JOINS, bounds, localBounds, mapped, newArtboard, newImage, newLayer, rotated, toLocal } from '$lib/model/layer';
+import { addImage, fromDataURL } from '$lib/model/images';
 import { DEFAULT_TEXT, TEXT_ALIGNS, fitted, firstBaseline } from '$lib/model/text';
+import { defaultColumns, defaultGrid } from '$lib/model/grid';
 import { number, parsePath, shapeData, tokens } from '$lib/model/path-data';
 import { paint, parseTransform, strict } from './syntax';
 
@@ -15,7 +17,8 @@ import { paint, parseTransform, strict } from './syntax';
  *  holding everything,
  *  unless the file already has artboards (`<g data-artboard>`, our own export), which come back as such.
  *  Text: one layer per <text>, a line per positioned <tspan>; one style (the <text>'s).
- *  ponytail: no textPath, per-span styles, patterns, images, CSS <style>, other filter effects, luminance masks (a mask's
+ *  Images: PNG/JPEG/WebP/GIF embedded as `data:` URLs (`preserveAspectRatio` other than none: centered, meet).
+ *  ponytail: no textPath, per-span styles, patterns, linked image files, CSS <style>, other filter effects, luminance masks (a mask's
  *  shapes act as a clip) or compact arc flags ("a1 1 0 011 1"); add when real files need them. */
 
 type El = { name: string; attrs: Record<string, string>; children: El[]; text: string };
@@ -58,7 +61,7 @@ const INHERITED = new Set(['fill', 'stroke', 'stroke-width', 'fill-opacity', 'st
   'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'font-family', 'font-size', 'font-weight', 'text-anchor', 'letter-spacing']);
 /** Never drawn directly; some are referenced (gradients, masks, symbols via <use>). */
 const HIDDEN = new Set(['defs', 'clipPath', 'mask', 'symbol', 'pattern', 'marker', 'linearGradient',
-  'radialGradient', 'filter', 'style', 'title', 'desc', 'metadata', 'image']);
+  'radialGradient', 'filter', 'style', 'title', 'desc', 'metadata']);
 
 const href = (e: El) => e.attrs.href ?? e.attrs['xlink:href'];
 const scaleOf = (t: Affine) => Math.sqrt(Math.abs(determinant(t)));
@@ -120,6 +123,12 @@ class Builder {
         if (out.length > 1) out = [this.group(out, e.attrs.id)];
         break;
       }
+      case 'image': {
+        const i = this.image(e, ctm);
+        if (!i) return [];
+        out = [i];
+        break;
+      }
       case 'text': {
         const t = this.text(e, style, ctm);
         if (!t) return [];
@@ -138,7 +147,7 @@ class Builder {
     // Per-element (non-inherited) effects
     l.opacity *= strict(style.opacity) ?? 1;
     const m = this.byID.get(urlID(style.mask) ?? urlID(style['clip-path']) ?? '');
-    if (m) l.clip = this.clipShapes(m.children, ctm);
+    if (m) l.clip = mapSubpaths(this.clipShapes(m.children, ctm), (p) => toLocal(l, p)); // into a rotated layer's own frame
     const f = this.byID.get(urlID(style.filter) ?? '');
     if (f) this.applyFilter(f, l, scaleOf(ctm));
     return out;
@@ -154,6 +163,10 @@ class Builder {
     if (bg) a.fill = paint(bg.attrs.fill ?? 'white', strict(bg.attrs['fill-opacity']) ?? 1);
     a.children = content ? this.layers(content.children, style, ctm) : [];
     a.hidden = style.display === 'none';
+    try {
+      if (e.attrs['data-grid']) a.grid = { ...defaultGrid(), ...JSON.parse(e.attrs['data-grid']) };
+      if (e.attrs['data-columns']) a.columns = { ...defaultColumns(), ...JSON.parse(e.attrs['data-columns']) };
+    } catch { /* settings from another version or hand-edited: left out */ }
     return a;
   }
 
@@ -226,6 +239,25 @@ class Builder {
     }));
     const angle = Math.atan2(ctm.b, ctm.a);
     return angle ? rotated(l, angle, at) : l;
+  }
+
+  /** An embedded bitmap. Its box goes through `ctm` as a rotation (and mirroring) of an upright frame. */
+  image(e: El, ctm: Affine): Layer | null {
+    const bytes = fromDataURL(href(e) ?? '');
+    const img = bytes && addImage(bytes);
+    if (!img) return null;
+    let x = number(e.attrs.x) ?? 0, y = number(e.attrs.y) ?? 0, w = number(e.attrs.width) ?? img.width, h = number(e.attrs.height) ?? img.height;
+    if (w <= 0 || h <= 0) return null;
+    if (!(e.attrs.preserveAspectRatio ?? '').trim().startsWith('none')) { // ponytail: always xMidYMid meet (no slice, no other alignment)
+      const k = Math.min(w / img.width, h / img.height);
+      [x, y, w, h] = [x + (w - img.width * k) / 2, y + (h - img.height * k) / 2, img.width * k, img.height * k];
+    }
+    const sx = Math.hypot(ctm.a, ctm.b), sy = Math.hypot(ctm.c, ctm.d) * Math.sign(determinant(ctm)); // sy < 0: mirrored
+    const c = apply(ctm, pt(x + w / 2, y + h / 2));
+    const l = newImage(e.attrs.id ?? L('Image'), img, c);
+    l.points = [pt(c.x - (w * sx) / 2, c.y - (h * sy) / 2), pt(c.x + (w * sx) / 2, c.y + (h * sy) / 2)];
+    l.rotation = Math.atan2(ctm.b, ctm.a);
+    return l;
   }
 
   // MARK: References

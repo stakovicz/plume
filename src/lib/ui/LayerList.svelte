@@ -16,7 +16,7 @@
 
   const expanded = new SvelteSet<string>();
   let list: HTMLElement;
-  const icons: Record<Layer['kind'], IconName> = { rect: 'rect', ellipse: 'ellipse', path: 'path', group: 'group', artboard: 'artboard', text: 'text' };
+  const icons: Record<Layer['kind'], IconName> = { rect: 'rect', ellipse: 'ellipse', path: 'path', group: 'group', artboard: 'artboard', text: 'text', image: 'image' };
 
   $effect(() => {
     const ids = [...doc.selectedIDs];

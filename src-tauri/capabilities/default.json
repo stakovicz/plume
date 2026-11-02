@@ -9,6 +9,7 @@
     "core:window:allow-destroy",
     "core:window:allow-close",
     "core:menu:default",
+    "core:app:allow-default-window-icon",
     "dialog:default"
   ]
 }

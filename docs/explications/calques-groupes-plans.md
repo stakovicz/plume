@@ -48,6 +48,19 @@ Sur le canevas, un plan de travail est transparent aux clics : on travaille sur 
 sélectionne par son nom. Le redimensionner ne change que son cadre, jamais ce qu'il contient : on recadre
 une page, on n'étire pas un dessin.
 
+## Aligner : sur quoi ?
+
+Aligner a besoin d'une référence. Avec plusieurs calques, c'est le cadre qui les englobe tous : aligner à gauche
+amène chacun au bord gauche du calque le plus à gauche, qui ne bouge donc pas. Un calque seul n'a rien avec quoi
+s'aligner : il prend son parent, le groupe ou le plan de travail qui le contient. Au premier niveau, hors de tout
+plan de travail, il n'a pas de référence et la commande ne fait rien.
+
+Le cadre utilisé est celui que l'on voit sur la page : pour un calque pivoté, le rectangle droit qui l'englobe une
+fois tourné, pas sa forme droite d'origine. Un groupe, n'ayant pas de forme à lui, s'aligne par le cadre de son
+contenu et bouge d'un bloc. Un calque verrouillé ne bouge pas, mais sa place compte : c'est un moyen simple
+d'aligner les autres sur lui. Après l'alignement, chaque calque déplacé suit la règle du centre ci-dessus et peut
+changer de plan de travail.
+
 ## Masqué, verrouillé
 
 Masquer et verrouiller se transmettent du groupe à ses calques, sans effacer leur propre réglage. Masquer

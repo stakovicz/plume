@@ -8,6 +8,7 @@ Les quelques raccourcis qui diffèrent davantage sont indiqués dans la colonne 
 | Action | macOS | Linux |
 |---|---|---|
 | Nouveau / Ouvrir / Enregistrer / Enregistrer sous | ⌘N / ⌘O / ⌘S / ⇧⌘S | Ctrl+N / Ctrl+O / Ctrl+S / Ctrl+Maj+S |
+| Importer une image | ⇧⌘I | Ctrl+Maj+I |
 | Exporter | ⌘E | Ctrl+E |
 | Navigateur / Inspecteur | ⌥⌘1 / ⌥⌘2 | Ctrl+Alt+1 / Ctrl+Alt+2 |
 | Réduire | ⌘M | menu Fenêtre › Réduire |
@@ -46,7 +47,14 @@ Actifs partout, sauf pendant la saisie dans un champ. Mêmes touches sur macOS e
 | Vectoriser le contour | ⌥⌘O | Ctrl+Alt+O |
 | Avancer / Reculer | ⌥⌘↑ / ⌥⌘↓ | Ctrl+Alt+↑ / Ctrl+Alt+↓ |
 | Premier plan / Arrière-plan | ⌃⌥⌘↑ / ⌃⌥⌘↓ | Ctrl+Maj+Alt+↑ / Ctrl+Maj+Alt+↓ |
+| Aligner à gauche / au centre / à droite | ⌥A / ⌥H / ⌥D | Alt+A / Alt+H / Alt+D |
+| Aligner en haut / au milieu / en bas | ⌥W / ⌥V / ⌥S | Alt+W / Alt+V / Alt+S |
+| Répartir horizontalement / verticalement | ⌥⇧H / ⌥⇧V | Alt+Maj+H / Alt+Maj+V |
 | Masquer / Verrouiller | ⇧⌘H / ⇧⌘L | Ctrl+Maj+H / Ctrl+Maj+L |
+
+Les raccourcis d'alignement (⌥ + lettre, sans ⌘) sont inactifs pendant la saisie dans un champ : ⌥ y tape un caractère accentué.
+Dans la version web, les raccourcis ⌥ + lettre suivent la position des touches d'un clavier QWERTY : sur un clavier
+AZERTY, Aligner à gauche est ⌥Q et Aligner en haut ⌥Z.
 
 ## Vue
 
@@ -56,6 +64,7 @@ Actifs partout, sauf pendant la saisie dans un champ. Mêmes touches sur macOS e
 | Défiler | molette ou trackpad | molette ou pavé tactile |
 | Zoomer autour du curseur | ⌘ + molette, ou pincement | Ctrl + molette, ou pincement |
 | Zoom à 100 % | double-clic sur le pourcentage | double-clic sur le pourcentage |
+| Afficher/Masquer les grilles | ⌘' | Ctrl+' |
 
 ## Souris et modificateurs sur le canevas
 
@@ -73,6 +82,7 @@ Actifs partout, sauf pendant la saisie dans un champ. Mêmes touches sur macOS e
 | Carré, cercle ; proportions ; angle par 15° | ⇧ en dessinant, redimensionnant, pivotant | Maj |
 | Depuis le centre | ⌥ en dessinant ou redimensionnant | Alt |
 | Poignée de Bézier indépendante | ⌥ en la glissant | Alt |
+| Sans magnétisme (repères, grille) | ⌘ maintenu en glissant | Ctrl |
 
 Sous Linux, certains environnements de bureau réservent Alt + glisser au déplacement des fenêtres : appuyez sur Alt
 après avoir commencé à glisser, ou changez ce réglage du bureau.

@@ -14,20 +14,22 @@ Quatre parties, chacune pour un besoin différent.
 
 À suivre dans l'ordre, du début à la fin.
 
-1. [Votre première illustration](tutoriels/01-premiere-illustration.md) : formes, couleurs, texte, groupe, export PNG.
+1. [Votre première illustration](tutoriels/01-premiere-illustration.md) : formes, couleurs, texte, alignement, groupe, export PNG.
 2. [Dessiner à la plume](tutoriels/02-dessiner-a-la-plume.md) : points d'angle, courbes, retouche des points.
 
 ## Guides pratiques
 
 - [Installer Plume](guides/installer.md) : winget, Scoop, Homebrew, APT (Synaptic), Snap, DNF
-- [Organiser les calques](guides/organiser-les-calques.md) : sélectionner, grouper, ordonner, masquer, verrouiller.
+- [Organiser les calques](guides/organiser-les-calques.md) : sélectionner, aligner, répartir, grouper, ordonner, masquer, verrouiller.
 - [Travailler avec des plans de travail](guides/plans-de-travail.md)
 - [Modifier les points d'un tracé](guides/editer-des-points.md)
 - [Combiner des formes](guides/combiner-des-formes.md) et vectoriser un contour
 - [Transformer une icône au trait en icône pleine](guides/icone-au-trait-en-icone-pleine.md)
 - [Appliquer des couleurs, dégradés et effets](guides/couleurs-et-degrades.md)
 - [Écrire et mettre en forme du texte](guides/texte.md)
+- [Faire un bouton, une étiquette ou un encadré](guides/bouton.md) : fond, marges, bordure, alignement vertical
 - [Importer un SVG](guides/importer-un-svg.md) : ouvrir, coller, glisser-déposer
+- [Importer une image](guides/importer-une-image.md) : PNG, JPG, WebP, GIF
 - [Exporter en PDF, SVG, PNG ou JPG](guides/exporter.md)
 
 ## Référence

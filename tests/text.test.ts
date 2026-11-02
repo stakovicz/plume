@@ -5,8 +5,8 @@ import { jsPDF } from 'jspdf';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { pathBounds, pt } from '$lib/model/geometry';
 import { BLACK } from '$lib/model/color';
-import { type Layer, bounds, localBounds, newLayer, resized, rotated } from '$lib/model/layer';
-import { DEFAULT_TEXT, FONTS, type TextStyle, fitted, measure, registerFont, textLines, trueTypeFace } from '$lib/model/text';
+import { type Layer, bounds, localBounds, newLayer, resized, rotated, scaled } from '$lib/model/layer';
+import { DEFAULT_TEXT, FONTS, type TextStyle, firstBaseline, fitted, layout, measure, registerFont, textLines, trueTypeFace } from '$lib/model/text';
 import { outlined } from '$lib/model/outline';
 import { decodeFile, encodeFile } from '$lib/model/codable';
 import { importSVG } from '$lib/svg/import';
@@ -134,6 +134,113 @@ describe('text', () => {
     expect(doc.layers.length).toBe(1);
     doc.undo();
     expect(doc.layers).toEqual([]);
+  });
+});
+
+describe('text block', () => {
+  const RED = { r: 1, g: 0, b: 0, a: 1 };
+  const block = (content: string, style: Partial<TextStyle> = {}, height = 0, extra: Partial<Layer> = {}) => {
+    const l = text(content, style, 0, 0, 100);
+    const b = localBounds(l);
+    return fitted({ ...l, ...extra, points: height ? [pt(b.x, b.y), pt(b.x + b.width, b.y + height)] : l.points });
+  };
+
+  test('padding: the box is the content plus the padding, the lines sit inside it', () => {
+    const l = text('Hi', { padding: [4, 8, 6, 10] }, 0, 0);
+    const b = localBounds(l), w = measure(l.text!, 'Hi');
+    expect(b.width).toBeCloseTo(w + 18);
+    expect(b.height).toBeCloseTo(16 * 1.2 + 10);
+    const [line] = layout(l);
+    expect(line.x).toBeCloseTo(10);
+    expect(line.y).toBeCloseTo(4 + firstBaseline(l.text!));
+    const right = fitted({ ...l, text: { ...l.text!, align: 'right' } });
+    expect(layout(right)[0].x).toBeCloseTo(localBounds(right).x + localBounds(right).width - 8);
+  });
+
+  test('padding narrows the width lines wrap at', () => {
+    const plain = block('one two three four five six', { autoWidth: false });
+    const padded = block('one two three four five six', { autoWidth: false, padding: [0, 20, 0, 20] });
+    expect(layout(padded).length).toBeGreaterThan(layout(plain).length);
+    expect(localBounds(padded).width).toBe(100);
+  });
+
+  test('fixed height: the lines sit at the top, middle or bottom, and overflow it', () => {
+    const at = (verticalAlign: TextStyle['verticalAlign'], height = 100) =>
+      layout(block('Hi', { autoWidth: false, autoHeight: false, verticalAlign, padding: [10, 0, 10, 0] }, height))[0].y - firstBaseline(DEFAULT_TEXT);
+    const line = 16 * 1.2;
+    expect(at('top')).toBeCloseTo(10);
+    expect(at('middle')).toBeCloseTo(50 - line / 2);
+    expect(at('bottom')).toBeCloseTo(90 - line);
+    const small = block('a\nb\nc\nd', { autoWidth: false, autoHeight: false }, 20);
+    expect(localBounds(small).height).toBe(20); // kept, the lines overflow
+    expect(layout(small).length).toBe(4);
+  });
+
+  test('justified: wrapped lines fill the width, the last line of a paragraph stays left', () => {
+    const l = block('aaa bb cccc dd eee f gggg hh', { autoWidth: false, align: 'justify' });
+    const lines = layout(l);
+    expect(lines.length).toBeGreaterThan(1);
+    for (const line of lines.slice(0, -1)) {
+      const last = line.words!.at(-1)!;
+      expect(line.words![0].x).toBeCloseTo(0);
+      expect(last.x + measure(l.text!, last.text)).toBeCloseTo(100);
+    }
+    expect(lines.at(-1)!.words).toBeUndefined();
+    expect(layout(text('a b', { align: 'justify' }))[0].words).toBeUndefined(); // auto width: nothing to fill
+  });
+
+  test('resizing a block changes its box, not its type; a plain text dragged vertically gets a fixed height', () => {
+    const l = block('Button', {}, 0, { background: RED });
+    const big = resized(l, 2, 2, pt(0, 0));
+    expect(big.text!.size).toBe(16);
+    expect(localBounds(big).width).toBeCloseTo(localBounds(l).width * 2);
+    expect(localBounds(big).height).toBeCloseTo(localBounds(l).height * 2);
+    expect(big.text!.autoHeight).toBe(false);
+    const inGroup = scaled(l, 3, 3, pt(0, 0));
+    expect(inGroup.text!.size).toBe(16);
+    expect(localBounds(inGroup).width).toBeCloseTo(localBounds(l).width * 3);
+
+    const plain = text('Plain');
+    const taller = resized(plain, 1, 3, pt(10, 20));
+    expect(taller.text!).toMatchObject({ size: 16, autoHeight: false, autoWidth: true });
+    expect(localBounds(taller).height).toBeCloseTo(3 * 16 * 1.2);
+    expect(resized(plain, 2, 2, pt(10, 20)).text!.size).toBe(32); // plain text: proportional still scales the type
+  });
+
+  test('saved and reopened; older files get the defaults', () => {
+    const l = block('Saved', { autoHeight: false, verticalAlign: 'middle', padding: [1, 2, 3, 4], align: 'justify' }, 80, { background: RED });
+    const back = decodeFile(encodeFile({ layers: [l], palette: [] })).layers[0];
+    expect(back.text).toEqual(l.text);
+    expect(back.background).toEqual(RED);
+    const { autoHeight, verticalAlign, padding, ...old } = l.text!;
+    const { background, ...oldLayer } = l;
+    const reopened = decodeFile(JSON.stringify([{ ...oldLayer, text: old }])).layers[0];
+    expect(reopened.text).toMatchObject({ autoHeight: true, verticalAlign: 'top', padding: [0, 0, 0, 0] });
+    expect(reopened.background.a).toBe(0);
+  });
+
+  test('SVG export: the box under the text, in one group with the effects', () => {
+    const g = { kind: 'linear' as const, start: pt(0, 0), end: pt(1, 0), radius: 1, transform: { a: 100, b: 0, c: 0, d: 1, tx: 0, ty: 0 }, stops: [{ offset: 0, color: RED }, { offset: 1, color: BLACK }] };
+    const l = block('OK', {}, 0, { background: RED, backgroundGradient: g, corners: [4, 4, 4, 4], stroke: BLACK, strokeWidth: 2, opacity: 0.5 });
+    const svg = layerSVG(l);
+    expect(svg).toMatch(/^<g opacity="0.5"><linearGradient[^>]*>.*<\/linearGradient><rect [^>]*rx="4.00"[^>]*fill="url\(#fill-[^"]*\)"[^>]*stroke="#000000"[^>]*\/><text /);
+    expect(svg.match(/<text[^>]*>/)![0]).not.toContain('stroke');
+    expect(svg.match(/<text[^>]*>/)![0]).not.toMatch(/ opacity=/);
+    expect(layerSVG(text('Plain'))).toMatch(/^<text /);
+    const justified = layerSVG(block('aaa bb cccc dd eee f gggg hh', { autoWidth: false, align: 'justify' }));
+    expect(justified.match(/<tspan/g)!.length).toBeGreaterThan(3); // one per word on the stretched lines
+  });
+
+  test('convert to outlines: a block becomes its box under its glyphs, grouped', () => {
+    const l = block('Ag', {}, 0, { background: RED, opacity: 0.5 });
+    const o = outlined(l, 'Fond')!;
+    expect(o.kind).toBe('group');
+    expect(o.id).toBe(l.id);
+    expect(o.opacity).toBe(0.5);
+    expect(o.children.map((c) => c.kind)).toEqual(['rect', 'path']);
+    expect(o.children[0]).toMatchObject({ name: 'Fond', fill: RED, opacity: 1 });
+    expect(nearRect(localBounds(o.children[0]), localBounds(l), 1e-9)).toBe(true);
+    expect(outlined(text('Ag'))!.kind).toBe('path');
   });
 });
 

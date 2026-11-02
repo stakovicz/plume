@@ -1,7 +1,8 @@
 import { L } from '$lib/i18n';
 import { type Affine, type PointType, type Pt, type Rect, intersects, midX, midY, node, pt, union } from '$lib/model/geometry';
 import { type RGBA, BLACK, CLEAR, SHAPE_FILL, eqColor } from '$lib/model/color';
-import { type Kind, type Layer, asPath, bounds, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newLayer, refit } from '$lib/model/layer';
+import { type Kind, type Layer, asPath, bounds, center, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newImage, newLayer, refit } from '$lib/model/layer';
+import type { ImageRef } from '$lib/model/images';
 import { DEFAULT_TEXT } from '$lib/model/text';
 import { ancestors, find, inTreeOrder, nextName, parent, remove, siblings, update } from '$lib/model/layer-tree';
 import { artboardAt, homeOf, inside } from './artboards';
@@ -49,6 +50,9 @@ export class Doc {
   renaming = $state<{ id: string; where: 'list' | 'canvas' } | null>(null);
   shift = $state(false); // ⇧ held: keep proportions, snap angles, square/circle
   option = $state(false); // ⌥ held: resize/draw from the center
+  /** View settings, not saved: artboard grids drawn, and drags pulled onto them. */
+  showGrids = $state(true);
+  snapToGrid = $state(true);
 
   // File state
   filePath = $state<string | null>(null);
@@ -165,7 +169,7 @@ export class Doc {
 
   /** New layer at `p`: inside the artboard under it (artboards themselves are always top-level). */
   add(kind: Kind, p: Pt) {
-    const base = { rect: L('Rectangle'), ellipse: L('Oval'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text') }[kind];
+    const base = { rect: L('Rectangle'), ellipse: L('Oval'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text'), image: L('Image') }[kind];
     const host = kind === 'artboard' ? null : artboardAt(this.layers, p);
     const list = host ? host.children : this.layers;
     const name = kind === 'text' ? base : nextName(this.layers, base); // text: named after its content
@@ -225,6 +229,7 @@ export class Doc {
     const l = this.selected;
     if (!l || isContainer(l) || this.isLocked(l.id) || this.isHidden(l.id)) return;
     if (l.kind === 'text') return this.editText(l.id);
+    if (l.kind === 'image') return; // no points to edit
     if (l.kind !== 'path') {
       this.checkpoint();
       this.selected = asPath(l);
@@ -422,6 +427,16 @@ export class Doc {
     this.selectedIDs = new Set(copies.map((l) => l.id));
   }
 
+  /** File › Import Image, a pasted or dropped bitmap: at its size in pixels, scaled down to fit the artboard it lands in.
+   *  `name`: the file's, else "Image n". `at` (dropped): centered there. Otherwise in the middle of the selection's artboard, else of the view. */
+  placeImage(image: ImageRef, name?: string, at?: Pt) {
+    const first = this.selectedLayers[0];
+    const board = at || !first ? null : first.kind === 'artboard' ? first : ancestors(this.layers, first.id).find((a) => a.kind === 'artboard');
+    const p = at ?? (board ? center(board) : this.toDoc(pt(this.viewSize.width / 2, this.viewSize.height / 2)));
+    const host = board ?? artboardAt(this.layers, p);
+    this.paste([newImage(name || nextName(this.layers, L('Image')), image, p, host && localBounds(host))], p);
+  }
+
   /** ⌘D: pastes a copy of the selection right above it, without touching the clipboard. */
   duplicate() { this.paste(this.copySelection()); }
 
@@ -477,6 +492,56 @@ export class Doc {
     this.rehome(ls.map((l) => l.id));
   }
 
+  // MARK: Align & distribute
+
+  /** Align (⌥A/H/D, ⌥W/V/S): several layers on the bounds of them all, a single one on its group or artboard.
+   *  Bounds are in document space (rotation included); a group moves as a block. Hidden layers are left out,
+   *  locked ones stay put but count in the bounds. */
+  align(to: Align) {
+    const ls = this.selectedLayers.filter((l) => !this.isHidden(l.id));
+    const home = ls.length === 1 ? parent(this.layers, ls[0].id) : null;
+    const ref = ls.length > 1 ? ls.map(bounds).reduce<Rect | null>(union, null) : home && bounds(home);
+    if (!ref) return;
+    const end = (r: Rect, h: boolean) => (h ? r.x + r.width : r.y + r.height);
+    this.#moveBy(ls.map((l) => {
+      const b = bounds(l);
+      switch (to) {
+        case 'left': return [l, pt(ref.x - b.x, 0)];
+        case 'center': return [l, pt(midX(ref) - midX(b), 0)];
+        case 'right': return [l, pt(end(ref, true) - end(b, true), 0)];
+        case 'top': return [l, pt(0, ref.y - b.y)];
+        case 'middle': return [l, pt(0, midY(ref) - midY(b))];
+        case 'bottom': return [l, pt(0, end(ref, false) - end(b, false))];
+      }
+    }));
+  }
+
+  /** Distribute (⌥⇧H, ⌥⇧V): equal gaps between 3 layers or more, the outermost ones staying put.
+   *  ponytail: locked layers keep their place, so one in the middle leaves the gaps around it uneven. */
+  distribute(horizontal: boolean) {
+    const ls = this.selectedLayers.filter((l) => !this.isHidden(l.id));
+    if (ls.length < 3) return;
+    const [x, w] = horizontal ? (['x', 'width'] as const) : (['y', 'height'] as const);
+    const items = ls.map((l) => ({ l, b: bounds(l) })).sort((p, q) => p.b[x] - q.b[x]);
+    const start = items[0].b[x], span = Math.max(...items.map((i) => i.b[x] + i.b[w])) - start;
+    const gap = (span - items.reduce((s, i) => s + i.b[w], 0)) / (items.length - 1);
+    let at = start;
+    this.#moveBy(items.map(({ l, b }) => {
+      const d = at - b[x];
+      at += b[w] + gap;
+      return [l, horizontal ? pt(d, 0) : pt(0, d)];
+    }));
+  }
+
+  /** One undo step moving each layer by its own offset; locked layers stay. Moved layers may change artboard. */
+  #moveBy(moves: [Layer, Pt][]) {
+    const ms = moves.filter(([l, d]) => !this.isLocked(l.id) && (d.x || d.y));
+    if (!ms.length) return;
+    this.checkpoint();
+    for (const [l, d] of ms) this.set(l.id, moved($state.snapshot(l) as Layer, d));
+    this.rehome(ms.map(([l]) => l.id));
+  }
+
   // MARK: Groups
 
   /** Selected layers that share one parent, in paint order; null if they don't. */
@@ -488,6 +553,8 @@ export class Doc {
     return s;
   }
   get canGroup() { return this.#groupableSiblings !== null; }
+  /** Combine works on shapes: never on an image, nor a group holding one. */
+  get canCombine() { return this.canGroup && !this.#groupableSiblings!.some(holdsImage); }
   get canUngroup() { const g = this.selected; return !!g && g.kind === 'group' && !this.isLocked(g.id); }
 
   /** ⌘G: wraps the selected sibling layers in a group placed where the topmost one was. */
@@ -508,7 +575,7 @@ export class Doc {
    *  bottom to top, placed where the topmost one was. Nothing happens if the result is empty. */
   combine(op: BooleanOp) {
     const kids = this.#groupableSiblings;
-    if (!kids) return;
+    if (!kids || !this.canCombine) return;
     const result = combined(kids.map((l) => $state.snapshot(l) as Layer), op);
     if (!result) return;
     this.checkpoint();
@@ -523,7 +590,7 @@ export class Doc {
    *  text becomes its glyphs. Layers without a visible border, groups and locked layers are left as they are. */
   outline() {
     const done = [...this.selectedIDs].filter((id) => !this.isLocked(id))
-      .map((id) => [id, this.get(id) && outlined($state.snapshot(this.get(id)!) as Layer)] as const)
+      .map((id) => [id, this.get(id) && outlined($state.snapshot(this.get(id)!) as Layer, L('Background'))] as const)
       .filter(([, l]) => l);
     if (!done.length) return;
     this.checkpoint();
@@ -604,11 +671,15 @@ export class Doc {
   }
 }
 
+export type Align = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';
+
 /** Undo history size, in snapshot characters (≈ bytes): about a hundred steps of a 2 MB document. */
 const UNDO_BUDGET = 200_000_000;
 
 /** A text layer's automatic name: its first line. */
 const textName = (content: string) => content.trim().split('\n')[0].slice(0, 40) || L('Text');
+
+const holdsImage = (l: Layer): boolean => l.kind === 'image' || l.children.some(holdsImage);
 
 /** A copy with fresh ids, children included. */
 const withNewIDs = (l: Layer): Layer => ({ ...l, id: crypto.randomUUID(), children: l.children.map(withNewIDs) });

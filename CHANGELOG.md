@@ -4,7 +4,38 @@
 
 ### Ajouts
 
+- **Aligner et répartir** : Disposition › Aligner (⌥A, ⌥H, ⌥D, ⌥W, ⌥V, ⌥S) et Répartir (⌥⇧H, ⌥⇧V), et une rangée
+  d'icônes en haut de l'inspecteur. Plusieurs calques s'alignent sur leur cadre commun, un calque seul sur son groupe
+  ou son plan de travail. ([#29](https://github.com/stakovicz/plume/issues/29))
+- **Bloc de texte** : hauteur Auto ou Fixe, alignement vertical (haut, milieu, bas), texte justifié, marges intérieures,
+  fond (couleur ou dégradé), bordure et coins arrondis de la zone, dans une nouvelle section Bloc de l'inspecteur.
+  Redimensionner un bloc change sa zone, pas la taille du texte ; vectorisé, il devient un groupe fond + texte.
+  ([#30](https://github.com/stakovicz/plume/issues/30))
+- **Images** : Fichier › Importer une image… (⇧⌘I), glisser-déposer ou coller une image PNG, JPG, WebP ou GIF.
+  Un calque image se déplace, se redimensionne, tourne et se retourne ; l'inspecteur montre sa taille d'origine
+  (bouton Taille d'origine) et permet de la remplacer. L'image est intégrée au `.plm` et aux exports SVG, PDF, PNG
+  et JPG (photos redressées selon leur orientation EXIF, y compris en PDF) ; un SVG qui contient des images intégrées
+  les rend à l'ouverture.
+  ([#31](https://github.com/stakovicz/plume/issues/31))
+
+## 0.4.1 — 2026-10-29
+
+### Ajouts
+
 - **Windows** : programme d'installation `.exe` ou `.msi`, `winget install Stakovicz.Plume` ou Scoop (`stakovicz/plume-editor`).
+- **Grille de plan de travail** : grille carrée (taille, lignes majeures) et colonnes de mise en page (nombre, gouttière,
+  marge), chacune activée dans l'inspecteur ; magnétisme en déplaçant, redimensionnant et dessinant (⌘ pour l'ignorer).
+  Présentation › Afficher/Masquer les grilles (⌘'). ([#28](https://github.com/stakovicz/plume/issues/28))
+
+### Modifications
+
+- **Inspecteur** : un champ par ligne pour Tiret et Espace (bordure), Interligne et Approche (texte), dont les libellés
+  étaient tronqués. L'ombre a sa propre section, activée par l'interrupteur à droite de son titre, comme Grille et Colonnes.
+
+### Corrections
+
+- **À propos de Plume** : le panneau affiche l'icône de l'application.
+- **macOS** : l'application téléchargée est signée (Developer ID) et notarisée par Apple : elle n'est plus refusée comme « endommagée ».
 
 ## 0.4.0 — 2026-10-25
 

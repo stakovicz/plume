@@ -5,7 +5,7 @@ Après un dessin, Plume revient à l'outil Sélection, sauf pour la Plume (qui c
 
 | Outil | Touche | Utilisation | Modificateurs |
 |---|---|---|---|
-| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; glisser depuis le vide : sélection au lasso ; poignées : redimensionner, pivoter ; double-clic ou Retour : éditer les points ou le texte | ⇧-clic : ajouter/retirer ; ⇧ : proportions, angle par 15° ; ⌥ : depuis le centre |
+| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; glisser depuis le vide : sélection au lasso ; poignées : redimensionner, pivoter (texte : une poignée verticale fixe la hauteur de la zone) ; double-clic ou Retour : éditer les points ou le texte | ⇧-clic : ajouter/retirer ; ⇧ : proportions, angle par 15° ; ⌥ : depuis le centre |
 | Plan de travail | A | glisser : dessiner un plan de travail ; l'inspecteur propose des tailles prédéfinies | ⇧ : carré ; ⌥ : depuis le centre |
 | Plume | V | clic : point d'angle ; clic-glisser : point de courbe ; clic sur le premier point : fermer ; Retour ou Échap : terminer ouvert | — |
 | Crayon | P | glisser : trait à main levée, lissé en courbes au relâchement | — |
@@ -30,6 +30,8 @@ Une forme tracée d'un simple clic (moins de 2 pixels à l'écran) est abandonn�
 
 - **Repères d'alignement** : en déplaçant, redimensionnant ou dessinant, bords et centres s'aimantent à moins
   de 5 pixels écran de ceux des autres calques visibles ; une ligne de repère s'affiche.
+- **Grille** d'un plan de travail : à défaut de repère, les bords s'aimantent à ses lignes et aux bords de ses
+  colonnes (voir [Plans de travail](../guides/plans-de-travail.md)). ⌘ maintenu en glissant ignore repères et grille.
 - **Bulle d'information** près du curseur en redimensionnant ou pivotant : mode (libre, proportionnel,
   depuis le centre) ou angle.
 - **Zoom** : de 5 % à 6400 %.

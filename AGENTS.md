@@ -12,6 +12,8 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 - Build the app: `npm run tauri build`
 - Examples (File › Examples; the web version opens the first at launch): SVGs in `static/exemples/`, listed in
   `EXAMPLES` (app/files); `svg.test.ts` checks each one imports and is listed
+- Screenshots: `npm run captures` with `npm run dev` running (Chrome via playwright-core) redoes the whole-window
+  captures of docs/img and site/img as WebP; cropped ones are taken by hand
 - Presentation site: `npm run site` → `_site/` (site/ pages, docs/ and CHANGELOG.md as HTML, the web editor under app/,
   built with `BASE_PATH=/plume/app`); `.github/workflows/pages.yml` publishes it to GitHub Pages from main
 
@@ -21,9 +23,10 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 src-tauri/src/lib.rs   Rust commands: read_text, read_bytes, write_bytes (atomic), launch_file (+ macOS Finder opens), system_fonts (fontdb); dialog plugin
 src/lib/
   model/      Layer (+ transforms, border), geometry (Pt, Affine, Bézier bounds/hit), path-data,
-              point-editing, curve-fit, layer-tree helpers, color, effects, codable (file format),
+              point-editing, curve-fit, layer-tree helpers, color, effects, grid (artboard grid, snapping), codable (file format),
               boolean (union/subtract/… via paper.js), outline (border → filled shape),
-              text (layout, measuring, glyph outlines via fontkit; fonts bundled in static/fonts or installed)
+              text (layout, measuring, glyph outlines via fontkit; fonts bundled in static/fonts or installed),
+              images (bitmap store: bytes by key, header sniffing; layers hold only the key)
   document/   Doc (state, undo, editing ops, zoom, load/save data), Tool
   svg/        import (DOMParser → element tree → layers; gradients, masks as clips, filters), export, syntax
   app/        files (panels/read/write, recents, save prompt, export), render (PNG/JPG/PDF from SVG),
@@ -103,7 +106,10 @@ Logic that can be tested without a window belongs in model/document, not in comp
 1. Note changes under `## Non publié` in CHANGELOG.md as you go.
 2. `npm version patch|minor|major`: runs tests, type check and lint, bumps package.json (tauri.conf.json reads it),
    Cargo.toml and Cargo.lock, dates the changelog section, commits `Plume x.y.z`, tags `vx.y.z` and pushes.
-3. The tag triggers `.github/workflows/release.yml`: macOS, Linux and Windows bundles, release notes from the changelog.
+3. The tag triggers `.github/workflows/release.yml`: macOS (signed with Developer ID and notarized, `APPLE_*` secrets), Linux
+   and Windows bundles, release notes from the changelog.
    Then package managers: winget (Komac), Scoop (`packaging/scoop/`, stakovicz/scoop-bucket), Homebrew cask (stakovicz/homebrew-tap), AUR (`packaging/aur/`), Snap Store (`snap/`), Flathub (`flatpak/`, source lists from
    `scripts/flatpak-sources.sh`, checked by flatpak.yml);
-   pages.yml rebuilds the APT and RPM repositories on the site (`scripts/linux-repos.sh`). User guide: docs/guides/installer.md.
+   pages.yml rebuilds the APT and RPM repositories on the site (`scripts/linux-repos.sh`).
+   Their secrets live in the `release` environment (tags v* and main only); third-party actions are pinned by SHA
+   (Dependabot updates them). User guide: docs/guides/installer.md.

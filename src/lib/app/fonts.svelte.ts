@@ -68,10 +68,3 @@ export function loadUsedFonts(ls: Layer[]) {
 
 /** Bundled fonts a standalone SVG uses (as written by svg/export). */
 export const fontsIn = (svg: string) => files.filter((f) => svg.includes(`font-family="${f.family}"`));
-
-export function base64(data: ArrayBuffer | Uint8Array) {
-  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
-  let s = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  return btoa(s);
-}

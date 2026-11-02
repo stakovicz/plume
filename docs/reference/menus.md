@@ -20,6 +20,7 @@ Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj
 | Exemples | | Illustration, Icône d'application, Affiche, Tableau de bord, Pictogrammes, Motif : ouverts comme un nouveau document sans titre |
 | Enregistrer | ⌘S | dans le fichier en cours, ou demande où (navigateur : téléchargement) |
 | Enregistrer sous… | ⇧⌘S | nouveau fichier `.plm` |
+| Importer une image… | ⇧⌘I | PNG, JPG, WebP ou GIF dans le plan de travail de la sélection (voir [Importer une image](../guides/importer-une-image.md)) |
 | Exporter… | ⌘E | PDF, SVG, PNG, JPG (voir [Exporter](../guides/exporter.md)) |
 
 ## Édition
@@ -27,7 +28,7 @@ Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj
 | Commande | Raccourci | Effet |
 |---|---|---|
 | Annuler / Rétablir | ⌘Z / ⇧⌘Z | |
-| Couper / Copier / Coller | ⌘X / ⌘C / ⌘V | calques (ou texte dans un champ) ; colle aussi du SVG |
+| Couper / Copier / Coller | ⌘X / ⌘C / ⌘V | calques (ou texte dans un champ) ; colle aussi du SVG et des images |
 | Dupliquer | ⌘D | copie juste au-dessus, sans toucher au presse-papier |
 | Tout sélectionner | ⌘A | calques visibles du niveau en cours (ou texte du champ) |
 
@@ -48,6 +49,9 @@ Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), 
 | Grouper / Dégrouper | ⌘G / ⇧⌘G |
 | Avancer / Reculer | ⌥⌘↑ / ⌥⌘↓ |
 | Mettre au premier plan / à l'arrière-plan | ⌃⌥⌘↑ / ⌃⌥⌘↓ (Linux : Ctrl+Maj+Alt+↑ / ↓) |
+| Aligner › à gauche / Centrer horizontalement / à droite | ⌥A / ⌥H / ⌥D |
+| Aligner › en haut / Centrer verticalement / en bas | ⌥W / ⌥V / ⌥S |
+| Répartir › horizontalement / verticalement | ⌥⇧H / ⌥⇧V |
 | Afficher/Masquer | ⇧⌘H |
 | Verrouiller/Déverrouiller | ⇧⌘L |
 
@@ -58,6 +62,8 @@ Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), 
 | Zoom avant / arrière | ⌘= / ⌘- |
 | Taille réelle | ⌘0 |
 | Tout afficher | ⌘1 |
+| Afficher/Masquer les grilles | ⌘' |
+| Activer/Désactiver le magnétisme de la grille | |
 | Afficher/Masquer le navigateur | ⌥⌘1 |
 | Afficher/Masquer l'inspecteur | ⌥⌘2 |
 

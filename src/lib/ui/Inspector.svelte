@@ -3,13 +3,17 @@
   import type { Doc } from '$lib/document/doc.svelte';
   import type { RGBA } from '$lib/model/color';
   import { defaultShadow } from '$lib/model/effects';
+  import { type Columns, type Grid, defaultColumns, defaultGrid } from '$lib/model/grid';
   import { type Rect, POINT_TYPES, apply, pt, rectOf, union } from '$lib/model/geometry';
   import { pointType } from '$lib/model/point-editing';
+  import { parent } from '$lib/model/layer-tree';
   import {
-    type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
+    type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, atOriginalSize, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
+    withImage,
   } from '$lib/model/layer';
-  import { type TextStyle, FONTS, TEXT_ALIGNS } from '$lib/model/text';
+  import { type TextStyle, FONTS, TEXT_ALIGNS, TEXT_VALIGNS } from '$lib/model/text';
   import { loadFamily, systemFonts } from '$lib/app/fonts.svelte';
+  import { pickImage } from '$lib/app/files.svelte';
   import Button from '$lib/ui/kit/Button.svelte';
   import Select from '$lib/ui/kit/Select.svelte';
   import FontField from '$lib/ui/kit/FontField.svelte';
@@ -31,6 +35,11 @@
 
   // L() keys stay literal so the localization test finds them
   const COMBINE = [['union', L('Union'), 'U'], ['subtract', L('Subtract'), 'S'], ['intersect', L('Intersect'), 'I'], ['difference', L('Difference'), 'X']] as const;
+  const ALIGN = [
+    ['left', L('Align Left'), 'A'], ['center', L('Align Horizontal Centers'), 'H'], ['right', L('Align Right'), 'D'],
+    ['top', L('Align Top'), 'W'], ['middle', L('Align Vertical Centers'), 'V'], ['bottom', L('Align Bottom'), 'S'],
+  ] as const;
+  const DISTRIBUTE = [[true, 'distribute-horizontal', L('Distribute Horizontally'), 'H'], [false, 'distribute-vertical', L('Distribute Vertically'), 'V']] as const;
 
   /** Several layers: the sections they all have, values shown when they agree (`same`), edits applied to all
    *  the unlocked ones as one undo step. `l` is the first one, the reference for what is shown. */
@@ -65,6 +74,8 @@
     value: t, icon: t, title: { straight: L('Straight'), mirrored: L('Mirrored'), disconnected: L('Disconnected'), asymmetric: L('Asymmetric') }[t],
   }));
   const locked = $derived(sel.length > 0 && all((x) => doc.isLocked(x.id)));
+  /** A single layer aligns on its group or artboard: none at the top level. */
+  const alignable = $derived(!locked && (multi || (!!l && !!parent(doc.layers, l.id))));
   // frame: the layer's unrotated one; several layers: their bounds together. Once per change: costly for big groups
   const r = $derived(multi ? sel.map(bounds).reduce<Rect | null>(union, null) : l && localBounds(l));
   const b = $derived.by(() => {
@@ -75,6 +86,8 @@
 
   /** Corner radius fields shown one by one (always, when the corners differ). */
   let corners = $state(false);
+  /** Text padding fields shown side by side (always, when the sides differ). */
+  let paddings = $state(false);
 
   /** Snapshots of the layers an edit applies to. */
   const targets = (ls = sel) => ls.filter((x) => !doc.isLocked(x.id)).map((x) => $state.snapshot(x) as Layer);
@@ -85,9 +98,16 @@
   const style = (patch: Patch) => doc.styleEdits(patched(sel, patch));
   /** Same, for fill, border and text (`painted`). */
   const pStyle = (patch: Patch) => doc.styleEdits(patched(painted, patch));
+  /** Continuous grid or columns change (artboards). */
+  const gridStyle = (patch: Partial<Grid>) => style((c) => ({ grid: { ...c.grid!, ...patch } }));
+  const columnsStyle = (patch: Partial<Columns>) => style((c) => ({ columns: { ...c.columns!, ...patch } }));
   /** Continuous text style change: each box refits to its restyled lines. */
   function textStyle(patch: Partial<TextStyle>) {
-    doc.styleEdits(targets(painted).filter((c) => c.text).map((c) => [c.id, refit({ ...c, text: { ...c.text!, ...patch } }, c)]));
+    textEdit(() => patch);
+  }
+  /** Same, the patch computed from each layer's own style. */
+  function textEdit(f: (t: TextStyle) => Partial<TextStyle>) {
+    doc.styleEdits(targets(painted).filter((c) => c.text).map((c) => [c.id, refit({ ...c, text: { ...c.text!, ...f(c.text!) } }, c)]));
   }
   /** Bundled families first (an unknown one, from an imported file, with them), then the installed ones. */
   const fontOptions = (font: string) => [
@@ -145,10 +165,12 @@
 
   const titles: Record<string, string> = {
     center: L('Center'), inside: L('Inside'), outside: L('Outside'),
-    left: L('Left'), right: L('Right'), regular: L('Regular'), bold: L('Bold'), auto: L('Auto'), fixed: L('Fixed'),
+    left: L('Left'), right: L('Right'), justify: L('Justify'), top: L('Top'), middle: L('Middle'), bottom: L('Bottom'), regular: L('Regular'), bold: L('Bold'), auto: L('Auto'), fixed: L('Fixed'),
     butt: L('Butt'), round: L('Round'), square: L('Square'), miter: L('Miter'), bevel: L('Bevel'),
   };
   const options = <T extends string>(all: readonly T[]) => all.map((value) => ({ value, title: titles[value] }));
+  const textIcons = <T extends 'left' | 'center' | 'right' | 'justify' | 'top' | 'middle' | 'bottom'>(all: readonly T[]) =>
+    all.map((value) => ({ value, title: titles[value], icon: `text-${value}` as const }));
 
   const presetGroups = { Screen: L('Screen'), Paper: L('Paper') };
   const presetOptions = PRESETS.map((p) => ({ value: p.name, title: `${p.name} — ${p.width}×${p.height}`, group: presetGroups[p.group] }));
@@ -180,6 +202,16 @@
       </Section>
     {/each}
   {:else if l && b}
+    <Section>
+      <div class="align" role="toolbar" aria-label={L('Align')}>
+        {#each ALIGN as [to, text, key] (to)}
+          <IconButton quiet icon="align-{to}" label="{text} (⌥{key})" disabled={!alignable} onclick={() => doc.align(to)} />
+        {/each}
+        {#each DISTRIBUTE as [horizontal, icon, text, key] (icon)}
+          <IconButton quiet {icon} label="{text} (⌥⇧{key})" disabled={locked || sel.length < 3} onclick={() => doc.distribute(horizontal)} />
+        {/each}
+      </div>
+    </Section>
     {#if multi}
       <!-- several layers: what can be done with them together, then the sections they all have -->
       <Section title={L('%d layers selected', sel.length)}>
@@ -187,7 +219,7 @@
           <Button disabled={!doc.canGroup} onclick={() => doc.group()}>{L('Group Layers')}</Button>
           <div class="combine" role="toolbar" aria-label={L('Combine')}>
             {#each COMBINE as [op, text, key] (op)}
-              <IconButton quiet icon={op} label="{text} (⌥⌘{key})" disabled={!doc.canGroup} onclick={() => doc.combine(op)} />
+              <IconButton quiet icon={op} label="{text} (⌥⌘{key})" disabled={!doc.canCombine} onclick={() => doc.combine(op)} />
             {/each}
           </div>
         </Row>
@@ -225,7 +257,8 @@
         {#if !multi}<IconButton quiet icon={l.lockRatio ? 'lock' : 'lock-open'} label={L('Lock proportions')} active={l.lockRatio} disabled={locked}
           onclick={() => edit((x) => ({ ...x, lockRatio: !x.lockRatio }))} />{/if}
       </Row>
-      {#if all((x) => x.kind === 'rect')}
+      {#if all((x) => x.kind === 'rect' || x.kind === 'text')}
+        <!-- text: the corners of its box (background and border) -->
         {@const uneven = !all((x) => x.corners.every((r) => r === x.corners[0]))}
         <Row label={L('Radius')} single>
           <NumberField label={L('Corner radius')} value={uneven ? NaN : num((x) => x.corners[0])} min={0} disabled={locked}
@@ -260,6 +293,15 @@
       {/if}
     </Section>
 
+    {#if !multi && l.image}
+      {@const img = l.image}
+      <Section title={L('Image')}>
+        <Row label={L('Original')}><span class="value">{img.width} × {img.height} px</span></Row>
+        <Row><Button disabled={locked} onclick={() => edit(atOriginalSize)}>{L('Original Size')}</Button></Row>
+        <Row><Button disabled={locked} onclick={() => pickImage().then((p) => p && edit((x) => withImage(x, p.image)))}>{L('Replace…')}</Button></Row>
+      </Section>
+    {/if}
+
     {#if node}
       <Section title={L('Point')}>
         <Row label={L('Type')}>
@@ -277,6 +319,11 @@
       </Section>
     {:else if pAll((x) => !!x.text)}
       <Section title={L('Text')}>
+        <Row label={!pMulti && lp.fillGradient ? L('Gradient') : L('Color')} single>
+          <ColorField label={L('Text color')} color={lp.fill} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.fillGradient}
+            onchange={(fill) => pStyle({ fill, fillGradient: undefined })}
+            ongradient={pMulti ? undefined : (g) => pStyle(g ? { fillGradient: g, fill: g.stops[0].color } : { fillGradient: undefined })} />
+        </Row>
         <Row label={L('Font')}>
           <FontField label={L('Font')} options={fontOptions(pPick((x) => x.text!.font))} value={pPick((x) => x.text!.font)} disabled={locked}
             onchange={(font) => loadFamily(font).then(() => textStyle({ font }))} />
@@ -288,27 +335,58 @@
         <Row label={L('Size')} single>
           <NumberField label={L('Size')} value={pNum((x) => x.text!.size)} min={1} disabled={locked} onchange={(size) => textStyle({ size })} />
         </Row>
-        <Row label={L('Line / Letter')}>
+        <Row label={L('Line height')} single>
           <NumberField label={L('Line height')} value={pNum((x) => x.text!.lineHeight)} digits={2} min={0.5} max={5} suffix="×" disabled={locked}
             onchange={(lineHeight) => textStyle({ lineHeight })} />
+        </Row>
+        <Row label={L('Tracking')} single>
           <NumberField label={L('Letter spacing')} value={pNum((x) => x.text!.letterSpacing)} digits={1} disabled={locked}
             onchange={(letterSpacing) => textStyle({ letterSpacing })} />
         </Row>
         <Row label={L('Alignment')}>
-          <Segmented label={L('Alignment')} value={pPick((x) => x.text!.align)} options={options(TEXT_ALIGNS)} disabled={locked} onchange={(align) => textStyle({ align })} />
+          <Segmented label={L('Alignment')} value={pPick((x) => x.text!.align)} options={textIcons(TEXT_ALIGNS)} disabled={locked} onchange={(align) => textStyle({ align })} />
+        </Row>
+        <Row label={L('Vertical')}>
+          <!-- where the lines sit in a fixed-height box -->
+          <Segmented label={L('Vertical alignment')} value={pPick((x) => x.text!.verticalAlign)} options={textIcons(TEXT_VALIGNS)}
+            disabled={locked || pAll((x) => x.text!.autoHeight)} onchange={(verticalAlign) => textStyle({ verticalAlign })} />
+        </Row>
+      </Section>
+      <Section title={L('Block')}>
+        <Row label={!pMulti && lp.backgroundGradient ? L('Gradient') : L('Background')} single>
+          <ColorField label={L('Background')} color={lp.background} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.backgroundGradient}
+            onchange={(background) => pStyle({ background, backgroundGradient: undefined })}
+            ongradient={pMulti ? undefined : (g) => pStyle(g ? { backgroundGradient: g, background: g.stops[0].color } : { backgroundGradient: undefined })} />
         </Row>
         <Row label={L('Box width')}>
           <!-- auto: fits the longest line; fixed: lines wrap at the box width (resize the box to change it) -->
           <Segmented label={L('Box width')} value={pPick((x) => (x.text!.autoWidth ? 'auto' : 'fixed'))} options={options(['auto', 'fixed'])} disabled={locked}
             onchange={(w) => textStyle({ autoWidth: w === 'auto' })} />
         </Row>
-        <Row label={!pMulti && lp.fillGradient ? L('Gradient') : L('Color')} single>
-          <ColorField label={L('Text color')} color={lp.fill} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.fillGradient}
-            onchange={(fill) => pStyle({ fill, fillGradient: undefined })}
-            ongradient={pMulti ? undefined : (g) => pStyle(g ? { fillGradient: g, fill: g.stops[0].color } : { fillGradient: undefined })} />
+        <Row label={L('Box height')}>
+          <!-- auto: fits the lines; fixed: the lines sit in it (and overflow it, visibly) -->
+          <Segmented label={L('Box height')} value={pPick((x) => (x.text!.autoHeight ? 'auto' : 'fixed'))} options={options(['auto', 'fixed'])} disabled={locked}
+            onchange={(h) => textStyle({ autoHeight: h === 'auto' })} />
         </Row>
+        {@const unevenPadding = !pAll((x) => x.text!.padding.every((v) => v === x.text!.padding[0]))}
+        <Row label={L('Padding')} single>
+          <NumberField label={L('Padding')} value={unevenPadding ? NaN : pNum((x) => x.text!.padding[0])} min={0} disabled={locked}
+            onchange={(v) => textStyle({ padding: [v, v, v, v] })} />
+          <IconButton quiet icon="padding" label={L('Independent sides')} active={paddings || unevenPadding} disabled={locked}
+            onclick={() => (unevenPadding ? textEdit((t) => ({ padding: t.padding.map(() => t.padding[0]) })) : (paddings = !paddings))} />
+        </Row>
+        {#if paddings || unevenPadding}
+          {#each [[L('Vertical'), 0, 2, L('Top'), L('Bottom')], [L('Horizontal'), 3, 1, L('Left'), L('Right')]] as const as [row, a, b, la, lb] (row)}
+            <Row label={row} reserve>
+              {#each [[a, la], [b, lb]] as const as [i, label] (i)}
+                <NumberField {label} value={pNum((x) => x.text!.padding[i])} min={0} disabled={locked}
+                  onchange={(v) => textEdit((t) => ({ padding: t.padding.map((p, j) => (j === i ? v : p)) }))} />
+              {/each}
+            </Row>
+          {/each}
+        {/if}
       </Section>
-    {:else if pAll((x) => !isContainer(x) && !x.text)}
+    {:else if pAll((x) => !isContainer(x) && !x.text && !x.image)}
       <Section title={L('Fill')}>
         <!-- fill type (color, linear, radial gradient) is picked in the color panel -->
         <Row label={!pMulti && lp.fillGradient ? L('Gradient') : L('Color')} single>
@@ -317,7 +395,10 @@
             ongradient={pMulti ? undefined : (g) => pStyle(g ? { fillGradient: g, fill: g.stops[0].color } : { fillGradient: undefined })} />
         </Row>
       </Section>
+    {/if}
 
+    {#if pAll((x) => !isContainer(x) && !x.image)}
+      <!-- text: its box's border; images have none -->
       <Section title={L('Border')}>
         <Row label={!pMulti && lp.strokeGradient ? L('Gradient') : L('Color')} single>
           <ColorField label={L('Border')} color={lp.stroke} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.strokeGradient}
@@ -333,8 +414,10 @@
           <Segmented label={L('Position')} value={pPick((x) => x.borderPosition)} options={options(BORDER_POSITIONS)} disabled={locked || !pAll(isClosed)}
             onchange={(borderPosition) => pStyle({ borderPosition })} />
         </Row>
-        <Row label={L('Dash / Gap')}>
+        <Row label={L('Dash')} single>
           <NumberField label={L('Dash')} value={pNum((x) => x.dash[0] ?? 0)} min={0} disabled={locked} onchange={(v) => dashPart(0, v)} />
+        </Row>
+        <Row label={L('Gap')} single>
           <NumberField label={L('Gap')} value={pNum((x) => x.dash[1] ?? 0)} min={0} disabled={locked} onchange={(v) => dashPart(1, v)} />
         </Row>
         <Row label={L('Ends')}>
@@ -346,11 +429,50 @@
       </Section>
     {/if}
 
+    {#if !multi && l.kind === 'artboard'}
+      <!-- drawn on the canvas only; View › Show/Hide Grids and Snap to Grid apply to all of them -->
+      <Section title={L('Grid')}>
+        {#snippet action()}
+          <Toggle label={L('Grid')} checked={!!l.grid} disabled={locked} onchange={(on) => style((c) => ({ grid: on ? (c.grid ?? defaultGrid()) : undefined }))} />
+        {/snippet}
+        {#if l.grid}
+          {@const g = l.grid}
+          <Row label={L('Size')} single>
+            <NumberField label={L('Grid size')} value={g.size} min={1} disabled={locked} onchange={(size) => gridStyle({ size })} />
+          </Row>
+          <Row label={L('Major')} single>
+            <!-- a stronger line every N squares; 0: none -->
+            <NumberField label={L('Major line every')} value={g.major} min={0} digits={0} disabled={locked} onchange={(major) => gridStyle({ major: Math.round(major) })} />
+          </Row>
+        {/if}
+      </Section>
+      <Section title={L('Columns')}>
+        {#snippet action()}
+          <Toggle label={L('Columns')} checked={!!l.columns} disabled={locked}
+            onchange={(on) => style((c) => ({ columns: on ? (c.columns ?? defaultColumns()) : undefined }))} />
+        {/snippet}
+        {#if l.columns}
+          {@const c = l.columns}
+          <Row label={L('Number')} single>
+            <NumberField label={L('Number of columns')} value={c.count} min={1} max={48} digits={0} disabled={locked} onchange={(count) => columnsStyle({ count: Math.round(count) })} />
+          </Row>
+          <Row label={L('Gutter')} single>
+            <NumberField label={L('Gutter')} value={c.gutter} min={0} disabled={locked} onchange={(gutter) => columnsStyle({ gutter })} />
+          </Row>
+          <Row label={L('Margin')} single>
+            <NumberField label={L('Margin')} value={c.margin} min={0} disabled={locked} onchange={(margin) => columnsStyle({ margin })} />
+          </Row>
+        {/if}
+      </Section>
+    {/if}
+
     {#if all((x) => x.kind !== 'artboard')}
-    <Section title={L('Effects')}>
+    <Section title={L('Shadow')}>
       <!-- several layers: the shadow's fields appear when they all have one -->
-      <Toggle label={L('Shadow')} checked={all((x) => !!x.shadow)} disabled={locked}
-        onchange={(on) => style((c) => ({ shadow: on ? (c.shadow ?? defaultShadow()) : undefined }))} />
+      {#snippet action()}
+        <Toggle label={L('Shadow')} checked={all((x) => !!x.shadow)} disabled={locked}
+          onchange={(on) => style((c) => ({ shadow: on ? (c.shadow ?? defaultShadow()) : undefined }))} />
+      {/snippet}
       {#if all((x) => !!x.shadow)}
         {@const s = l.shadow!}
         <Row label={L('Color')} single>
@@ -365,6 +487,8 @@
             onchange={(blur) => style((c) => ({ shadow: { ...c.shadow!, blur } }))} />
         </Row>
       {/if}
+    </Section>
+    <Section title={L('Effects')}>
       <Row label={L('Layer blur')} single>
         <NumberField label={L('Layer blur')} value={num((x) => x.blur)} min={0} max={100} disabled={locked} onchange={(blur) => style({ blur })} />
       </Row>
@@ -379,9 +503,16 @@
   .inspector {
     overflow-y: auto;
   }
+  .value {
+    color: var(--text-2);
+  }
   .combine {
     display: flex;
     gap: var(--space-1);
+  }
+  .align {
+    display: flex;
+    justify-content: space-between;
   }
   .empty {
     display: grid;

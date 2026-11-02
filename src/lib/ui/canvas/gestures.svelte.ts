@@ -1,8 +1,9 @@
 import { L } from '$lib/i18n';
 import type { Doc } from '$lib/document/doc.svelte';
 import type { Tool } from '$lib/document/tool';
-import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectContains, rectOf, rotateAround, scaleAround, translate, union } from '$lib/model/geometry';
+import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectCenter, rectContains, rectOf, rotateAround, scaleAround, translate, union } from '$lib/model/geometry';
 import { type Guide, pointRect, snapAlong, snapRect } from '$lib/model/snapping';
+import { snapToGrid } from '$lib/model/grid';
 import { fitCurve } from '$lib/model/curve-fit';
 import { fitted } from '$lib/model/text';
 import {
@@ -48,6 +49,8 @@ export class Gestures {
   /** Smart guides of the current drag, document space. */
   guides = $state<Guide[]>([]);
   #targets: Rect[] = []; // what the drag snaps to, taken on mouse-down
+  #dragged = new Set<string>(); // what the drag moves: an artboard doesn't snap to its own grid
+  #free = false; // ⌘ (Ctrl) held: no snapping at all
   #from = pt(0, 0); // where a drawing starts, document space, snapped
   #drag: Drag = { kind: 'ignore' };
   #start: Pt | null = null; // view space
@@ -60,15 +63,17 @@ export class Gestures {
   /** Rotation handle: above the top edge, in the layer's rotated frame, 20 screen px away. */
   rotateHandle(l: Layer, b: Rect) { return toWorld(l, pt(b.x + b.width / 2, b.y - 20 / this.doc.zoom)); }
 
-  down(at: Pt, shiftClick: boolean) {
+  down(at: Pt, shiftClick: boolean, free = false) {
     this.#start = this.#last = at;
+    this.#free = free;
     this.#drag = this.#begin(this.doc.toDoc(at), shiftClick);
     this.doc.dragging = true;
   }
 
-  move(at: Pt) {
+  move(at: Pt, free = false) {
     if (!this.#start) return;
     this.#last = at;
+    this.#free = free;
     const doc = this.doc, start = doc.toDoc(this.#start), loc = doc.toDoc(at);
     let d = pt((at.x - this.#start.x) / doc.zoom, (at.y - this.#start.y) / doc.zoom);
     const g = this.#drag;
@@ -86,12 +91,18 @@ export class Gestures {
         const q = toWorld(g.o, handlePoint(g.h, localBounds(g.o))), tol = SNAP_PX / doc.zoom;
         if (g.h.x === 0.5 || g.h.y === 0.5) { // side handle: slides along one local axis
           const r = g.o.rotation, u = g.h.y === 0.5 ? pt(Math.cos(r), Math.sin(r)) : pt(-Math.sin(r), Math.cos(r));
-          const along = d.x * u.x + d.y * u.y, t = snapAlong(pt(q.x + u.x * along, q.y + u.y * along), u, this.#targets, tol);
+          const along = d.x * u.x + d.y * u.y, p = pt(q.x + u.x * along, q.y + u.y * along);
+          let t = this.#free ? 0 : snapAlong(p, u, this.#targets, tol);
+          if (t === 0 && r === 0) { // unrotated: u is an axis, the grid can pull along it
+            const s = this.#gridSnap(pointRect(p), { x: u.x !== 0, y: u.y !== 0 });
+            t = s.x * u.x + s.y * u.y;
+          }
           d = pt(d.x + u.x * t, d.y + u.y * t);
         } else {
-          d = add(d, snapRect(pointRect(add(q, d)), this.#targets, tol).d);
+          d = add(d, this.#snap(pointRect(add(q, d))));
         }
-        this.guides = snapRect(pointRect(this.#resize(g.o, g.h, d)), this.#targets, 0).guides;
+        const end = this.#resize(g.o, g.h, d);
+        this.guides = this.#free ? [] : snapRect(pointRect(end), this.#targets, 0).guides;
         const proportional = doc.shift || g.o.lockRatio;
         let text = proportional ? L('Proportional') : `${L('Free')} · ${L('⇧ proportional')}`;
         if (doc.option) text += ` · ${L('from center')}`;
@@ -175,16 +186,31 @@ export class Gestures {
   /** Bounds of what a drag snaps to: visible layers as the canvas picks them (top-level layers, artboards and
    *  their children, the children of the group being worked in), minus `except`. */
   #snapTargets(except: Set<string>, scope: Layer[] = []): Rect[] {
+    this.#dragged = except;
     const ok = (l: Layer) => !l.hidden && !except.has(l.id);
     const ls = [...this.doc.layers.flatMap((l) => (l.kind === 'artboard' ? [l, ...l.children] : [l])), ...scope];
     return ls.filter(ok).map(bounds);
   }
 
-  /** Offset that snaps `r` to the targets; shows the guides. */
-  #snap(r: Rect, axes?: { x: boolean; y: boolean }): Pt {
+  /** Offset that snaps `r` to the targets, else (axis by axis) to the grid it is on; shows the guides. */
+  #snap(r: Rect, axes = { x: true, y: true }): Pt {
+    if (this.#free) {
+      this.guides = [];
+      return pt(0, 0);
+    }
     const s = snapRect(r, this.#targets, SNAP_PX / this.doc.zoom, axes);
     this.guides = s.guides;
-    return s.d;
+    const loose = (axis: 'x' | 'y') => axes[axis] && !s.guides.some((g) => g.axis === axis); // a guide wins
+    const g = this.#gridSnap(r, { x: loose('x'), y: loose('y') });
+    return pt(loose('x') ? g.x : s.d.x, loose('y') ? g.y : s.d.y);
+  }
+
+  /** Offset onto the grid of the artboard under the center of `r`, when grids are shown and magnetic. */
+  #gridSnap(r: Rect, axes: { x: boolean; y: boolean }): Pt {
+    const doc = this.doc, c = rectCenter(r);
+    if (this.#free || !doc.showGrids || !doc.snapToGrid) return pt(0, 0);
+    const a = artboards(doc.layers).findLast((a) => !a.hidden && !this.#dragged.has(a.id) && rectContains(localBounds(a), c));
+    return a && (a.grid || a.columns) ? snapToGrid(r, localBounds(a), a, SNAP_PX / doc.zoom, axes) : pt(0, 0);
   }
 
   #snapPoint(p: Pt): Pt { return add(p, this.#snap(pointRect(p))); }

@@ -3,12 +3,15 @@ import { type Node, type Pt, type Rect, type Subpath, midX, node, pt, rectOf } f
 import type { Layer } from './layer';
 
 /** Text layers: `points` are the text box, `text` the content and its style, one style per layer.
- *  An auto-width box fits its widest line; a fixed-width one wraps at word boundaries. Either way the
- *  height fits the lines. Layout, measuring and outlines all come from the same font files (bundled in
+ *  An auto-width box fits its widest line; a fixed-width one wraps at word boundaries. An auto-height box
+ *  fits the lines; in a fixed-height one they sit at the top, middle or bottom (and overflow, visible).
+ *  `padding` insets the lines from the box, whose background and border are the layer's (`textBox`). Layout, measuring and outlines all come from the same font files (bundled in
  *  static/fonts or installed on the system, registered by the app or the tests), so the canvas, exports and outlines agree. */
 
-export const TEXT_ALIGNS = ['left', 'center', 'right'] as const;
+export const TEXT_ALIGNS = ['left', 'center', 'right', 'justify'] as const;
 export type TextAlign = (typeof TEXT_ALIGNS)[number];
+export const TEXT_VALIGNS = ['top', 'middle', 'bottom'] as const;
+export type TextVAlign = (typeof TEXT_VALIGNS)[number];
 
 export type TextStyle = {
   content: string;
@@ -17,12 +20,16 @@ export type TextStyle = {
   weight: number; // 400 or 700 (what svg2pdf maps to normal/bold); measured with the family's nearest face
   lineHeight: number; // multiple of the size
   letterSpacing: number; // px, after each character (like CSS)
-  align: TextAlign;
+  align: TextAlign; // justify: wrapped lines fill the width, a paragraph's last line stays left (like CSS)
   autoWidth: boolean;
+  autoHeight: boolean;
+  verticalAlign: TextVAlign; // in a fixed-height box
+  padding: number[]; // top, right, bottom, left
 };
 
 export const DEFAULT_TEXT: TextStyle = {
   content: '', font: 'Fira Sans', size: 16, weight: 400, lineHeight: 1.2, letterSpacing: 0, align: 'left', autoWidth: true,
+  autoHeight: true, verticalAlign: 'top', padding: [0, 0, 0, 0],
 };
 
 /** Bundled fonts, by family and weight → file in static/fonts. */
@@ -105,23 +112,35 @@ export function measure(t: TextStyle, s: string): number {
   return (r.advanceWidth * t.size) / f.unitsPerEm + r.glyphs.length * t.letterSpacing;
 }
 
-/** Lines as drawn: the content's own line breaks, plus word wrap in a fixed-width box.
+/** Lines as drawn: the content's own line breaks, plus word wrap in a fixed-width box (`width` inside the padding).
+ *  `wraps`: the line was broken by the wrap, not at a paragraph's end (justify stretches those).
  *  ponytail: a word longer than the box overflows instead of breaking. */
-export function textLines(t: TextStyle, width: number): string[] {
+function wrapped(t: TextStyle, width: number): { text: string; wraps: boolean }[] {
   const paragraphs = t.content.split('\n');
-  if (t.autoWidth) return paragraphs;
+  if (t.autoWidth) return paragraphs.map((text) => ({ text, wraps: false }));
   return paragraphs.flatMap((para) => {
-    const lines: string[] = [];
+    const lines: { text: string; wraps: boolean }[] = [];
     let line = '';
     for (const word of para.split(' ')) {
       const next = line ? `${line} ${word}` : word;
       if (line && measure(t, next) > width + 0.01) {
-        lines.push(line);
+        lines.push({ text: line, wraps: true });
         line = word;
       } else line = next;
     }
-    return [...lines, line];
+    return [...lines, { text: line, wraps: false }];
   });
+}
+
+export const textLines = (t: TextStyle, width: number) => wrapped(t, width).map((l) => l.text);
+
+/** Lines start at their anchor `x` (left or justified), else it is their center or right end. */
+export const startsAtAnchor = (t: TextStyle) => t.align === 'left' || t.align === 'justify';
+
+/** The box less the padding. */
+function innerBox(t: TextStyle, b: Rect): Rect {
+  const [top, right, bottom, left] = t.padding;
+  return { x: b.x + left, y: b.y + top, width: b.width - left - right, height: b.height - top - bottom };
 }
 
 const lineBox = (t: TextStyle) => t.size * t.lineHeight;
@@ -133,25 +152,47 @@ export function firstBaseline(t: TextStyle) {
   return (lineBox(t) - asc - desc) / 2 + asc;
 }
 
-/** Each line with its anchor `x` (left, center or right per `align`) and baseline `y`, in the layer's local space. */
-export function layout(l: Layer): { text: string; x: number; y: number }[] {
-  const t = l.text!, b = rectOf(l.points)!;
-  const x = t.align === 'left' ? b.x : t.align === 'center' ? midX(b) : b.x + b.width;
-  const y0 = b.y + firstBaseline(t);
-  return textLines(t, b.width).map((text, i) => ({ text, x, y: y0 + i * lineBox(t) }));
+export type TextLine = { text: string; x: number; y: number; words?: { text: string; x: number }[] };
+
+/** Each line with its anchor `x` (left, center or right per `align`) and baseline `y`, in the layer's local space.
+ *  A justified line that wraps also has its `words`, each at its own `x`, the spaces stretched to fill the width. */
+export function layout(l: Layer): TextLine[] {
+  const t = l.text!, b = innerBox(t, rectOf(l.points)!), lines = wrapped(t, b.width);
+  const x = startsAtAnchor(t) ? b.x : t.align === 'center' ? midX(b) : b.x + b.width;
+  const free = t.autoHeight ? 0 : b.height - lines.length * lineBox(t);
+  const y0 = b.y + { top: 0, middle: free / 2, bottom: free }[t.verticalAlign] + firstBaseline(t);
+  return lines.map(({ text, wraps }, i) => {
+    const line: TextLine = { text, x, y: y0 + i * lineBox(t) };
+    const words = text.split(' ');
+    if (t.align !== 'justify' || !wraps || words.length < 2) return line;
+    const widths = words.map((w) => measure(t, w));
+    const gap = (b.width - widths.reduce((a, w) => a + w, 0)) / (words.length - 1);
+    let at = x;
+    line.words = words.map((w, j) => ({ text: w, x: (at += j ? widths[j - 1] + gap : 0) }));
+    return line;
+  });
 }
 
-/** The box fitted to the content: height = the lines; width = the widest line when auto-width, keeping the
- *  left edge, center or right edge per alignment. Local space; the caller keeps rotated layers in place. */
+/** Where the lines sit: the box less the padding, from the first line's top to the last one's bottom
+ *  (what the canvas's text field covers while typing). */
+export function linesBox(l: Layer): Rect {
+  const t = l.text!, lines = layout(l), b = innerBox(t, rectOf(l.points)!);
+  return { x: b.x, y: lines[0].y - firstBaseline(t), width: b.width, height: lines.length * lineBox(t) };
+}
+
+/** The box fitted to the content plus the padding: height = the lines when auto-height; width = the widest
+ *  line when auto-width, keeping the left edge, center or right edge per alignment. Local space; the caller
+ *  keeps rotated layers in place. */
 export function fitted(l: Layer): Layer {
-  const t = l.text!, b: Rect = rectOf(l.points)!;
-  const lines = textLines(t, b.width);
+  const t = l.text!, b: Rect = rectOf(l.points)!, [top, right, bottom, left] = t.padding;
+  const lines = textLines(t, innerBox(t, b).width);
   let x = b.x, w = b.width;
   if (t.autoWidth) {
-    w = Math.max(0, ...lines.map((s) => measure(t, s)));
-    x = t.align === 'left' ? b.x : t.align === 'center' ? midX(b) - w / 2 : b.x + b.width - w;
+    w = Math.max(0, ...lines.map((s) => measure(t, s))) + left + right;
+    x = startsAtAnchor(t) ? b.x : t.align === 'center' ? midX(b) - w / 2 : b.x + b.width - w;
   }
-  return { ...l, points: [pt(x, b.y), pt(x + w, b.y + lines.length * lineBox(t))] };
+  const h = t.autoHeight ? lines.length * lineBox(t) + top + bottom : b.height;
+  return { ...l, points: [pt(x, b.y), pt(x + w, b.y + h)] };
 }
 
 /** Text with size and spacing scaled by `k` about its box center (proportional resize). */
@@ -168,15 +209,15 @@ export function textScaled(l: Layer, k: number): Layer {
 export function glyphOutlines(l: Layer): Subpath[] {
   const t = l.text!, f = fontOf(t);
   if (!f) return [];
-  return layout(l).flatMap(({ text, x, y }) => {
+  return layout(l).flatMap(({ text, x, y, words }) => (words ?? [{ text, x }]).flatMap(({ text, x }) => {
     const w = measure(t, text), k = t.size / f.unitsPerEm, r = shaped(f, t, text);
-    let pen = t.align === 'left' ? x : t.align === 'center' ? x - w / 2 : x - w;
+    let pen = words || startsAtAnchor(t) ? x : t.align === 'center' ? x - w / 2 : x - w;
     return r.glyphs.flatMap((g, i) => {
       const p = r.positions[i], ox = pen + p.xOffset * k, oy = y - p.yOffset * k;
       pen += p.xAdvance * k + t.letterSpacing;
       return subpaths(g.path.commands, (gx, gy) => pt(ox + gx * k, oy - gy * k));
     });
-  });
+  }));
 }
 
 /** fontkit glyph path commands (font units, y up) → subpaths placed by `at` (quadratic curves raised to cubic). */

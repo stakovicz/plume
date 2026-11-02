@@ -10,6 +10,16 @@ Une modification s'applique à tous les calques non verrouillés, en une seule �
 
 « Aucune sélection ». Avec l'outil Plan de travail : la liste des tailles prédéfinies (voir ci-dessous).
 
+## Aligner et répartir
+
+Rangée d'icônes en haut, dès qu'un calque est sélectionné (mêmes commandes que Disposition › Aligner et Répartir).
+
+| Contrôle | Effet |
+|---|---|
+| Aligner à gauche, Centrer horizontalement, Aligner à droite | sur le cadre de la sélection ; un seul calque : sur son groupe ou son plan de travail |
+| Aligner en haut, Centrer verticalement, Aligner en bas | idem, verticalement |
+| Répartir horizontalement, verticalement | espacement égal entre 3 calques ou plus, les deux extrêmes restent en place |
+
 ## N calques sélectionnés
 
 Plusieurs calques uniquement.
@@ -41,13 +51,19 @@ Absente pour les plans de travail.
 | Position X, Y | coin supérieur gauche du cadre (non pivoté) ; plusieurs calques : de leur ensemble |
 | Taille L, H | dimensions ; plusieurs calques : mis à l'échelle depuis le coin supérieur gauche |
 | Cadenas (Verrouiller les proportions) | redimensionner garde les proportions sans ⇧ |
-| Rayon | rectangles : rayon des quatre coins ; 0 = coins droits ; « Multiple » quand ils diffèrent |
+| Rayon | rectangles et zones de texte : rayon des quatre coins ; 0 = coins droits ; « Multiple » quand ils diffèrent |
 | Coins indépendants (bouton à droite du Rayon) | affiche **Haut** (gauche, droit) et **Bas** (gauche, droit) pour régler chaque coin ; si les coins diffèrent, un clic leur redonne à tous le rayon du coin haut gauche |
 | Préréglage | plans de travail : taille prédéfinie, ou Personnalisé |
 | Rotation | en degrés ; ni groupes, ni plans de travail |
 
 Des rayons trop grands pour le rectangle sont tous réduits du même facteur, jusqu'à ce que chaque côté
 contienne ses deux coins (comme en CSS) : un rayon de 50 sur un rectangle de 100 × 40 donne une pilule.
+
+## Image
+
+Calque image seul. **Origine** : taille en pixels de l'image. **Taille d'origine** : redonne cette taille, même
+centre. **Remplacer…** : autre image, même largeur, hauteur selon ses proportions. Une image n'a ni Remplissage
+ni Bordure.
 
 ## Point
 
@@ -57,10 +73,28 @@ En édition de points, quand un point est sélectionné. **Type** : Droit, Miroi
 
 Plans de travail : **Couleur** de fond.
 
+## Grille
+
+Plan de travail seul. L'interrupteur à droite du titre ajoute ou retire la grille carrée : **Taille** des cases en px (8 par défaut),
+**Majeure** : une ligne plus marquée toutes les N cases (8 par défaut ; 0 = aucune).
+
+## Colonnes
+
+Plan de travail seul. L'interrupteur à droite du titre ajoute ou retire des colonnes de mise en page :
+**Nombre** (6 par défaut), **Gouttière** (écart entre colonnes), **Marge** (à gauche et à droite).
+
+Grille et colonnes sont dessinées sous les calques, toujours de la même couleur, et jamais exportées.
+
 ## Texte
 
-Calques texte. Police, Graisse (Normal, Gras), Taille, Ligne / Lettre (interligne ×, espacement en px),
-Alignement (Gauche, Centre, Droite), Largeur (Auto, Fixe), Couleur ou dégradé.
+Calques texte. Couleur ou dégradé, Police, Graisse (Normal, Gras), Taille, Interligne (×), Approche (espacement des lettres en px),
+Alignement (Gauche, Centre, Droite, Justifié), Vertical (Haut, Milieu, Bas ; zone de hauteur Fixe seulement).
+
+## Bloc
+
+Calques texte : la zone du texte. Fond (couleur ou dégradé), Largeur (Auto, Fixe), Hauteur (Auto, Fixe), Marges (une valeur, ou **Vertical**
+haut et bas et **Horizontal** gauche et droite avec le bouton Marges indépendantes).
+Sa bordure se règle dans la section **Bordure**, ses coins avec le **Rayon**.
 
 ## Remplissage
 
@@ -68,26 +102,27 @@ Formes et tracés. **Couleur** ou **Dégradé** (linéaire, radial) via le panne
 
 ## Bordure
 
+Formes, tracés et zones de texte.
+
 | Contrôle | Valeurs |
 |---|---|
 | Couleur / Dégradé | panneau de couleur |
 | Épaisseur | ≥ 0 ; 0 = pas de bordure |
 | Position | Centre, Intérieur, Extérieur (formes fermées) |
-| Tiret / Espace | pointillés ; Tiret 0 = plein ; Espace 0 = égal au tiret |
+| Tiret, Espace | pointillés ; Tiret 0 = plein ; Espace 0 = égal au tiret |
 | Extrémités | Plate, Arrondi, Carré |
 | Angles | Onglet, Arrondi, Biseau |
 
 Un **groupe** sélectionné affiche Texte, Remplissage et Bordure de ses calques : les réglages s'appliquent à eux.
 
+## Ombre
+
+Absente pour les plans de travail. L'interrupteur à droite du titre active l'ombre portée
+(par défaut : noir 50 %, X 0, Y 2, flou 4), puis **Couleur**, **X / Y** et **Flou** (0 à 100) la règlent.
+
 ## Effets
 
-Absente pour les plans de travail.
-
-| Contrôle | Effet |
-|---|---|
-| Ombre | active l'ombre portée (par défaut : noir 50 %, X 0, Y 2, flou 4) |
-| Couleur, X / Y, Flou | réglages de l'ombre (flou 0 à 100) |
-| Flou du calque | 0 à 100 |
+Absente pour les plans de travail. **Flou du calque** : 0 à 100.
 
 ## Panneau de couleur
 

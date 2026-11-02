@@ -1,6 +1,8 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import type { RGBA } from './color';
 import { type Layer, newLayer } from './layer';
+import { DEFAULT_TEXT } from './text';
+import { imageBytes, imagesUsed, putImage } from './images';
 
 /** Document format: `{ layers, palette }`, points as `[x, y]`. On disk, a `.plm` zip holding it as
  *  `document.json` (`packFile`). Documents saved before the palette existed are a bare `[Layer]` array. */
@@ -11,7 +13,7 @@ const isPt = (v: object): v is { x: number; y: number } => 'x' in v && 'y' in v 
 /** Numbers are written to 3 decimals: a thousandth of a pixel, invisible even at the 6400 % zoom, and colors
  *  and opacity stay exact to 8 bits. Angles and gradients (unit space, scaled up by `transform`) keep 6.
  *  One pass that also turns points into pairs: documents are megabytes. */
-const FINE = new Set(['rotation', 'fillGradient', 'strokeGradient']);
+const FINE = new Set(['rotation', 'fillGradient', 'strokeGradient', 'backgroundGradient']);
 function encoded(v: unknown, k = 1e3): unknown {
   if (typeof v === 'number') return Math.round(v * k) / k || 0; // || 0: no -0
   if (Array.isArray(v)) return v.map((x) => encoded(x, k));
@@ -30,11 +32,12 @@ const revive = (key: string, v: unknown) =>
     ? { x: v[0], y: v[1] }
     : v;
 
-/** Tolerant decoding: properties added after a file was saved fall back to their defaults. */
+/** Tolerant decoding: properties added after a file was saved fall back to their defaults (text style ones too). */
 function decodeLayer(raw: any): Layer {
   if (typeof raw?.name !== 'string' || typeof raw?.kind !== 'string') throw new Error('Not a layer');
   const l = newLayer(raw.name, raw.kind);
-  return { ...l, ...raw, id: raw.id ?? l.id, children: (raw.children ?? []).map(decodeLayer) };
+  const text = raw.text && { ...DEFAULT_TEXT, ...raw.text };
+  return { ...l, ...raw, id: raw.id ?? l.id, children: (raw.children ?? []).map(decodeLayer), ...(text && { text }) };
 }
 
 export function decodeFile(text: string): DocFile {
@@ -44,11 +47,22 @@ export function decodeFile(text: string): DocFile {
   return { layers: file.layers.map(decodeLayer), palette: file.palette ?? [] };
 }
 
-/** A `.plm` file: a zip archive with the document as `document.json`, room for other entries later. */
-export const packFile = (json: string) => zipSync({ 'document.json': strToU8(json) });
+/** A `.plm` file: a zip archive with the document as `document.json` and the images `layers` use as
+ *  `images/<key>` (stored, not compressed: they are already). */
+export function packFile(json: string, layers: Layer[] = []) {
+  const files: Record<string, Uint8Array | [Uint8Array, { level: 0 }]> = { 'document.json': strToU8(json) };
+  for (const src of imagesUsed(layers)) {
+    const b = imageBytes(src);
+    if (b) files[`images/${src}`] = [b, { level: 0 }];
+  }
+  return zipSync(files);
+}
 
+/** The document's JSON; its images go to the image store (model/images.ts). */
 export function unpackFile(bytes: Uint8Array): string {
-  const json = unzipSync(bytes, { filter: (f) => f.name === 'document.json' })['document.json'];
+  const entries = unzipSync(bytes, { filter: (f) => f.name === 'document.json' || f.name.startsWith('images/') });
+  const json = entries['document.json'];
   if (!json) throw new Error('Not a Plume document');
+  for (const [name, b] of Object.entries(entries)) if (name.startsWith('images/')) putImage(name.slice(7), b);
   return strFromU8(json);
 }

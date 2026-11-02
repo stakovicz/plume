@@ -3,6 +3,7 @@ import { Doc } from '$lib/document/doc.svelte';
 import { pt } from '$lib/model/geometry';
 import { bounds, flipped, resized, scaled, toWorld } from '$lib/model/layer';
 import { pointRect, snapAlong, snapRect } from '$lib/model/snapping';
+import { columnEdges, gridLines, snapToGrid } from '$lib/model/grid';
 import { movedHandle, pointType, setPointType } from '$lib/model/point-editing';
 import { decodeFile, encodeFile } from '$lib/model/codable';
 import { newLayer } from '$lib/model/layer';
@@ -144,5 +145,29 @@ describe('names', () => {
     d.selectedIDs = new Set([d.layers[1].id, d.layers[2].id]);
     d.group();
     expect(d.selected!.name).toBe('Group 4');
+  });
+});
+
+describe('artboard grid', () => {
+  const frame = box(100, 0, 200, 100), g = { size: 10, major: 5 };
+
+  test('an edge snaps to the nearest line from the frame corner, within the tolerance', () => {
+    expect(snapToGrid(box(123, 47, 10, 10), frame, { grid: g }, 4)).toEqual(pt(-3, 3)); // left edge 123 → 120, bottom 57 → 60
+    expect(snapToGrid(box(125, 45, 10, 10), frame, { grid: g }, 4)).toEqual(pt(0, 0)); // 5 away from every line: nothing in reach
+    expect(snapToGrid(box(123, 47, 10, 10), frame, { grid: g }, 4, { x: false, y: true })).toEqual(pt(0, 3));
+  });
+
+  test('column edges pull on x', () => {
+    const c = { count: 2, gutter: 20, margin: 10 }; // columns 110–190 and 210–290
+    expect(columnEdges(frame, c)).toEqual([[110, 190], [210, 290]]);
+    expect(snapToGrid(box(207, 3, 0, 0), frame, { columns: c }, 4)).toEqual(pt(3, 0)); // no grid: columns only, x only
+    expect(columnEdges(frame, { ...c, count: 20 })).toEqual([]); // no room
+  });
+
+  test('lines: major every N squares, dense lines left out when zoomed out', () => {
+    const l = gridLines(box(0, 0, 60, 10), g, 1);
+    expect(l.major).toBe('M50 0V10');
+    expect(l.minor.match(/M/g)?.length).toBe(4); // x = 10, 20, 30, 40
+    expect(gridLines(box(0, 0, 60, 10), g, 0.2)).toEqual({ minor: '', major: 'M50 0V10' }); // 2 px squares: majors only
   });
 });

@@ -5,13 +5,15 @@ Le format des documents Plume, ce que l'import SVG reprend et ignore, les format
 ## Document Plume (`.plm`)
 
 Le seul format qui conserve tout : calques, groupes, plans de travail, styles, couleurs du document.
-C'est une archive zip qui contient le document en JSON, `document.json` :
+C'est une archive zip qui contient le document en JSON, `document.json`, et les images qu'il utilise, `images/<empreinte>.<extension>` :
 
 ```json
 { "layers": [ … ], "palette": [ { "r": 1, "g": 0.72, "b": 0, "a": 1 } ] }
 ```
 
 - Les points sont écrits `[x, y]`.
+- Un calque image (`"kind": "image"`) ne contient que la référence de son image et sa taille en pixels ; une image
+  utilisée plusieurs fois n'est stockée qu'une fois, une image qui ne sert plus n'est pas enregistrée.
 - Les nombres sont arrondis au millième (au millionième pour les angles et les dégradés).
 - Un calque enregistré par une version plus ancienne reçoit les valeurs par défaut des réglages apparus depuis.
 - Double-cliquer sur un `.plm` l'ouvre dans Plume.
@@ -31,22 +33,23 @@ C'est une archive zip qui contient le document en JSON, `document.json` :
 | Dégradés | `linearGradient`, `radialGradient` |
 | Découpe | `clipPath`, et `mask` traité comme une découpe |
 | Filtres | flou gaussien, ombre portée (`feDropShadow`, ou `feOffset` + `feGaussianBlur`) |
-| Texte | un calque par `<text>`, une ligne par `<tspan>` positionné ; un style par texte |
+| Texte | un calque par `<text>`, une ligne par `<tspan>` positionné ; un style par texte ; un bloc de texte exporté par Plume revient en rectangle + texte |
+| Images | `<image>` PNG, JPG, WebP ou GIF intégrée en `data:` → calque image (`preserveAspectRatio` autre que `none` : centrée, entière) |
 | Masqué | `display="none"`, `visibility="hidden"` |
 | Cadre | `viewBox`, sinon `width`/`height`, sinon le contenu → plan de travail |
 | Plans de travail | `<g data-artboard>` (exports de Plume) reviennent comme plans de travail |
 
 Les coins arrondis des `rect` (`rx`, `ry`) sont conservés ; le rectangle devient un tracé.
 
-Non pris en charge : images bitmap, motifs (`pattern`), feuilles de style CSS (`<style>`), texte sur un chemin,
+Non pris en charge : images liées (fichier ou adresse web), motifs (`pattern`), feuilles de style CSS (`<style>`), texte sur un chemin,
 styles différents dans un même texte, autres filtres, masques de luminance, drapeaux d'arc compactés (`a1 1 0 011 1`).
 
 ## Exports
 
 | Format | Contenu | Notes |
 |---|---|---|
-| PDF | vectoriel, 1 px = 1 pt, texte sélectionnable | polices intégrées sauf `.otf` et polices non chargées (Times) ; ombre et flou ignorés |
-| SVG | vectoriel ; plans de travail en `<g data-artboard>` ; rectangles arrondis en `<rect rx>`, ou en `<path>` si leurs coins diffèrent | polices non intégrées |
+| PDF | vectoriel, 1 px = 1 pt, texte sélectionnable | polices intégrées sauf `.otf` et polices non chargées (Times) ; ombre et flou ignorés ; images intégrées, photos JPEG redressées selon leur orientation EXIF |
+| SVG | vectoriel ; plans de travail en `<g data-artboard>` ; images intégrées en `data:` ; rectangles arrondis en `<rect rx>`, ou en `<path>` si leurs coins diffèrent | polices non intégrées |
 | PNG | rendu du canevas, 1×, 2×, 3× | transparence conservée ; polices intégrées |
 | JPG | idem, qualité 90 % | fond blanc |
 

@@ -5,16 +5,19 @@
   import { type Affine, inset } from '$lib/model/geometry';
   import { pathData } from '$lib/model/path-data';
   import {
-    type Layer, bounds, center, clipShape, drawnStrokeWidth, effectiveBorderPosition, hasVisibleStroke, localBounds, localShape,
+    type Layer, bounds, center, clipShape, drawnStrokeWidth, effectiveBorderPosition, hasVisibleStroke, imageFlip, localBounds, localShape, textBox,
   } from '$lib/model/layer';
+  import { imageURL } from '$lib/model/images';
   import { layout } from '$lib/model/text';
+  import { columnEdges, gridLines } from '$lib/model/grid';
 
   /** One layer as SVG, in document space. Order: clip → opacity/filters
    *  composited over the whole layer (a group as one image) → content. */
-  let { l, preview = null, typing = null }: {
+  let { l, preview = null, typing = null, gridZoom = null }: {
     l: Layer;
     preview?: { ids: Set<string>; t: Affine } | null;
     typing?: string | null; // text layer being typed into: the canvas's text field draws it
+    gridZoom?: number | null; // the canvas's zoom when artboard grids are shown
   } = $props();
 
   const id = $derived(l.id);
@@ -26,10 +29,20 @@
   });
 
   // Leaf content, in local space under the rotation transform
-  const d = $derived(l.kind === 'group' || l.kind === 'text' ? '' : pathData(localShape(l), 3));
+  const d = $derived(l.kind === 'group' || l.kind === 'text' || l.kind === 'image' ? '' : pathData(localShape(l), 3));
   const lines = $derived(l.kind === 'text' ? layout(l) : []);
+  const box = $derived(textBox(l)); // a text's background and border
   const frame = $derived(l.kind === 'artboard' ? localBounds(l) : null);
+  const gridPaths = $derived(frame && l.grid && gridZoom ? gridLines(frame, l.grid, gridZoom) : null);
+  const columns = $derived(frame && l.columns && gridZoom ? columnEdges(frame, l.columns) : []);
   const rotate = $derived(l.rotation ? `rotate(${(l.rotation * 180) / Math.PI} ${center(l).x} ${center(l).y})` : undefined);
+  /** An image: rotation, then its mirroring about the center. */
+  const imageTransform = $derived.by(() => {
+    if (l.kind !== 'image') return undefined;
+    const f = imageFlip(l), c = center(l);
+    const flip = f.x < 0 || f.y < 0 ? `matrix(${f.x} 0 0 ${f.y} ${(1 - f.x) * c.x} ${(1 - f.y) * c.y})` : '';
+    return [rotate, flip].filter(Boolean).join(' ') || undefined;
+  });
   const border = $derived(effectiveBorderPosition(l));
   const mask = $derived(inset(localBounds(l), -l.strokeWidth * 10 - 1)); // outside border: everything but the shape
 
@@ -84,15 +97,28 @@
       <!-- artboard: background, then the content clipped to the frame -->
       <clipPath id="ab-{id}"><rect x={frame.x} y={frame.y} width={frame.width} height={frame.height} /></clipPath>
       <rect x={frame.x} y={frame.y} width={frame.width} height={frame.height} fill={paint(l.fill, l.fillGradient, 'fill')} />
+      <!-- grid and columns: canvas only (svg/export.ts leaves them out); lines one screen pixel wide at any zoom -->
+      {#each columns as [x0, x1], i (i)}
+        <rect x={x0} y={frame.y} width={x1 - x0} height={frame.height} fill="var(--grid)" pointer-events="none" />
+      {/each}
+      {#if gridPaths}
+        <path d={gridPaths.minor} stroke="var(--grid)" opacity="0.5" vector-effect="non-scaling-stroke" pointer-events="none" />
+        <path d={gridPaths.major} stroke="var(--grid)" vector-effect="non-scaling-stroke" pointer-events="none" />
+      {/if}
       <g clip-path="url(#ab-{id})">
         {#each l.children as c (c.id)}<Self l={c} {preview} {typing} />{/each}
       </g>
+    {:else if l.image}
+      {@const b = localBounds(l)}
+      <image href={imageURL(l.image.src)} x={b.x} y={b.y} width={b.width} height={b.height} preserveAspectRatio="none" transform={imageTransform} />
     {:else if l.text}
       {@const t = l.text}
+      {#if box}<Self l={box} />{/if}
       <text transform={rotate} fill={paint(l.fill, l.fillGradient, 'fill')} font-family={t.font} font-size={t.size} font-weight={t.weight}
-        letter-spacing={t.letterSpacing || undefined} text-anchor={{ left: 'start', center: 'middle', right: 'end' }[t.align]}
+        letter-spacing={t.letterSpacing || undefined} text-anchor={{ left: 'start', center: 'middle', right: 'end', justify: 'start' }[t.align]}
         visibility={typing === id ? 'hidden' : undefined} style:white-space="pre"
-        >{#each lines as line, i (i)}<tspan x={line.x} y={line.y}>{line.text}</tspan>{/each}</text>
+        >{#each lines as line, i (i)}{#if line.words}{#each line.words as w, j (j)}<tspan x={w.x} y={line.y}>{w.text}</tspan>{/each}{:else}<tspan
+          x={line.x} y={line.y}>{line.text}</tspan>{/if}{/each}</text>
     {:else}
       <path {d} transform={rotate} fill={paint(l.fill, l.fillGradient, 'fill')} fill-rule={l.evenOdd ? 'evenodd' : undefined} />
       {#if hasVisibleStroke(l)}
