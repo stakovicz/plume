@@ -10,7 +10,7 @@
   import {
     type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
   } from '$lib/model/layer';
-  import { type TextStyle, FONTS, TEXT_ALIGNS } from '$lib/model/text';
+  import { type TextStyle, FONTS, TEXT_ALIGNS, TEXT_VALIGNS } from '$lib/model/text';
   import { loadFamily, systemFonts } from '$lib/app/fonts.svelte';
   import Button from '$lib/ui/kit/Button.svelte';
   import Select from '$lib/ui/kit/Select.svelte';
@@ -84,6 +84,8 @@
 
   /** Corner radius fields shown one by one (always, when the corners differ). */
   let corners = $state(false);
+  /** Text padding fields shown side by side (always, when the sides differ). */
+  let paddings = $state(false);
 
   /** Snapshots of the layers an edit applies to. */
   const targets = (ls = sel) => ls.filter((x) => !doc.isLocked(x.id)).map((x) => $state.snapshot(x) as Layer);
@@ -99,7 +101,11 @@
   const columnsStyle = (patch: Partial<Columns>) => style((c) => ({ columns: { ...c.columns!, ...patch } }));
   /** Continuous text style change: each box refits to its restyled lines. */
   function textStyle(patch: Partial<TextStyle>) {
-    doc.styleEdits(targets(painted).filter((c) => c.text).map((c) => [c.id, refit({ ...c, text: { ...c.text!, ...patch } }, c)]));
+    textEdit(() => patch);
+  }
+  /** Same, the patch computed from each layer's own style. */
+  function textEdit(f: (t: TextStyle) => Partial<TextStyle>) {
+    doc.styleEdits(targets(painted).filter((c) => c.text).map((c) => [c.id, refit({ ...c, text: { ...c.text!, ...f(c.text!) } }, c)]));
   }
   /** Bundled families first (an unknown one, from an imported file, with them), then the installed ones. */
   const fontOptions = (font: string) => [
@@ -157,10 +163,12 @@
 
   const titles: Record<string, string> = {
     center: L('Center'), inside: L('Inside'), outside: L('Outside'),
-    left: L('Left'), right: L('Right'), regular: L('Regular'), bold: L('Bold'), auto: L('Auto'), fixed: L('Fixed'),
+    left: L('Left'), right: L('Right'), justify: L('Justify'), top: L('Top'), middle: L('Middle'), bottom: L('Bottom'), regular: L('Regular'), bold: L('Bold'), auto: L('Auto'), fixed: L('Fixed'),
     butt: L('Butt'), round: L('Round'), square: L('Square'), miter: L('Miter'), bevel: L('Bevel'),
   };
   const options = <T extends string>(all: readonly T[]) => all.map((value) => ({ value, title: titles[value] }));
+  const textIcons = <T extends 'left' | 'center' | 'right' | 'justify' | 'top' | 'middle' | 'bottom'>(all: readonly T[]) =>
+    all.map((value) => ({ value, title: titles[value], icon: `text-${value}` as const }));
 
   const presetGroups = { Screen: L('Screen'), Paper: L('Paper') };
   const presetOptions = PRESETS.map((p) => ({ value: p.name, title: `${p.name} — ${p.width}×${p.height}`, group: presetGroups[p.group] }));
@@ -247,7 +255,8 @@
         {#if !multi}<IconButton quiet icon={l.lockRatio ? 'lock' : 'lock-open'} label={L('Lock proportions')} active={l.lockRatio} disabled={locked}
           onclick={() => edit((x) => ({ ...x, lockRatio: !x.lockRatio }))} />{/if}
       </Row>
-      {#if all((x) => x.kind === 'rect')}
+      {#if all((x) => x.kind === 'rect' || x.kind === 'text')}
+        <!-- text: the corners of its box (background and border) -->
         {@const uneven = !all((x) => x.corners.every((r) => r === x.corners[0]))}
         <Row label={L('Radius')} single>
           <NumberField label={L('Corner radius')} value={uneven ? NaN : num((x) => x.corners[0])} min={0} disabled={locked}
@@ -299,6 +308,11 @@
       </Section>
     {:else if pAll((x) => !!x.text)}
       <Section title={L('Text')}>
+        <Row label={!pMulti && lp.fillGradient ? L('Gradient') : L('Color')} single>
+          <ColorField label={L('Text color')} color={lp.fill} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.fillGradient}
+            onchange={(fill) => pStyle({ fill, fillGradient: undefined })}
+            ongradient={pMulti ? undefined : (g) => pStyle(g ? { fillGradient: g, fill: g.stops[0].color } : { fillGradient: undefined })} />
+        </Row>
         <Row label={L('Font')}>
           <FontField label={L('Font')} options={fontOptions(pPick((x) => x.text!.font))} value={pPick((x) => x.text!.font)} disabled={locked}
             onchange={(font) => loadFamily(font).then(() => textStyle({ font }))} />
@@ -319,18 +333,47 @@
             onchange={(letterSpacing) => textStyle({ letterSpacing })} />
         </Row>
         <Row label={L('Alignment')}>
-          <Segmented label={L('Alignment')} value={pPick((x) => x.text!.align)} options={options(TEXT_ALIGNS)} disabled={locked} onchange={(align) => textStyle({ align })} />
+          <Segmented label={L('Alignment')} value={pPick((x) => x.text!.align)} options={textIcons(TEXT_ALIGNS)} disabled={locked} onchange={(align) => textStyle({ align })} />
+        </Row>
+        <Row label={L('Vertical')}>
+          <!-- where the lines sit in a fixed-height box -->
+          <Segmented label={L('Vertical alignment')} value={pPick((x) => x.text!.verticalAlign)} options={textIcons(TEXT_VALIGNS)}
+            disabled={locked || pAll((x) => x.text!.autoHeight)} onchange={(verticalAlign) => textStyle({ verticalAlign })} />
+        </Row>
+      </Section>
+      <Section title={L('Block')}>
+        <Row label={!pMulti && lp.backgroundGradient ? L('Gradient') : L('Background')} single>
+          <ColorField label={L('Background')} color={lp.background} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.backgroundGradient}
+            onchange={(background) => pStyle({ background, backgroundGradient: undefined })}
+            ongradient={pMulti ? undefined : (g) => pStyle(g ? { backgroundGradient: g, background: g.stops[0].color } : { backgroundGradient: undefined })} />
         </Row>
         <Row label={L('Box width')}>
           <!-- auto: fits the longest line; fixed: lines wrap at the box width (resize the box to change it) -->
           <Segmented label={L('Box width')} value={pPick((x) => (x.text!.autoWidth ? 'auto' : 'fixed'))} options={options(['auto', 'fixed'])} disabled={locked}
             onchange={(w) => textStyle({ autoWidth: w === 'auto' })} />
         </Row>
-        <Row label={!pMulti && lp.fillGradient ? L('Gradient') : L('Color')} single>
-          <ColorField label={L('Text color')} color={lp.fill} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.fillGradient}
-            onchange={(fill) => pStyle({ fill, fillGradient: undefined })}
-            ongradient={pMulti ? undefined : (g) => pStyle(g ? { fillGradient: g, fill: g.stops[0].color } : { fillGradient: undefined })} />
+        <Row label={L('Box height')}>
+          <!-- auto: fits the lines; fixed: the lines sit in it (and overflow it, visibly) -->
+          <Segmented label={L('Box height')} value={pPick((x) => (x.text!.autoHeight ? 'auto' : 'fixed'))} options={options(['auto', 'fixed'])} disabled={locked}
+            onchange={(h) => textStyle({ autoHeight: h === 'auto' })} />
         </Row>
+        {@const unevenPadding = !pAll((x) => x.text!.padding.every((v) => v === x.text!.padding[0]))}
+        <Row label={L('Padding')} single>
+          <NumberField label={L('Padding')} value={unevenPadding ? NaN : pNum((x) => x.text!.padding[0])} min={0} disabled={locked}
+            onchange={(v) => textStyle({ padding: [v, v, v, v] })} />
+          <IconButton quiet icon="padding" label={L('Independent sides')} active={paddings || unevenPadding} disabled={locked}
+            onclick={() => (unevenPadding ? textEdit((t) => ({ padding: t.padding.map(() => t.padding[0]) })) : (paddings = !paddings))} />
+        </Row>
+        {#if paddings || unevenPadding}
+          {#each [[L('Vertical'), 0, 2, L('Top'), L('Bottom')], [L('Horizontal'), 3, 1, L('Left'), L('Right')]] as const as [row, a, b, la, lb] (row)}
+            <Row label={row} reserve>
+              {#each [[a, la], [b, lb]] as const as [i, label] (i)}
+                <NumberField {label} value={pNum((x) => x.text!.padding[i])} min={0} disabled={locked}
+                  onchange={(v) => textEdit((t) => ({ padding: t.padding.map((p, j) => (j === i ? v : p)) }))} />
+              {/each}
+            </Row>
+          {/each}
+        {/if}
       </Section>
     {:else if pAll((x) => !isContainer(x) && !x.text)}
       <Section title={L('Fill')}>
@@ -341,7 +384,10 @@
             ongradient={pMulti ? undefined : (g) => pStyle(g ? { fillGradient: g, fill: g.stops[0].color } : { fillGradient: undefined })} />
         </Row>
       </Section>
+    {/if}
 
+    {#if pAll((x) => !isContainer(x))}
+      <!-- text: its box's border -->
       <Section title={L('Border')}>
         <Row label={!pMulti && lp.strokeGradient ? L('Gradient') : L('Color')} single>
           <ColorField label={L('Border')} color={lp.stroke} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.strokeGradient}
