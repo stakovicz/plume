@@ -5,6 +5,7 @@ import { message, open as openPanel, save as savePanel } from '@tauri-apps/plugi
 import { L } from '$lib/i18n';
 import { type Doc, pushRecent } from '$lib/document/doc.svelte';
 import { packFile, unpackFile } from '$lib/model/codable';
+import { type ImageRef, addImage } from '$lib/model/images';
 import { type Framed, framedArtboard, framedLayers } from '$lib/svg/export';
 import { artboards } from '$lib/document/artboards';
 import { type Format, render } from './render';
@@ -26,6 +27,47 @@ export const EXAMPLES = [
   ['illustration', L('Illustration')], ['icone-app', L('App Icon')], ['affiche', L('Poster')],
   ['tableau-de-bord', L('Dashboard')], ['pictogrammes', L('Pictograms')], ['motif', L('Pattern')],
 ] as const;
+
+/** File › Import Image and the inspector's Replace: formats every web view draws. */
+export const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+const imageFilter = { name: L('Image'), extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif'] };
+
+/** Asks for an image file and stores it; null if cancelled. An unreadable file is reported. */
+export async function pickImage(): Promise<{ image: ImageRef; name: string } | null> {
+  let picked: { bytes: Uint8Array; name: string } | null;
+  try {
+    picked = isTauri() ? await nativeImage() : await browserImage();
+  } catch (e) {
+    await showError(L('Could not open the file.'), e);
+    return null;
+  }
+  if (!picked) return null;
+  const image = addImage(picked.bytes);
+  if (!image) await showError(L('Could not open the file.'), L('Not a PNG, JPEG, WebP or GIF image.'));
+  return image && { image, name: baseName(picked.name).replace(/\.[^.]+$/, '') };
+}
+
+async function nativeImage() {
+  const path = await openPanel({ filters: [imageFilter] });
+  return path ? { bytes: new Uint8Array(await invoke<ArrayBuffer>('read_bytes', { path })), name: path } : null;
+}
+
+function browserImage() {
+  return new Promise<{ bytes: Uint8Array; name: string } | null>((done) => {
+    const input = Object.assign(document.createElement('input'), { type: 'file', accept: IMAGE_TYPES.join(',') });
+    input.onchange = async () => {
+      const f = input.files?.[0];
+      done(f ? { bytes: new Uint8Array(await f.arrayBuffer()), name: f.name } : null);
+    };
+    input.oncancel = () => done(null);
+    input.click();
+  });
+}
+
+async function showError(title: string, e: unknown) {
+  if (isTauri()) await message(String(e), { title, kind: 'error' });
+  else alert(`${title}\n${e}`);
+}
 
 /** Most recent first; the first one is reopened at launch. Per-machine convenience → localStorage. */
 function loadRecents(): string[] {
@@ -120,6 +162,12 @@ export class Files {
     if (isTauri()) this.recents = pushRecent(path, this.recents);
   }
 
+  /** File › Import Image: into the selection's artboard (`doc.placeImage`). */
+  async importImage() {
+    const picked = await pickImage();
+    if (picked) this.doc.placeImage(picked.image, picked.name);
+  }
+
   /** Writes to the current file, or asks where when the document was never saved. */
   async save(): Promise<boolean> {
     const path = this.doc.filePath;
@@ -129,7 +177,7 @@ export class Files {
   async saveAs(): Promise<boolean> {
     const name = this.doc.filePath ? baseName(this.doc.filePath) : `${L('Untitled')}.plm`;
     if (!isTauri()) {
-      download(name, packFile(this.doc.json()), 'application/zip');
+      download(name, packFile(this.doc.json(), this.doc.layers), 'application/zip');
       this.doc.markSaved();
       return true;
     }
@@ -207,7 +255,7 @@ export class Files {
 
   async #write(path: string) {
     try {
-      await invoke('write_bytes', withPath(path, packFile(this.doc.json())));
+      await invoke('write_bytes', withPath(path, packFile(this.doc.json(), this.doc.layers)));
     } catch (e) {
       this.#error(L('Could not save the file.'), e);
       return false;
@@ -227,10 +275,7 @@ export class Files {
     input.click();
   }
 
-  async #error(title: string, e: unknown) {
-    if (isTauri()) await message(String(e), { title, kind: 'error' });
-    else alert(`${title}\n${e}`);
-  }
+  #error(title: string, e: unknown) { return showError(title, e); }
 }
 
 const MIME: Record<Format, string> = { pdf: 'application/pdf', svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg' };

@@ -5,12 +5,14 @@ import { pt } from '$lib/model/geometry';
 import { type Layer, newLayer } from '$lib/model/layer';
 import { importSVG } from '$lib/svg/import';
 import { framedLayers } from '$lib/svg/export';
+import { addImage, dataURL, fromDataURL, imagesUsed, putImage } from '$lib/model/images';
 
 /** ⌘C / ⌘X / ⌘V on layers, through the DOM clipboard events: the native Edit menu (Tauri) and the
  *  browser both fire them, and text fields keep their own copy/paste. Copied layers go out as our JSON
  *  (lossless, between Plume windows) plus SVG as text (pastes into other apps); an SVG copied
  *  elsewhere (as code, as a file, or inside a web page selection) pastes in as layers.
- *  SVG files dropped on the window land where they're dropped. */
+ *  Bitmaps (a screenshot, an image copied from a browser) paste in as image layers.
+ *  SVG and image files dropped on the window land where they're dropped. */
 
 const MIME = 'application/x-plume+json';
 
@@ -19,6 +21,29 @@ export const isTyping = (t: EventTarget | null) =>
 
 const looksSVG = (text: string) => text.trimStart().startsWith('<') && /<svg[\s>]/i.test(text);
 const isSVGFile = (f: File) => f.type === 'image/svg+xml' || f.name.toLowerCase().endsWith('.svg');
+const isBitmap = (f: File) => /^image\/(png|jpeg|webp|gif)$/.test(f.type) || /\.(png|jpe?g|webp|gif)$/i.test(f.name);
+
+/** Our clipboard JSON: the layers, plus the images they use as `data:` URLs (another window has none of them). */
+const clipJSON = (layers: Layer[]) => {
+  const images = Object.fromEntries([...imagesUsed(layers)].map((src) => [src, dataURL(src)]));
+  return JSON.stringify({ ...JSON.parse(encodeFile({ layers, palette: [] })), images });
+};
+
+function fromClipJSON(json: string): Layer[] {
+  const images: Record<string, string> = JSON.parse(json).images ?? {};
+  for (const [src, url] of Object.entries(images)) {
+    const b = fromDataURL(url);
+    if (b) putImage(src, b);
+  }
+  return decodeFile(json).layers;
+}
+
+/** An image file as an image layer; false if it isn't one we can read. */
+async function placeBitmap(doc: Doc, f: File, at?: { x: number; y: number }) {
+  const image = addImage(new Uint8Array(await f.arrayBuffer()));
+  if (image) doc.placeImage(image, f.name && f.name !== 'image.png' ? f.name.replace(/\.[^.]+$/, '') : undefined, at); // image.png: what a pasted bitmap is called
+  return !!image;
+}
 
 /** Layers from an SVG made elsewhere: its content, as one group when there are several. */
 function fromSVG(text: string): Layer[] {
@@ -49,7 +74,7 @@ export function installClipboard(doc: Doc): () => void {
   function copy(e: ClipboardEvent) {
     if (ignored(e) || !doc.selectedIDs.size || !e.clipboardData) return;
     const layers = doc.copySelection();
-    last = { svg: framedLayers(layers).svg, json: encodeFile({ layers, palette: [] }) };
+    last = { svg: framedLayers(layers).svg, json: clipJSON(layers) };
     e.clipboardData.setData(MIME, last.json);
     e.clipboardData.setData('text/plain', last.svg);
     e.preventDefault();
@@ -64,13 +89,14 @@ export function installClipboard(doc: Doc): () => void {
     if (ignored(e) || !data) return;
     const text = data.getData('text/plain'), html = data.getData('text/html');
     const json = data.getData(MIME) || (last && text === last.svg ? last.json : '');
-    const file = [...data.files].find(isSVGFile);
+    const file = [...data.files].find(isSVGFile), bitmap = [...data.files].find(isBitmap);
     const svg = data.getData('image/svg+xml') || (looksSVG(text) ? text : '') || (html && svgInHTML(html));
-    if (!json && !svg && !file) return; // a bitmap, plain text…: nothing we can paste
+    if (!json && !svg && !file && !bitmap) return; // plain text…: nothing we can paste
     e.preventDefault();
     try {
-      doc.paste(json ? decodeFile(json).layers : fromSVG(svg || (await file!.text())));
-    } catch { /* not a readable SVG after all */ }
+      if (!json && !svg && !file) await placeBitmap(doc, bitmap!);
+      else doc.paste(json ? fromClipJSON(json) : fromSVG(svg || (await file!.text())));
+    } catch { /* not a readable SVG or image after all */ }
   }
 
   function dragover(e: DragEvent) {
@@ -81,7 +107,7 @@ export function installClipboard(doc: Doc): () => void {
   }
 
   async function drop(e: DragEvent) {
-    const files = [...(e.dataTransfer?.files ?? [])].filter(isSVGFile);
+    const files = [...(e.dataTransfer?.files ?? [])].filter((f) => isSVGFile(f) || isBitmap(f));
     if (!e.dataTransfer?.types.includes('Files')) return;
     e.preventDefault(); // never let the web view navigate to a dropped file
     const canvas = document.querySelector('.canvas')?.getBoundingClientRect();
@@ -89,8 +115,9 @@ export function installClipboard(doc: Doc): () => void {
     doc.selectedIDs = new Set();
     for (const f of files) {
       try {
-        doc.paste(fromSVG(await f.text()), at);
-      } catch { /* skip files that aren't SVG after all */ }
+        if (isSVGFile(f)) doc.paste(fromSVG(await f.text()), at);
+        else await placeBitmap(doc, f, at ?? undefined);
+      } catch { /* skip files that aren't SVG or images after all */ }
     }
   }
 

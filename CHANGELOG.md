@@ -11,6 +11,12 @@
   fond (couleur ou dégradé), bordure et coins arrondis de la zone, dans une nouvelle section Bloc de l'inspecteur.
   Redimensionner un bloc change sa zone, pas la taille du texte ; vectorisé, il devient un groupe fond + texte.
   ([#30](https://github.com/stakovicz/plume/issues/30))
+- **Images** : Fichier › Importer une image… (⇧⌘I), glisser-déposer ou coller une image PNG, JPG, WebP ou GIF.
+  Un calque image se déplace, se redimensionne, tourne et se retourne ; l'inspecteur montre sa taille d'origine
+  (bouton Taille d'origine) et permet de la remplacer. L'image est intégrée au `.plm` et aux exports SVG, PDF, PNG
+  et JPG (photos redressées selon leur orientation EXIF, y compris en PDF) ; un SVG qui contient des images intégrées
+  les rend à l'ouverture.
+  ([#31](https://github.com/stakovicz/plume/issues/31))
 
 ## 0.4.1 — 2026-10-29
 

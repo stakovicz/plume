@@ -1,5 +1,6 @@
 import type { Framed } from '$lib/svg/export';
-import { base64, fontsIn } from './fonts.svelte';
+import { base64, fromDataURL, imageInfo } from '$lib/model/images';
+import { fontsIn } from './fonts.svelte';
 
 /** Export formats: SVG is written as is, PNG/JPG are rendered by the web view, PDF is laid out by
  *  jsPDF + svg2pdf.js (vector; 1 px = 1 pt). Needs a DOM: app layer, not model. */
@@ -41,6 +42,23 @@ async function raster(f: Framed, format: 'png' | 'jpg', scale: number): Promise<
   }
 }
 
+/** A JPEG goes into a PDF as is, and PDF readers ignore its EXIF orientation (a phone photo would come out turned
+ *  and stretched over its frame): those are redrawn upright first, as the web view shows them. */
+async function uprightJPEGs(svg: string): Promise<string> {
+  const urls = [...new Set(svg.match(/data:image\/jpeg;base64,[^"]+/g) ?? [])];
+  for (const url of urls) {
+    const bytes = fromDataURL(url);
+    if (!bytes || !imageInfo(bytes)?.orientation) continue;
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const canvas = Object.assign(document.createElement('canvas'), { width: img.naturalWidth, height: img.naturalHeight });
+    canvas.getContext('2d')!.drawImage(img, 0, 0); // drawn with its orientation applied (CSS image-orientation: from-image)
+    svg = svg.replaceAll(url, canvas.toDataURL('image/jpeg', 0.92));
+  }
+  return svg;
+}
+
 // ponytail: svg2pdf.js ignores SVG filters, so layer blur and shadows are dropped from PDFs
 async function pdf(f: Framed): Promise<Uint8Array<ArrayBuffer>> {
   const [{ jsPDF }] = await Promise.all([import('jspdf'), import('svg2pdf.js')]); // loaded on first PDF export only
@@ -51,7 +69,15 @@ async function pdf(f: Framed): Promise<Uint8Array<ArrayBuffer>> {
     doc.addFont(ff.file, ff.family, ff.weight >= 600 ? 'bold' : 'normal');
   }
   // ponytail: fonts not loaded (imported SVG) or .otf (CFF) come out in Times; convert to outlines for exact type
-  const svg = new DOMParser().parseFromString(f.svg, 'image/svg+xml').documentElement;
-  await doc.svg(svg, { x: 0, y: 0, width: w, height: h });
+  const svg = new DOMParser().parseFromString(await uprightJPEGs(f.svg), 'image/svg+xml').documentElement;
+  // svg2pdf only warns when an image fails (and leaves it out): make it an export error instead
+  const failed: string[] = [], warn = console.warn;
+  console.warn = (...a: unknown[]) => (String(a[0]).startsWith('Could not load image') ? failed.push(String(a[0]).split('\n')[0].replace(/data:[^\s.]{60,}/g, (u) => `${u.slice(0, 30)}…`)) : warn(...a));
+  try {
+    await doc.svg(svg, { x: 0, y: 0, width: w, height: h });
+  } finally {
+    console.warn = warn;
+  }
+  if (failed.length) throw new Error(failed.join('\n'));
   return new Uint8Array(doc.output('arraybuffer'));
 }

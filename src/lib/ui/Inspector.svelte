@@ -8,10 +8,12 @@
   import { pointType } from '$lib/model/point-editing';
   import { parent } from '$lib/model/layer-tree';
   import {
-    type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
+    type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, atOriginalSize, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
+    withImage,
   } from '$lib/model/layer';
   import { type TextStyle, FONTS, TEXT_ALIGNS, TEXT_VALIGNS } from '$lib/model/text';
   import { loadFamily, systemFonts } from '$lib/app/fonts.svelte';
+  import { pickImage } from '$lib/app/files.svelte';
   import Button from '$lib/ui/kit/Button.svelte';
   import Select from '$lib/ui/kit/Select.svelte';
   import FontField from '$lib/ui/kit/FontField.svelte';
@@ -217,7 +219,7 @@
           <Button disabled={!doc.canGroup} onclick={() => doc.group()}>{L('Group Layers')}</Button>
           <div class="combine" role="toolbar" aria-label={L('Combine')}>
             {#each COMBINE as [op, text, key] (op)}
-              <IconButton quiet icon={op} label="{text} (⌥⌘{key})" disabled={!doc.canGroup} onclick={() => doc.combine(op)} />
+              <IconButton quiet icon={op} label="{text} (⌥⌘{key})" disabled={!doc.canCombine} onclick={() => doc.combine(op)} />
             {/each}
           </div>
         </Row>
@@ -290,6 +292,15 @@
         </Row>
       {/if}
     </Section>
+
+    {#if !multi && l.image}
+      {@const img = l.image}
+      <Section title={L('Image')}>
+        <Row label={L('Original')}><span class="value">{img.width} × {img.height} px</span></Row>
+        <Row><Button disabled={locked} onclick={() => edit(atOriginalSize)}>{L('Original Size')}</Button></Row>
+        <Row><Button disabled={locked} onclick={() => pickImage().then((p) => p && edit((x) => withImage(x, p.image)))}>{L('Replace…')}</Button></Row>
+      </Section>
+    {/if}
 
     {#if node}
       <Section title={L('Point')}>
@@ -375,7 +386,7 @@
           {/each}
         {/if}
       </Section>
-    {:else if pAll((x) => !isContainer(x) && !x.text)}
+    {:else if pAll((x) => !isContainer(x) && !x.text && !x.image)}
       <Section title={L('Fill')}>
         <!-- fill type (color, linear, radial gradient) is picked in the color panel -->
         <Row label={!pMulti && lp.fillGradient ? L('Gradient') : L('Color')} single>
@@ -386,8 +397,8 @@
       </Section>
     {/if}
 
-    {#if pAll((x) => !isContainer(x))}
-      <!-- text: its box's border -->
+    {#if pAll((x) => !isContainer(x) && !x.image)}
+      <!-- text: its box's border; images have none -->
       <Section title={L('Border')}>
         <Row label={!pMulti && lp.strokeGradient ? L('Gradient') : L('Color')} single>
           <ColorField label={L('Border')} color={lp.stroke} disabled={locked} {...palette} bounds={localBounds(lp)} gradient={pMulti ? null : lp.strokeGradient}
@@ -491,6 +502,9 @@
 <style>
   .inspector {
     overflow-y: auto;
+  }
+  .value {
+    color: var(--text-2);
   }
   .combine {
     display: flex;

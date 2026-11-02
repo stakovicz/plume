@@ -5,8 +5,9 @@
   import { type Affine, inset } from '$lib/model/geometry';
   import { pathData } from '$lib/model/path-data';
   import {
-    type Layer, bounds, center, clipShape, drawnStrokeWidth, effectiveBorderPosition, hasVisibleStroke, localBounds, localShape, textBox,
+    type Layer, bounds, center, clipShape, drawnStrokeWidth, effectiveBorderPosition, hasVisibleStroke, imageFlip, localBounds, localShape, textBox,
   } from '$lib/model/layer';
+  import { imageURL } from '$lib/model/images';
   import { layout } from '$lib/model/text';
   import { columnEdges, gridLines } from '$lib/model/grid';
 
@@ -28,13 +29,20 @@
   });
 
   // Leaf content, in local space under the rotation transform
-  const d = $derived(l.kind === 'group' || l.kind === 'text' ? '' : pathData(localShape(l), 3));
+  const d = $derived(l.kind === 'group' || l.kind === 'text' || l.kind === 'image' ? '' : pathData(localShape(l), 3));
   const lines = $derived(l.kind === 'text' ? layout(l) : []);
   const box = $derived(textBox(l)); // a text's background and border
   const frame = $derived(l.kind === 'artboard' ? localBounds(l) : null);
   const gridPaths = $derived(frame && l.grid && gridZoom ? gridLines(frame, l.grid, gridZoom) : null);
   const columns = $derived(frame && l.columns && gridZoom ? columnEdges(frame, l.columns) : []);
   const rotate = $derived(l.rotation ? `rotate(${(l.rotation * 180) / Math.PI} ${center(l).x} ${center(l).y})` : undefined);
+  /** An image: rotation, then its mirroring about the center. */
+  const imageTransform = $derived.by(() => {
+    if (l.kind !== 'image') return undefined;
+    const f = imageFlip(l), c = center(l);
+    const flip = f.x < 0 || f.y < 0 ? `matrix(${f.x} 0 0 ${f.y} ${(1 - f.x) * c.x} ${(1 - f.y) * c.y})` : '';
+    return [rotate, flip].filter(Boolean).join(' ') || undefined;
+  });
   const border = $derived(effectiveBorderPosition(l));
   const mask = $derived(inset(localBounds(l), -l.strokeWidth * 10 - 1)); // outside border: everything but the shape
 
@@ -100,6 +108,9 @@
       <g clip-path="url(#ab-{id})">
         {#each l.children as c (c.id)}<Self l={c} {preview} {typing} />{/each}
       </g>
+    {:else if l.image}
+      {@const b = localBounds(l)}
+      <image href={imageURL(l.image.src)} x={b.x} y={b.y} width={b.width} height={b.height} preserveAspectRatio="none" transform={imageTransform} />
     {:else if l.text}
       {@const t = l.text}
       {#if box}<Self l={box} />{/if}
