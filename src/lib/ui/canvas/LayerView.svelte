@@ -1,15 +1,15 @@
 <script lang="ts">
   import Self from './LayerView.svelte';
-  import { css } from '$lib/model/color';
-  import type { GradientFill } from '$lib/model/effects';
-  import { type Affine, inset } from '$lib/model/geometry';
-  import { pathData } from '$lib/model/path-data';
+  import { css } from '#lib/model/color';
+  import type { GradientFill } from '#lib/model/effects';
+  import { type Affine, inset } from '#lib/model/geometry';
+  import { pathData } from '#lib/model/path-data';
   import {
     type Layer, bounds, center, clipShape, drawnStrokeWidth, effectiveBorderPosition, hasVisibleStroke, imageFlip, localBounds, localShape, textBox,
-  } from '$lib/model/layer';
-  import { imageURL } from '$lib/model/images';
-  import { layout } from '$lib/model/text';
-  import { columnEdges, gridLines } from '$lib/model/grid';
+  } from '#lib/model/layer';
+  import { imageURL } from '#lib/model/images';
+  import { layout } from '#lib/model/text';
+  import { columnEdges, gridLines } from '#lib/model/grid';
 
   /** One layer as SVG, in document space. Order: clip → opacity/filters
    *  composited over the whole layer (a group as one image) → content. */

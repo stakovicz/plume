@@ -1,6 +1,6 @@
-import { type Affine, IDENTITY, concat, rotate, scale, translate } from '$lib/model/geometry';
-import { type RGBA, CLEAR, BLACK } from '$lib/model/color';
-import { tokens } from '$lib/model/path-data';
+import { type Affine, IDENTITY, concat, rotate, scale, translate } from '#lib/model/geometry';
+import { type RGBA, CLEAR, BLACK } from '#lib/model/color';
+import { tokens } from '#lib/model/path-data';
 
 /** SVG micro-syntaxes: transforms, colors, strict numbers. */
 

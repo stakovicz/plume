@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { Doc } from '$lib/document/doc.svelte';
-import { pt } from '$lib/model/geometry';
-import { bounds, flipped, resized, scaled, toWorld } from '$lib/model/layer';
-import { pointRect, snapAlong, snapRect } from '$lib/model/snapping';
-import { columnEdges, gridLines, snapToGrid } from '$lib/model/grid';
-import { movedHandle, pointType, setPointType } from '$lib/model/point-editing';
-import { decodeFile, encodeFile } from '$lib/model/codable';
-import { newLayer } from '$lib/model/layer';
+import { Doc } from '#lib/document/doc.svelte';
+import { pt } from '#lib/model/geometry';
+import { bounds, flipped, resized, scaled, toWorld } from '#lib/model/layer';
+import { pointRect, snapAlong, snapRect } from '#lib/model/snapping';
+import { columnEdges, gridLines, snapToGrid } from '#lib/model/grid';
+import { movedHandle, pointType, setPointType } from '#lib/model/point-editing';
+import { decodeFile, encodeFile } from '#lib/model/codable';
+import { newLayer } from '#lib/model/layer';
 import { near, nearRect, rect } from './helpers';
 
 const box = (x: number, y: number, width: number, height: number) => ({ x, y, width, height });

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import fr from '$lib/i18n/fr.json';
+import fr from '#lib/i18n/fr.json';
 
 /** Every `L("…")` / `L('…')` key in the sources must exist in the French table. */
 test('every UI string has a French translation', () => {

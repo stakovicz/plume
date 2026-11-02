@@ -1,16 +1,16 @@
-import { L } from '$lib/i18n';
-import { type Affine, type PointType, type Pt, type Rect, intersects, midX, midY, node, pt, union } from '$lib/model/geometry';
-import { type RGBA, BLACK, CLEAR, SHAPE_FILL, eqColor } from '$lib/model/color';
-import { type Kind, type Layer, asPath, bounds, center, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newImage, newLayer, refit } from '$lib/model/layer';
-import type { ImageRef } from '$lib/model/images';
-import { DEFAULT_TEXT } from '$lib/model/text';
-import { ancestors, find, inTreeOrder, nextName, parent, remove, siblings, update } from '$lib/model/layer-tree';
+import { L } from '#lib/i18n';
+import { type Affine, type PointType, type Pt, type Rect, intersects, midX, midY, node, pt, union } from '#lib/model/geometry';
+import { type RGBA, BLACK, CLEAR, SHAPE_FILL, eqColor } from '#lib/model/color';
+import { type Kind, type Layer, asPath, bounds, center, flipped, isContainer, keepingPlace, localBounds, moved, newArtboard, newImage, newLayer, refit } from '#lib/model/layer';
+import type { ImageRef } from '#lib/model/images';
+import { DEFAULT_TEXT } from '#lib/model/text';
+import { ancestors, find, inTreeOrder, nextName, parent, remove, siblings, update } from '#lib/model/layer-tree';
 import { artboardAt, homeOf, inside } from './artboards';
-import { type NodeRef, setPointType } from '$lib/model/point-editing';
-import { decodeFile, encodeFile } from '$lib/model/codable';
-import { type BooleanOp, combined } from '$lib/model/boolean';
-import { outlined } from '$lib/model/outline';
-import { importSVG } from '$lib/svg/import';
+import { type NodeRef, setPointType } from '#lib/model/point-editing';
+import { decodeFile, encodeFile } from '#lib/model/codable';
+import { type BooleanOp, combined } from '#lib/model/boolean';
+import { outlined } from '#lib/model/outline';
+import { importSVG } from '#lib/svg/import';
 import type { Tool } from './tool';
 
 /** The open document plus its editing state. Every change to `layers` the user can undo goes

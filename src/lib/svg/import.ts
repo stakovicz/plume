@@ -1,12 +1,12 @@
-import { L } from '$lib/i18n';
-import { type Affine, type Rect, type Subpath, IDENTITY, apply, concat, determinant, mapSubpaths, pt, translate, union } from '$lib/model/geometry';
-import { type RGBA, GRAY } from '$lib/model/color';
-import { type GradientFill, gradient as makeGradient } from '$lib/model/effects';
-import { type Layer, LINE_CAPS, LINE_JOINS, bounds, localBounds, mapped, newArtboard, newImage, newLayer, rotated, toLocal } from '$lib/model/layer';
-import { addImage, fromDataURL } from '$lib/model/images';
-import { DEFAULT_TEXT, TEXT_ALIGNS, fitted, firstBaseline } from '$lib/model/text';
-import { defaultColumns, defaultGrid } from '$lib/model/grid';
-import { number, parsePath, shapeData, tokens } from '$lib/model/path-data';
+import { L } from '#lib/i18n';
+import { type Affine, type Rect, type Subpath, IDENTITY, apply, concat, determinant, mapSubpaths, pt, translate, union } from '#lib/model/geometry';
+import { type RGBA, GRAY } from '#lib/model/color';
+import { type GradientFill, gradient as makeGradient } from '#lib/model/effects';
+import { type Layer, LINE_CAPS, LINE_JOINS, bounds, localBounds, mapped, newArtboard, newImage, newLayer, rotated, toLocal } from '#lib/model/layer';
+import { addImage, fromDataURL } from '#lib/model/images';
+import { DEFAULT_TEXT, TEXT_ALIGNS, fitted, firstBaseline } from '#lib/model/text';
+import { defaultColumns, defaultGrid } from '#lib/model/grid';
+import { number, parsePath, shapeData, tokens } from '#lib/model/path-data';
 import { paint, parseTransform, strict } from './syntax';
 
 /** Turns an SVG into layers. The XML becomes a plain element tree (so `<use>`, masks and gradients

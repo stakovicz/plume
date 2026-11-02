@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { L } from '$lib/i18n';
-  import { type RGBA, css, eqColor, fromHSV, fromHex, hex, hsv } from '$lib/model/color';
-  import { type GradientFill, type Stop, angleOf, colorAt, gradientCSS, linearAt, radialIn, sortStops } from '$lib/model/effects';
-  import type { Rect } from '$lib/model/geometry';
+  import { L } from '#lib/i18n';
+  import { type RGBA, css, eqColor, fromHSV, fromHex, hex, hsv } from '#lib/model/color';
+  import { type GradientFill, type Stop, angleOf, colorAt, gradientCSS, linearAt, radialIn, sortStops } from '#lib/model/effects';
+  import type { Rect } from '#lib/model/geometry';
   import Swatch from './Swatch.svelte';
   import NumberField from './NumberField.svelte';
   import Segmented from './Segmented.svelte';

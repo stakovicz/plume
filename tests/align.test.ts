@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { Doc } from '$lib/document/doc.svelte';
-import { pt } from '$lib/model/geometry';
-import { type Layer, bounds, newArtboard } from '$lib/model/layer';
+import { Doc } from '#lib/document/doc.svelte';
+import { pt } from '#lib/model/geometry';
+import { type Layer, bounds, newArtboard } from '#lib/model/layer';
 import { rect } from './helpers';
 
 const docWith = (...layers: Layer[]) => {

@@ -1,4 +1,4 @@
-import { L } from '$lib/i18n';
+import { L } from '#lib/i18n';
 
 export const TOOLS = ['select', 'artboard', 'pen', 'pencil', 'rect', 'ellipse', 'text'] as const;
 export type Tool = (typeof TOOLS)[number];

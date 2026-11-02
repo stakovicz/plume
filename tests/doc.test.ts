@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { Doc, pushRecent } from '$lib/document/doc.svelte';
-import { packFile, unpackFile } from '$lib/model/codable';
-import { BLACK } from '$lib/model/color';
-import { pt } from '$lib/model/geometry';
-import { asPath, bounds, toWorld } from '$lib/model/layer';
+import { Doc, pushRecent } from '#lib/document/doc.svelte';
+import { packFile, unpackFile } from '#lib/model/codable';
+import { BLACK } from '#lib/model/color';
+import { pt } from '#lib/model/geometry';
+import { asPath, bounds, toWorld } from '#lib/model/layer';
 import { near, nearRect, rect } from './helpers';
 
 const docWith = (...layers: ReturnType<typeof rect>[]) => {

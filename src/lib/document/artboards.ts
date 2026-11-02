@@ -1,6 +1,6 @@
-import { L } from '$lib/i18n';
-import { type Pt, type Rect, rectCenter, rectContains } from '$lib/model/geometry';
-import { type Layer, bounds, localBounds } from '$lib/model/layer';
+import { L } from '#lib/i18n';
+import { type Pt, type Rect, rectCenter, rectContains } from '#lib/model/geometry';
+import { type Layer, bounds, localBounds } from '#lib/model/layer';
 
 /** Artboards are top-level only. Layers live either at the top level or directly
  *  in an artboard; a layer whose center sits on an artboard belongs to it. */

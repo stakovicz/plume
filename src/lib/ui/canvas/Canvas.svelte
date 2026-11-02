@@ -1,19 +1,19 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import type { Doc } from '$lib/document/doc.svelte';
-  import { toolForKey } from '$lib/document/tool';
-  import { type Node, type Pt, type Rect, apply, eqPt, mapNode, pt, rectCenter } from '$lib/model/geometry';
-  import { type Layer, bounds, localBounds, shape, toWorld } from '$lib/model/layer';
-  import { css } from '$lib/model/color';
-  import { parent } from '$lib/model/layer-tree';
-  import { pathData } from '$lib/model/path-data';
-  import { linesBox } from '$lib/model/text';
-  import { L } from '$lib/i18n';
-  import Icon from '$lib/ui/kit/Icon.svelte';
-  import InlineName from '$lib/ui/kit/InlineName.svelte';
+  import type { Doc } from '#lib/document/doc.svelte';
+  import { toolForKey } from '#lib/document/tool';
+  import { type Node, type Pt, type Rect, apply, eqPt, mapNode, pt, rectCenter } from '#lib/model/geometry';
+  import { type Layer, bounds, localBounds, shape, toWorld } from '#lib/model/layer';
+  import { css } from '#lib/model/color';
+  import { parent } from '#lib/model/layer-tree';
+  import { pathData } from '#lib/model/path-data';
+  import { linesBox } from '#lib/model/text';
+  import { L } from '#lib/i18n';
+  import Icon from '#lib/ui/kit/Icon.svelte';
+  import InlineName from '#lib/ui/kit/InlineName.svelte';
   import LayerView from './LayerView.svelte';
   import { Gestures, HANDLES, LABEL_PX, handlePoint, labelRect } from './gestures.svelte';
-  import { artboards } from '$lib/document/artboards';
+  import { artboards } from '#lib/document/artboards';
 
   /** The drawing surface: SVG rendering, overlays (selection, handles, nodes) and input wiring.
    *  Overlays are in document space with sizes divided by the zoom, so they keep a constant screen size. */

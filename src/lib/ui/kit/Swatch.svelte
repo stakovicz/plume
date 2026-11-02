@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type RGBA, css } from '$lib/model/color';
+  import { type RGBA, css } from '#lib/model/color';
 
   /** Color chip; transparency shows over a checkerboard. `paint`: a CSS image instead (a gradient preview). */
   let { color, paint }: { color: RGBA; paint?: string } = $props();

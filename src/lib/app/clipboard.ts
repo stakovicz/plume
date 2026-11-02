@@ -1,11 +1,11 @@
-import { L } from '$lib/i18n';
-import type { Doc } from '$lib/document/doc.svelte';
-import { decodeFile, encodeFile } from '$lib/model/codable';
-import { pt } from '$lib/model/geometry';
-import { type Layer, newLayer } from '$lib/model/layer';
-import { importSVG } from '$lib/svg/import';
-import { framedLayers } from '$lib/svg/export';
-import { addImage, dataURL, fromDataURL, imagesUsed, putImage } from '$lib/model/images';
+import { L } from '#lib/i18n';
+import type { Doc } from '#lib/document/doc.svelte';
+import { decodeFile, encodeFile } from '#lib/model/codable';
+import { pt } from '#lib/model/geometry';
+import { type Layer, newLayer } from '#lib/model/layer';
+import { importSVG } from '#lib/svg/import';
+import { framedLayers } from '#lib/svg/export';
+import { addImage, dataURL, fromDataURL, imagesUsed, putImage } from '#lib/model/images';
 
 /** ⌘C / ⌘X / ⌘V on layers, through the DOM clipboard events: the native Edit menu (Tauri) and the
  *  browser both fire them, and text fields keep their own copy/paste. Copied layers go out as our JSON

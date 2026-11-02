@@ -1,13 +1,13 @@
 import { isTauri, invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { base } from '$app/paths';
+import { asset } from '$app/paths';
 import { message, open as openPanel, save as savePanel } from '@tauri-apps/plugin-dialog';
-import { L } from '$lib/i18n';
-import { type Doc, pushRecent } from '$lib/document/doc.svelte';
-import { packFile, unpackFile } from '$lib/model/codable';
-import { type ImageRef, addImage } from '$lib/model/images';
-import { type Framed, framedArtboard, framedLayers } from '$lib/svg/export';
-import { artboards } from '$lib/document/artboards';
+import { L } from '#lib/i18n';
+import { type Doc, pushRecent } from '#lib/document/doc.svelte';
+import { packFile, unpackFile } from '#lib/model/codable';
+import { type ImageRef, addImage } from '#lib/model/images';
+import { type Framed, framedArtboard, framedLayers } from '#lib/svg/export';
+import { artboards } from '#lib/document/artboards';
 import { type Format, render } from './render';
 
 /** What the export dialog exports: the whole document, one file per visible artboard, or the selected layers. */
@@ -125,10 +125,10 @@ export class Files {
   }
 
   /** An example, as a new untitled document (its artboard named `title`); not added to the recents. */
-  async openExample(file: string, title: string) {
+  async openExample(file: (typeof EXAMPLES)[number][0], title: string) {
     if (!(await this.confirmDiscardChanges())) return;
     try {
-      const r = await fetch(`${base}/exemples/${file}.svg`);
+      const r = await fetch(asset(`exemples/${file}.svg`));
       if (!r.ok) throw new Error(`${file}.svg: HTTP ${r.status}`);
       this.doc.load(await r.text(), true, title);
     } catch (e) {

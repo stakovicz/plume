@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest';
-import { apply, pt, node, pathBounds } from '$lib/model/geometry';
-import { angleOf, colorAt, linearAt, radialIn } from '$lib/model/effects';
+import { apply, pt, node, pathBounds } from '#lib/model/geometry';
+import { angleOf, colorAt, linearAt, radialIn } from '#lib/model/effects';
 import {
   asPath, bounds, center, cornerRadii, drawnStrokeWidth, effectiveBorderPosition, hit, localBounds, mapped, keepingPlace,
   newLayer, resizeGesture, resized, rotated, moved, toWorld,
-} from '$lib/model/layer';
-import { insertNode, segmentAt, target, toggleCurve } from '$lib/model/point-editing';
-import { ancestors } from '$lib/model/layer-tree';
-import { decodeFile } from '$lib/model/codable';
+} from '#lib/model/layer';
+import { insertNode, segmentAt, target, toggleCurve } from '#lib/model/point-editing';
+import { ancestors } from '#lib/model/layer-tree';
+import { decodeFile } from '#lib/model/codable';
 import { near, nearRect, rect } from './helpers';
 
 const r = () => rect(0, 0, 10, 20);

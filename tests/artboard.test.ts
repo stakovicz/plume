@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { describe, expect, test } from 'vitest';
-import { Doc } from '$lib/document/doc.svelte';
-import { type Pt, pt } from '$lib/model/geometry';
-import { bounds, hit, localBounds, newArtboard, resized, rotated } from '$lib/model/layer';
-import { decodeFile, encodeFile } from '$lib/model/codable';
-import { artboardSVG } from '$lib/svg/export';
-import { Gestures } from '$lib/ui/canvas/gestures.svelte';
-import { importSVG } from '$lib/svg/import';
+import { Doc } from '#lib/document/doc.svelte';
+import { type Pt, pt } from '#lib/model/geometry';
+import { bounds, hit, localBounds, newArtboard, resized, rotated } from '#lib/model/layer';
+import { decodeFile, encodeFile } from '#lib/model/codable';
+import { artboardSVG } from '#lib/svg/export';
+import { Gestures } from '#lib/ui/canvas/gestures.svelte';
+import { importSVG } from '#lib/svg/import';
 import { rect } from './helpers';
 
 const board = (x = 0, y = 0, w = 100, h = 100) => newArtboard('A', [pt(x, y), pt(x + w, y + h)]);

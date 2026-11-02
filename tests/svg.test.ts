@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import { readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
-import { apply, pathBounds, pt } from '$lib/model/geometry';
-import { BLACK, GRAY } from '$lib/model/color';
-import { gradient, defaultShadow } from '$lib/model/effects';
-import { asPath, bounds, localBounds, moved, newArtboard, newLayer } from '$lib/model/layer';
-import { parsePath } from '$lib/model/path-data';
-import { importSVG } from '$lib/svg/import';
-import { artboardSVG, documentSVG, layerSVG } from '$lib/svg/export';
-import { Doc } from '$lib/document/doc.svelte';
-import { EXAMPLES } from '$lib/app/files.svelte';
+import { apply, pathBounds, pt } from '#lib/model/geometry';
+import { BLACK, GRAY } from '#lib/model/color';
+import { gradient, defaultShadow } from '#lib/model/effects';
+import { asPath, bounds, localBounds, moved, newArtboard, newLayer } from '#lib/model/layer';
+import { parsePath } from '#lib/model/path-data';
+import { importSVG } from '#lib/svg/import';
+import { artboardSVG, documentSVG, layerSVG } from '#lib/svg/export';
+import { Doc } from '#lib/document/doc.svelte';
+import { EXAMPLES } from '#lib/app/files.svelte';
 import { near, nearRect, rect } from './helpers';
 
 /** What an import holds: the content of the artboard every SVG now opens into. */

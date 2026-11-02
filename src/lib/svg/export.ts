@@ -1,10 +1,10 @@
-import { type Rect, inset, midX, midY, union } from '$lib/model/geometry';
-import { type RGBA, hex } from '$lib/model/color';
-import type { GradientFill } from '$lib/model/effects';
-import { type Layer, bounds, cornerRadii, imageFlip, localBounds, localShape, textBox } from '$lib/model/layer';
-import { dataURL } from '$lib/model/images';
-import { pathData } from '$lib/model/path-data';
-import { layout } from '$lib/model/text';
+import { type Rect, inset, midX, midY, union } from '#lib/model/geometry';
+import { type RGBA, hex } from '#lib/model/color';
+import type { GradientFill } from '#lib/model/effects';
+import { type Layer, bounds, cornerRadii, imageFlip, localBounds, localShape, textBox } from '#lib/model/layer';
+import { dataURL } from '#lib/model/images';
+import { pathData } from '#lib/model/path-data';
+import { layout } from '#lib/model/text';
 
 /** Layer → SVG markup. Gradients, clips and filters are written as <defs> right before the element
  *  that uses them, with ids derived from the layer id. */

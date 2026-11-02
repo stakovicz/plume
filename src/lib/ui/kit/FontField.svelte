@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { L } from '$lib/i18n';
+  import { L } from '#lib/i18n';
 
   /** Font family picker: a button showing the family in its own face, opening a list (native popover)
    *  where each family previews itself, with a filter field. ↑/↓ move, Return picks, Escape closes.
