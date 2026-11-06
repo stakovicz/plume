@@ -36,6 +36,6 @@
     color: var(--accent);
   }
   button:disabled {
-    opacity: 0.4;
+    opacity: var(--disabled);
   }
 </style>

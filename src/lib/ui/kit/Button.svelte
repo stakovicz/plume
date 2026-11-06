@@ -15,12 +15,14 @@
     border-radius: var(--radius-2);
     background: var(--field);
     font-size: var(--text-12);
+    transition: scale 0.1s cubic-bezier(0.2, 0, 0, 1);
   }
   button:hover:not(:disabled) {
     background: var(--hover);
   }
   button:active:not(:disabled) {
     background: var(--accent-soft);
+    scale: 0.96;
   }
   button.primary {
     border-color: transparent;
@@ -33,6 +35,6 @@
     filter: brightness(1.1);
   }
   button:disabled {
-    opacity: 0.4;
+    opacity: var(--disabled);
   }
 </style>

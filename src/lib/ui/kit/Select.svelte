@@ -35,6 +35,6 @@
     border-color: var(--accent);
   }
   select:disabled {
-    opacity: 0.5;
+    opacity: var(--disabled);
   }
 </style>

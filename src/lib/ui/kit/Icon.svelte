@@ -62,7 +62,7 @@
 
   /** Standalone SVG, stroke style inlined, for drawing outside the DOM (native menu icons). */
   export const iconSVG = (name: IconName, color: string) =>
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="${color}" color="${color}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</svg>`;
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="${color}" color="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</svg>`;
 </script>
 
 <script lang="ts">
@@ -78,7 +78,7 @@
     flex: none;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.3;
+    stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
   }

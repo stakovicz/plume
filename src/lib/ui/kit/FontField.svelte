@@ -115,7 +115,7 @@
     outline: none;
   }
   .field:disabled {
-    opacity: 0.5;
+    opacity: var(--disabled);
   }
 
   .panel {
@@ -128,7 +128,7 @@
     margin: var(--space-2);
     padding: var(--space-2);
     border: none;
-    border-radius: var(--radius-2);
+    border-radius: calc(var(--radius-1) + var(--space-2)); /* concentric with the options */
     background: var(--panel);
     color: var(--text);
     box-shadow: var(--shadow);

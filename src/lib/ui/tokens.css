@@ -17,6 +17,7 @@
   --radius-1: 4px;
   --radius-2: 6px;
   --radius-pill: 999px;
+  --disabled: 0.4; /* opacity of every disabled control */
   --hairline: 1px;
   --control-h: 22px;
   --icon: 16px;
