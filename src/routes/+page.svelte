@@ -175,7 +175,7 @@
     position: absolute;
     top: var(--space-2);
     padding: var(--hairline);
-    border-radius: var(--radius-2);
+    border-radius: calc(var(--radius-2) + var(--hairline)); /* concentric with the buttons */
     background: var(--panel);
     box-shadow: var(--shadow);
   }

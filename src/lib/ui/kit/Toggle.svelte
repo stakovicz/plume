@@ -13,6 +13,6 @@
     accent-color: var(--accent);
   }
   input:disabled {
-    opacity: 0.5;
+    opacity: var(--disabled);
   }
 </style>

@@ -36,7 +36,7 @@
 
 {#snippet gallery(disabled: boolean)}
   <Section title={disabled ? 'Disabled' : 'Enabled'}>
-    <Row label="Icons">{#each icons as i (i)}<Icon name={i} />{/each}</Row>
+    <Row label="Icons"><div class="icons">{#each icons as i (i)}<span title={i}><Icon name={i} /></span>{/each}</div></Row>
     <Row label="IconButton">
       <IconButton icon="rect" label="rect" {disabled} onclick={() => {}} />
       <IconButton icon="ellipse" label="active" active {disabled} onclick={() => {}} />
@@ -125,6 +125,16 @@
     border-radius: var(--radius-2);
     background: var(--panel);
     color: var(--text);
+  }
+  /* every icon at its real size, wrapped over several lines */
+  .icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-1) 0;
+  }
+  .icons span {
+    display: grid;
   }
   h2 {
     margin: 0;

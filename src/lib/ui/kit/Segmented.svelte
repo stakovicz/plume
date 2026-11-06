@@ -21,11 +21,11 @@
     display: flex;
     height: var(--control-h);
     padding: var(--hairline);
-    border-radius: var(--radius-2);
+    border-radius: calc(var(--radius-1) + var(--hairline)); /* concentric with the segments */
     background: var(--hover);
   }
   div.disabled {
-    opacity: 0.5;
+    opacity: var(--disabled);
   }
   button {
     flex: 1;

@@ -48,7 +48,7 @@
     {:else if 'submenu' in item}
       <button type="button" class="item" popovertarget="{path}-{j}" style:anchor-name="--{path}-{j}">
         {#if item.icon}<Icon name={item.icon} />{/if}
-        <span class="text">{item.submenu}</span><span class="hint">▸</span>
+        <span class="text">{item.submenu}</span><span class="hint"><Icon name="chevron" /></span>
       </button>
       <div id="{path}-{j}" class="menu sub" popover="auto" style:position-anchor="--{path}-{j}">
         {@render list(item.items, `${path}-${j}`)}
@@ -103,7 +103,7 @@
     margin: 0;
     padding: var(--space-1);
     border: none;
-    border-radius: var(--radius-2);
+    border-radius: calc(var(--radius-1) + var(--space-1)); /* concentric with the items */
     background: var(--panel);
     color: var(--text);
     box-shadow: var(--shadow);
@@ -139,6 +139,7 @@
     margin-right: var(--space-4);
   }
   .hint {
+    display: flex; /* the submenu chevron sits in the line, not on its baseline */
     color: inherit;
     opacity: 0.6;
   }

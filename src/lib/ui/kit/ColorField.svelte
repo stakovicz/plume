@@ -265,7 +265,7 @@
     background: none;
   }
   .swatch:disabled {
-    opacity: 0.5;
+    opacity: var(--disabled);
   }
 
   .panel {
@@ -279,7 +279,7 @@
     margin: var(--space-2);
     padding: var(--space-3);
     border: none;
-    border-radius: var(--radius-2);
+    border-radius: calc(var(--radius-1) + var(--space-3)); /* concentric with the square */
     background: var(--panel);
     color: var(--text);
     box-shadow: var(--shadow);
@@ -297,7 +297,7 @@
   /* stylelint-disable color-named, function-disallowed-list -- a color picker's own gradients and handles are the colors themselves, not theme */
   .square {
     height: 150px;
-    border-radius: var(--radius-2);
+    border-radius: var(--radius-1);
     background:
       linear-gradient(transparent, black),
       linear-gradient(to right, white, transparent),

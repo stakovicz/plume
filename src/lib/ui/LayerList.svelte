@@ -255,6 +255,7 @@
     white-space: nowrap;
   }
   .disclosure {
+    position: relative;
     display: grid;
     place-items: center;
     flex: none;
@@ -265,11 +266,17 @@
     background: none;
     color: inherit;
   }
+  /* hit area: the row's full height */
+  .disclosure::before {
+    content: '';
+    position: absolute;
+    inset: calc((var(--icon) - var(--control-h)) / 2);
+  }
   .disclosure :global(svg) {
-    transition: transform 0.12s;
+    transition: rotate 0.12s cubic-bezier(0.2, 0, 0, 1);
   }
   .disclosure.open :global(svg) {
-    transform: rotate(90deg);
+    rotate: 90deg;
   }
   .toggles {
     display: flex;

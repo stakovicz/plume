@@ -74,7 +74,7 @@
     border-color: var(--accent);
   }
   label.disabled {
-    opacity: 0.5;
+    opacity: var(--disabled);
   }
   input {
     flex: 1;
@@ -113,6 +113,7 @@
     margin-left: var(--space-1);
   }
   .stepper button {
+    position: relative;
     display: grid;
     place-items: center;
     width: var(--stepper-w);
@@ -120,6 +121,11 @@
     border: none;
     background: none;
     color: var(--text-3);
+  }
+  .stepper button::before {
+    content: '';
+    position: absolute;
+    inset: 0 calc(-1 * var(--space-1));
   }
   .stepper button:hover:not(:disabled) {
     color: var(--text);

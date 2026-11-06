@@ -18,6 +18,12 @@
   les rend à l'ouverture.
   ([#31](https://github.com/stakovicz/plume/issues/31))
 
+### Modifications
+
+- **Finitions de l'interface** : coins arrondis concentriques (menus, listes de polices, sélecteur de couleur,
+  contrôles segmentés), cibles plus grandes pour le triangle des groupes et les flèches des champs numériques,
+  un seul aspect pour les contrôles désactivés, icônes un peu plus épaisses, boutons des dialogues qui s'enfoncent au clic.
+
 ## 0.4.1 — 2026-10-29
 
 ### Ajouts
