@@ -34,6 +34,11 @@
   contrôles segmentés), cibles plus grandes pour le triangle des groupes et les flèches des champs numériques,
   un seul aspect pour les contrôles désactivés, icônes un peu plus épaisses, boutons des dialogues qui s'enfoncent au clic.
 
+### Corrections
+
+- **Couleurs du document** : une même couleur (même code hex, même opacité) n'y figure plus deux fois ; les doublons
+  des documents existants disparaissent à l'ouverture.
+
 ## 0.4.1 — 2026-10-29
 
 ### Ajouts

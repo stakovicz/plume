@@ -48,7 +48,7 @@
   function pointerdown(e: PointerEvent) {
     if (e.button !== 0) return;
     e.preventDefault(); // no native mousedown focus change: it would blur a rename field opened by this click
-    if (doc.eyedropper) return doc.eyedropper(doc.toDoc(view(e))); // a color panel picks here: no selection change
+    if (doc.eyedropper) return; // a color panel picks on release (pointerup): no selection change
     el.focus();
     el.setPointerCapture(e.pointerId);
     // ⇧- or ⌘-click (Ctrl) adds/removes, as in the navigator; a ⌘ drag moves without snapping
@@ -122,7 +122,7 @@
   aria-label={L('Canvas')}
   onpointerdown={pointerdown}
   onpointermove={(e) => gestures.move(view(e), e.metaKey || e.ctrlKey)}
-  onpointerup={() => gestures.up()}
+  onpointerup={(e) => (doc.eyedropper ? doc.eyedropper(doc.toDoc(view(e))) : gestures.up())}
   onpointercancel={() => gestures.up()}
   onwheel={wheel}
   onkeydown={keydown}

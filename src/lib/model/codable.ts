@@ -1,5 +1,5 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
-import type { RGBA } from './color';
+import { type RGBA, uniqueColors } from './color';
 import { type Layer, newLayer } from './layer';
 import { DEFAULT_TEXT } from './text';
 import { imageBytes, imagesUsed, putImage } from './images';
@@ -44,7 +44,7 @@ export function decodeFile(text: string): DocFile {
   const raw = JSON.parse(text, revive);
   const file = Array.isArray(raw) ? { layers: raw, palette: [] } : raw;
   if (!Array.isArray(file?.layers)) throw new Error('Not a Plume document');
-  return { layers: file.layers.map(decodeLayer), palette: file.palette ?? [] };
+  return { layers: file.layers.map(decodeLayer), palette: uniqueColors(file.palette ?? []) }; // older saves could repeat a color
 }
 
 /** A `.plm` file: a zip archive with the document as `document.json` and the images `layers` use as
