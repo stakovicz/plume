@@ -87,6 +87,7 @@
     <Row label="Slider"><Slider label="v" value={v} {disabled} oninput={(x) => (v = x)} /></Row>
     <Row label="Color">
       <ColorField label="color" {color} {palette} {disabled} onchange={(c) => (color = c)}
+        onpick={async () => ({ r: Math.random(), g: Math.random(), b: Math.random(), a: 1 })}
         onaddtopalette={(c) => (palette = [...palette, c])} onremovefrompalette={(i) => (palette = palette.filter((_, j) => j !== i))} />
     </Row>
   </Section>

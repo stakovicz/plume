@@ -24,6 +24,22 @@ describe('doc', () => {
     expect(d.zoom).toBe(1);
   });
 
+  test('a new shape goes just above the selection on the same artboard, else on top', () => {
+    const d = docWith(r10(0, 'a'), r10(20, 'b'), r10(40, 'c'));
+    d.selection = d.layers[0].id;
+    d.add('rect', pt(100, 100));
+    expect(d.layers.map((l) => l.name)).toEqual(['a', 'Rectangle 1', 'b', 'c']);
+    d.addArtboard('Board', 50, 50);
+    const board = d.layers.at(-1)!, inside = pt(bounds(board).x + 10, 10);
+    d.selection = d.layers[1].id;
+    d.add('ellipse', inside); // on the artboard, the selection is not: top of the artboard
+    expect(board.children.map((l) => l.name)).toEqual(['Oval 1']);
+    d.add('rect', inside); // above the oval, now selected
+    d.selection = board.children[0].id;
+    d.add('rect', inside);
+    expect(board.children.map((l) => l.name)).toEqual(['Oval 1', 'Rectangle 3', 'Rectangle 2']);
+  });
+
   test('undo, redo', () => {
     const d = new Doc();
     d.checkpoint();

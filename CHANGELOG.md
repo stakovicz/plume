@@ -4,6 +4,10 @@
 
 ### Ajouts
 
+- **Pipette** : dans le panneau de couleur, prend la couleur d'un point du document (formes et images, telles
+  qu'affichées) d'un clic sur le canevas ; Échap annule.
+- **Magnétisme** : quand des lignes de repère apparaissent pendant un glissement (déplacement, redimensionnement, point,
+  tracé), un indice près du pointeur rappelle que ⌘ (Ctrl) les désactive.
 - **Aligner et répartir** : Disposition › Aligner (⌥A, ⌥H, ⌥D, ⌥W, ⌥V, ⌥S) et Répartir (⌥⇧H, ⌥⇧V), et une rangée
   d'icônes en haut de l'inspecteur. Plusieurs calques s'alignent sur leur cadre commun, un calque seul sur son groupe
   ou son plan de travail. ([#29](https://github.com/stakovicz/plume/issues/29))
@@ -20,9 +24,20 @@
 
 ### Modifications
 
+- **Export** : les calques masqués ne sont plus exportés (PNG, JPG, PDF, SVG, ni copiés en SVG) et n'agrandissent plus
+  le cadre ; un plan de travail masqué n'est toujours pas exporté avec « Plans de travail ».
+- **Sélection multiple** : ⌘-clic (Ctrl+clic) ajoute ou retire un calque sur le canevas aussi, comme dans le
+  navigateur ; ⇧-clic marche toujours.
+- **Nouvelle forme** : un rectangle, une ellipse, un texte, un tracé ou une image importée (Fichier › Importer) se place
+  juste au-dessus du calque sélectionné (dans son groupe) quand ils sont sur le même plan de travail, au lieu de tout en haut.
 - **Finitions de l'interface** : coins arrondis concentriques (menus, listes de polices, sélecteur de couleur,
   contrôles segmentés), cibles plus grandes pour le triangle des groupes et les flèches des champs numériques,
   un seul aspect pour les contrôles désactivés, icônes un peu plus épaisses, boutons des dialogues qui s'enfoncent au clic.
+
+### Corrections
+
+- **Couleurs du document** : une même couleur (même code hex, même opacité) n'y figure plus deux fois ; les doublons
+  des documents existants disparaissent à l'ouverture.
 
 ## 0.4.1 — 2026-10-29
 

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { fromHex, fromHSV, hex, hsv } from '#lib/model/color';
+import { eqColor, fromHex, fromHSV, hex, hsv, uniqueColors } from '#lib/model/color';
 
 test('hsv round trip', () => {
   for (const c of [{ r: 1, g: 0, b: 0, a: 1 }, { r: 0.2, g: 0.6, b: 0.4, a: 0.5 }, { r: 0.9, g: 0.1, b: 0.7, a: 1 }]) {
@@ -15,4 +15,11 @@ test('hex parsing', () => {
   expect(fromHex('00FF0080')?.a).toBe(128 / 255);
   expect(fromHex('nope')).toBeNull();
   expect(hex({ r: 1, g: 0.5, b: 0, a: 1 })).toBe('#FF7F00');
+});
+
+test('same color as shown: same hex and opacity, whatever the float noise', () => {
+  const a = fromHex('#3366CC')!, b = { ...a, r: a.r + 1e-6 };
+  expect(eqColor(a, b)).toBe(true);
+  expect(eqColor(a, { ...a, a: 0.5 })).toBe(false);
+  expect(uniqueColors([a, b, fromHex('#000')!])).toEqual([a, fromHex('#000')!]);
 });

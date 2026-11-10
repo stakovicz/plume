@@ -10,6 +10,9 @@ Dans le panneau :
 - le carré règle saturation et luminosité, la barre suivante la teinte, la dernière l'opacité ;
 - **Hex** : tapez un code (`F5B700`, `#f5b700`, `FB0`) puis **Retour** ; l'opacité en cours est conservée ;
 - le champ en pourcentage, à côté, règle l'opacité ;
+- la **pipette**, à gauche du champ Hex, prend une couleur dans le document : cliquez sur le canevas, sur une forme
+  ou une image, telle qu'elle s'affiche (effets compris) ; le panneau reste ouvert, l'opacité en cours est conservée,
+  **Échap** annule ;
 - **Retour** dans un champ du panneau valide et ferme le panneau ;
 - les flèches du clavier déplacent le curseur actif de 1 % (10 % avec ⇧).
 

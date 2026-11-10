@@ -108,14 +108,23 @@ function framed(body: string, b: Rect): Framed {
   return { svg, width: b.width, height: b.height };
 }
 
-/** One artboard: its frame is the canvas. */
-export const framedArtboard = (a: Layer) => framed('  ' + layerSVG({ ...a, hidden: false }), localBounds(a));
+/** `ls` without its hidden layers, at any depth (groups left empty go too): exports leave them out. */
+const shown = (ls: Layer[]): Layer[] => ls.filter((l) => !l.hidden)
+  .map((l) => (l.children.length ? { ...l, children: shown(l.children) } : l))
+  .filter((l) => l.kind !== 'group' || l.children.length);
 
-/** Layers on a canvas fitted to their bounds, plus `padding` all round. */
+/** One artboard (exported even when hidden itself): its frame is the canvas. */
+export const framedArtboard = (a: Layer) => framed('  ' + layerSVG({ ...a, hidden: false, children: shown(a.children) }), localBounds(a));
+
+/** Visible layers on a canvas fitted to their bounds, plus `padding` all round. */
 export function framedLayers(layers: Layer[], padding = 0): Framed {
+  layers = shown(layers);
   const u = layers.reduce<Rect | null>((r, l) => union(r, bounds(l)), null);
   return framed(layers.map((l) => '  ' + layerSVG(l)).join('\n'), u ? inset(u, -padding) : { x: 0, y: 0, width: 100, height: 100 });
 }
+
+/** Layers on the canvas `frame`, as they sit there: what the eyedropper reads a pixel of. */
+export const framedRegion = (layers: Layer[], frame: Rect) => framed(layers.map((l) => '  ' + layerSVG(l)).join('\n'), frame);
 
 export const artboardSVG = (a: Layer) => framedArtboard(a).svg;
 export const documentSVG = (layers: Layer[]) => framedLayers(layers, 10).svg;

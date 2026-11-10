@@ -7,10 +7,13 @@ export const GRAY: RGBA = { r: 0.85, g: 0.86, b: 0.9, a: 1 };
  *  shape reads back identical (0.435 × 255 still rounds to 0x6F). */
 export const SHAPE_FILL: RGBA = { r: 1, g: 0.435, b: 0, a: 0.7 };
 
-export const eqColor = (x: RGBA, y: RGBA) => x.r === y.r && x.g === y.g && x.b === y.b && x.a === y.a;
-
 const byte = (v: number) => Math.trunc(v * 255).toString(16).toUpperCase().padStart(2, '0');
 export const hex = (c: RGBA) => `#${byte(c.r)}${byte(c.g)}${byte(c.b)}`;
+
+/** Same color as the panel shows it: same hex, same opacity in percent (HSB edits leave float noise). */
+export const eqColor = (x: RGBA, y: RGBA) => hex(x) === hex(y) && Math.round(x.a * 100) === Math.round(y.a * 100);
+/** `cs` without repeats (the first of each kept). */
+export const uniqueColors = (cs: RGBA[]) => cs.filter((c, i) => cs.findIndex((d) => eqColor(c, d)) === i);
 export const css = (c: RGBA) => `rgb(${c.r * 255} ${c.g * 255} ${c.b * 255} / ${c.a})`;
 
 /** "#RGB", "#RRGGBB" or "#RRGGBBAA", with or without "#". */

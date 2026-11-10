@@ -37,6 +37,7 @@ export class Doc {
   }
 
   penID = $state<string | null>(null); // path being drawn with the pen
+  eyedropper = $state<((p: Pt) => void) | null>(null); // a color panel waits for a click on the canvas (`pickColor`)
   #editing = $state<string | null>(null); // path in point-edit mode
   get editing() { return this.#editing; }
   set editing(id: string | null) {
@@ -167,7 +168,9 @@ export class Doc {
 
   // MARK: Editing
 
-  /** New layer at `p`: inside the artboard under it (artboards themselves are always top-level). */
+  /** New layer at `p`: inside the artboard under it (artboards themselves are always top-level), just above the
+   *  topmost selected layer when that one is on the same artboard (or off artboards with it) and not in a locked group,
+   *  else on top. */
   add(kind: Kind, p: Pt) {
     const base = { rect: L('Rectangle'), ellipse: L('Oval'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text'), image: L('Image') }[kind];
     const host = kind === 'artboard' ? null : artboardAt(this.layers, p);
@@ -178,7 +181,13 @@ export class Doc {
       : kind === 'artboard' ? newArtboard(name, [p, p])
       : kind === 'text' ? newLayer(name, kind, [p, p], { fill: BLACK, strokeWidth: 0, text: { ...DEFAULT_TEXT } })
       : newLayer(name, kind, [p, p], { fill: SHAPE_FILL });
-    list.push(l);
+    const top = kind === 'artboard' ? undefined : inTreeOrder(this.layers, this.selectedIDs).at(-1);
+    const home = top && parent(this.layers, top.id);
+    const board = top && ancestors(this.layers, top.id).find((a) => a.kind === 'artboard');
+    if (top && top.kind !== 'artboard' && board?.id === host?.id && !(home && this.isLocked(home.id))) {
+      const s = siblings(this.layers, top.id)!;
+      s.splice(s.findIndex((x) => x.id === top.id) + 1, 0, l);
+    } else list.push(l);
     this.selection = l.id;
   }
 
@@ -398,9 +407,10 @@ export class Doc {
   /** ⌘V: into the selected group or artboard, else just above the topmost selected layer,
    *  else at the top level (then into the artboard under it). Same position as the originals; layers that
    *  would land outside their artboard's frame go to its center. Artboards are pasted right of everything.
-   *  `at` (a file dropped on the canvas): centered on that document point, in the artboard under it.
+   *  `at` (a file dropped on the canvas): centered on that document point, in the artboard under it, unless
+   *  `nearSelection` (an imported image) keeps the selection rule above.
    *  The pasted layers get new ids and become the selection. */
-  paste(clip: Layer[], at?: Pt) {
+  paste(clip: Layer[], at?: Pt, nearSelection = !at) {
     if (!clip.length) return;
     let copies = clip.map(withNewIDs);
     const c = copies.reduce<Rect | null>((r, l) => union(r, bounds(l)), null)!;
@@ -411,7 +421,7 @@ export class Doc {
       if (all && !at) copies = copies.map((l) => moved(l, pt(all.x + all.width + 80 - c.x, 0)));
       this.layers.push(...copies);
     } else {
-      const sel = at ? null : this.selected, top = at ? undefined : inTreeOrder(this.layers, this.selectedIDs).at(-1);
+      const sel = nearSelection ? this.selected : null, top = nearSelection ? inTreeOrder(this.layers, this.selectedIDs).at(-1) : undefined;
       const host = top ? parent(this.layers, top.id) : null;
       let dest: Layer | null = null, list = this.layers, index = list.length;
       if (sel && isContainer(sel) && !this.isLocked(sel.id)) [dest, list, index] = [sel, sel.children, sel.children.length];
@@ -428,13 +438,14 @@ export class Doc {
   }
 
   /** File › Import Image, a pasted or dropped bitmap: at its size in pixels, scaled down to fit the artboard it lands in.
-   *  `name`: the file's, else "Image n". `at` (dropped): centered there. Otherwise in the middle of the selection's artboard, else of the view. */
+   *  `name`: the file's, else "Image n". `at` (dropped): centered there. Otherwise in the middle of the selection's artboard,
+   *  else of the view, stacked like a paste (just above the selection). */
   placeImage(image: ImageRef, name?: string, at?: Pt) {
     const first = this.selectedLayers[0];
     const board = at || !first ? null : first.kind === 'artboard' ? first : ancestors(this.layers, first.id).find((a) => a.kind === 'artboard');
     const p = at ?? (board ? center(board) : this.toDoc(pt(this.viewSize.width / 2, this.viewSize.height / 2)));
     const host = board ?? artboardAt(this.layers, p);
-    this.paste([newImage(name || nextName(this.layers, L('Image')), image, p, host && localBounds(host))], p);
+    this.paste([newImage(name || nextName(this.layers, L('Image')), image, p, host && localBounds(host))], p, !at);
   }
 
   /** ⌘D: pastes a copy of the selection right above it, without touching the clipboard. */

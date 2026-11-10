@@ -48,9 +48,11 @@
   function pointerdown(e: PointerEvent) {
     if (e.button !== 0) return;
     e.preventDefault(); // no native mousedown focus change: it would blur a rename field opened by this click
+    if (doc.eyedropper) return; // a color panel picks on release (pointerup): no selection change
     el.focus();
     el.setPointerCapture(e.pointerId);
-    gestures.down(view(e), e.shiftKey, e.metaKey || e.ctrlKey); // ⌘ (Ctrl): no snapping
+    // ⇧- or ⌘-click (Ctrl) adds/removes, as in the navigator; a ⌘ drag moves without snapping
+    gestures.down(view(e), e.shiftKey || e.metaKey || e.ctrlKey, e.metaKey || e.ctrlKey);
   }
 
   /** Scroll = pan, ⌘-scroll / pinch (ctrl-wheel in WebKit) = zoom around the cursor. */
@@ -114,13 +116,13 @@
 <div
   bind:this={el}
   class="canvas"
-  class:crosshair={doc.tool !== 'select'}
+  class:crosshair={doc.tool !== 'select' || !!doc.eyedropper}
   tabindex="0"
   role="application"
   aria-label={L('Canvas')}
   onpointerdown={pointerdown}
   onpointermove={(e) => gestures.move(view(e), e.metaKey || e.ctrlKey)}
-  onpointerup={() => gestures.up()}
+  onpointerup={(e) => (doc.eyedropper ? doc.eyedropper(doc.toDoc(view(e))) : gestures.up())}
   onpointercancel={() => gestures.up()}
   onwheel={wheel}
   onkeydown={keydown}

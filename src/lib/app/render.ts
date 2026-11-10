@@ -1,4 +1,7 @@
-import type { Framed } from '#lib/svg/export';
+import { type Framed, framedRegion } from '#lib/svg/export';
+import type { Doc } from '#lib/document/doc.svelte';
+import type { RGBA } from '#lib/model/color';
+import type { Pt } from '#lib/model/geometry';
 import { base64, fromDataURL, imageInfo } from '#lib/model/images';
 import { fontsIn } from './fonts.svelte';
 
@@ -17,6 +20,14 @@ export async function render(f: Framed, format: Format, scale = 1): Promise<Uint
 
 /** The browser's own SVG renderer, so blur and shadows look as on the canvas. */
 async function raster(f: Framed, format: 'png' | 'jpg', scale: number): Promise<Uint8Array<ArrayBuffer>> {
+  const canvas = await drawn(f, Math.round(f.width * scale), Math.round(f.height * scale), format === 'jpg');
+  const blob = await new Promise<Blob | null>((done) => canvas.toBlob(done, format === 'jpg' ? 'image/jpeg' : 'image/png', 0.9));
+  if (!blob) throw new Error('canvas.toBlob failed');
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+/** `f` drawn on a canvas of `width` × `height` pixels; `white`: on white (no alpha in JPEG). */
+async function drawn(f: Framed, width: number, height: number, white = false): Promise<HTMLCanvasElement> {
   // an SVG drawn as an image sees none of the page's fonts: embed the ones it uses
   const faces = fontsIn(f.svg).map((ff) => `@font-face{font-family:"${ff.family}";font-weight:${ff.weight};src:url(data:font/ttf;base64,${base64(ff.data)})}`);
   const svg = faces.length ? f.svg.replace(/<svg[^>]*>/, (open) => `${open}<style>${faces.join('')}</style>`) : f.svg;
@@ -25,21 +36,45 @@ async function raster(f: Framed, format: 'png' | 'jpg', scale: number): Promise<
     const img = new Image();
     img.src = url;
     await img.decode();
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(f.width * scale));
-    canvas.height = Math.max(1, Math.round(f.height * scale));
+    const canvas = Object.assign(document.createElement('canvas'), { width: Math.max(1, width), height: Math.max(1, height) });
     const ctx = canvas.getContext('2d')!;
-    if (format === 'jpg') { // no alpha in JPEG: transparent areas come out white
+    if (white) {
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise<Blob | null>((done) => canvas.toBlob(done, format === 'jpg' ? 'image/jpeg' : 'image/png', 0.9));
-    if (!blob) throw new Error('canvas.toBlob failed');
-    return new Uint8Array(await blob.arrayBuffer());
+    return canvas;
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+/** Eyedropper: the next click on the canvas reads the color the document shows there (shapes and images, as
+ *  rendered, effects included); Escape cancels. Null: cancelled, or nothing painted there. */
+export function pickColor(doc: Doc): Promise<RGBA | null> {
+  return new Promise((done) => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      e.stopPropagation();
+      end(null);
+    };
+    const end = (c: RGBA | null) => {
+      doc.eyedropper = null;
+      removeEventListener('keydown', key, true);
+      done(c);
+    };
+    addEventListener('keydown', key, true);
+    doc.eyedropper = (p) => colorAt(doc, p).then(end, () => end(null));
+  });
+}
+
+/** The pixel under document point `p`: one document unit around it, drawn at the zoom (so image detail shows). */
+async function colorAt(doc: Doc, p: Pt): Promise<RGBA | null> {
+  const n = Math.min(Math.max(Math.round(doc.zoom), 1), 64);
+  const canvas = await drawn(framedRegion(doc.layers, { x: p.x - 0.5, y: p.y - 0.5, width: 1, height: 1 }), n, n);
+  const [r, g, b, a] = canvas.getContext('2d')!.getImageData(n >> 1, n >> 1, 1, 1).data;
+  return a ? { r: r / 255, g: g / 255, b: b / 255, a: a / 255 } : null;
 }
 
 /** A JPEG goes into a PDF as is, and PDF readers ignore its EXIF orientation (a phone photo would come out turned

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { L } from '#lib/i18n';
   import { type RGBA, css, eqColor, fromHSV, fromHex, hex, hsv } from '#lib/model/color';
   import { type GradientFill, type Stop, angleOf, colorAt, gradientCSS, linearAt, radialIn, sortStops } from '#lib/model/effects';
@@ -7,17 +8,20 @@
   import NumberField from './NumberField.svelte';
   import Segmented from './Segmented.svelte';
   import Icon from './Icon.svelte';
+  import IconButton from './IconButton.svelte';
 
   /** Swatch that opens a color panel (native popover): saturation/brightness square, hue and opacity
    *  sliders, hex field, document palette. Reports every change; the caller coalesces undo (`styleEdit`).
    *  With `ongradient`, the panel also edits gradients (fill types): linear or radial, a stops bar
    *  (click adds a stop, drag moves it, Delete removes it, two at least) and, for linear, the angle; the
-   *  color controls then edit the selected stop. `bounds` (layer local space) frames new gradients. */
+   *  color controls then edit the selected stop. `bounds` (layer local space) frames new gradients.
+   *  `onpick` (eyedropper): waits for a color picked elsewhere, the panel kept open meanwhile. */
   let { color, onchange, label, palette = [], onaddtopalette, onremovefrompalette, disabled = false,
-    gradient = null, ongradient, bounds = { x: 0, y: 0, width: 1, height: 1 } }: {
+    gradient = null, ongradient, bounds = { x: 0, y: 0, width: 1, height: 1 }, onpick }: {
     color: RGBA; onchange: (c: RGBA) => void; label: string;
     palette?: RGBA[]; onaddtopalette?: (c: RGBA) => void; onremovefrompalette?: (i: number) => void; disabled?: boolean;
     gradient?: GradientFill | null; ongradient?: (g: GradientFill | null) => void; bounds?: Rect;
+    onpick?: () => Promise<RGBA | null>;
   } = $props();
 
   const uid = $props.id();
@@ -141,6 +145,27 @@
   }
 
   let bar = $state<HTMLElement>();
+  let panel = $state<HTMLElement>();
+
+  // Picking: the panel turns `manual`, so the click on the canvas doesn't dismiss it. Changing `popover` hides an open
+  // popover: shown again each time, keeping the selected stop.
+  let picking = $state(false), reopening = false;
+  async function setPicking(on: boolean) {
+    picking = on;
+    await tick();
+    if (panel!.matches(':popover-open')) return;
+    reopening = true; // the toggle event comes later: it clears the flag
+    panel!.showPopover();
+  }
+  /** Picked color, keeping the current opacity (as the hex field does). */
+  async function pick() {
+    if (picking) return;
+    await setPicking(true);
+    const c = await onpick!();
+    if (c) { setColor({ ...c, a: current.a }); syncFromColor(c); }
+    await new Promise((done) => setTimeout(done)); // past the picking click: it must not dismiss the panel once `auto`
+    await setPicking(false);
+  }
 </script>
 
 <button
@@ -156,14 +181,19 @@
 </button>
 
 <div
+  bind:this={panel}
   id="color-{uid}"
   class="panel"
   role="dialog"
   tabindex="-1"
   aria-label={label}
-  popover="auto"
+  popover={picking ? 'manual' : 'auto'}
   style:position-anchor="--color-{uid}"
-  ontoggle={(e) => { if (e.newState === 'open') { sel = 0; syncFromColor(); } }}
+  ontoggle={(e) => {
+    if (e.newState !== 'open') return;
+    if (reopening) reopening = false;
+    else { sel = 0; syncFromColor(); }
+  }}
   onkeydown={(e) => {
     // Return in a field: the field commits (its own handler runs first), then the panel closes. Default prevented:
     // focus goes back to the swatch, which the same key press would otherwise click, reopening the panel
@@ -222,7 +252,8 @@
     onkeydown={arrows((dx) => setColor({ ...current, a: clamp(current.a + dx) }))}>
     <i style:left="{current.a * 100}%"></i>
   </div>
-  <div class="fields">
+  <div class="fields" class:picker={onpick}>
+    {#if onpick}<IconButton icon="eyedropper" label={L('Pick a color in the document')} quiet active={picking} onclick={pick} />{/if}
     <input
       class="hex"
       aria-label={L('Hex')}
@@ -335,6 +366,9 @@
     grid-template-columns: 1fr 64px;
     align-items: center;
     gap: var(--space-1);
+  }
+  .fields.picker {
+    grid-template-columns: auto 1fr 64px;
   }
   .caption {
     font-size: var(--text-12);

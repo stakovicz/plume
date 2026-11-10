@@ -70,8 +70,8 @@ AZERTY, Aligner à gauche est ⌥Q et Aligner en haut ⌥Z.
 
 | Action | macOS | Linux |
 |---|---|---|
-| Ajouter / retirer de la sélection | ⇧-clic | Maj+clic |
-| Sélection au lasso (⇧ : ajouter) | glisser depuis une zone vide | glisser depuis une zone vide (Maj : ajouter) |
+| Ajouter / retirer de la sélection | ⌘-clic ou ⇧-clic | Ctrl+clic ou Maj+clic |
+| Sélection au lasso (⌘ ou ⇧ : ajouter) | glisser depuis une zone vide | glisser depuis une zone vide (Ctrl ou Maj : ajouter) |
 | Entrer dans un groupe | double-clic | double-clic |
 | Renommer un plan de travail | triple-clic sur son nom | triple-clic sur son nom |
 | Ajouter un point à un tracé | clic sur un segment (édition de points) | idem |
