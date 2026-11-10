@@ -119,4 +119,16 @@ describe('image', () => {
     expect(doc.canGroup).toBe(true);
     expect(doc.canCombine).toBe(false);
   });
+
+  test('imported just above the selected layer; dropped on top', () => {
+    const doc = new Doc();
+    doc.replace([newArtboard('A', [pt(0, 0), pt(100, 100)])]);
+    doc.layers[0].children.push(rect(10, 10, 20, 20, 'a'), rect(30, 30, 40, 40, 'b'));
+    doc.selection = doc.layers[0].children[0].id;
+    doc.placeImage(addImage(png(20, 20))!, 'img');
+    expect(doc.layers[0].children.map((l) => l.name)).toEqual(['a', 'img', 'b']);
+    doc.selection = doc.layers[0].children[0].id;
+    doc.placeImage(addImage(png(20, 20, 1))!, 'dropped', pt(50, 50));
+    expect(doc.layers[0].children.map((l) => l.name)).toEqual(['a', 'img', 'b', 'dropped']);
+  });
 });

@@ -11,6 +11,7 @@
     group: '<path d="M2 4.5h4l1.5 1.5h6.5v6.5H2Z"/>',
     image: '<rect x="2.5" y="3" width="11" height="10" rx="1"/><circle cx="6" cy="6.5" r="1.2"/><path d="m2.5 11.5 3.5-3.5 3 3 2-2 2.5 2.5"/>',
     artboard: '<path d="M4.5 1.5v13M11.5 1.5v13M1.5 4.5h13M1.5 11.5h13"/>',
+    eyedropper: '<path d="m9 4.5 2.5 2.5M3 13l1-3 5.5-5.5 2 2L6 12Z"/><path d="m10 3 1.2-1.2a1.4 1.4 0 0 1 2 2L12 5"/>',
     eye: '<path d="M1.5 8c2-3.5 11-3.5 13 0-2 3.5-11 3.5-13 0Z"/><circle cx="8" cy="8" r="2"/>',
     'eye-off': '<path d="M1.5 8c2-3.5 11-3.5 13 0-2 3.5-11 3.5-13 0Z"/><circle cx="8" cy="8" r="2"/><path d="M3 13 13 3"/>',
     lock: '<rect x="3.5" y="7" width="9" height="6.5" rx="1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/>',

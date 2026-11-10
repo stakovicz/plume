@@ -7,7 +7,7 @@ import { gradient, defaultShadow } from '#lib/model/effects';
 import { asPath, bounds, localBounds, moved, newArtboard, newLayer } from '#lib/model/layer';
 import { parsePath } from '#lib/model/path-data';
 import { importSVG } from '#lib/svg/import';
-import { artboardSVG, documentSVG, layerSVG } from '#lib/svg/export';
+import { artboardSVG, documentSVG, framedArtboard, framedLayers, layerSVG } from '#lib/svg/export';
 import { Doc } from '#lib/document/doc.svelte';
 import { EXAMPLES } from '#lib/app/files.svelte';
 import { near, nearRect, rect } from './helpers';
@@ -78,6 +78,15 @@ describe('svg', () => {
     expect(back.dash).toEqual([4, 2]);
     expect(back.lineCap).toBe('round');
     expect(back.lineJoin).toBe('bevel');
+  });
+
+  test('exports leave hidden layers out, and they do not count in the frame', () => {
+    const shown = rect(0, 0, 10, 10, 'shown'), hidden = { ...rect(100, 100, 110, 110, 'gone'), hidden: true };
+    const f = framedLayers([shown, hidden]);
+    expect([f.width, f.height]).toEqual([10, 10]);
+    expect(content(f.svg).length).toBe(1);
+    const board = { ...newArtboard('A', [pt(0, 0), pt(50, 50)]), hidden: true, children: [shown, hidden] };
+    expect(content(framedArtboard(board).svg).length).toBe(1);
   });
 
   test('hidden survives export, display none / visibility hidden import hidden', () => {

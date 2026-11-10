@@ -5,10 +5,10 @@ Sélectionner, déplacer, aligner, répartir, grouper, ordonner, renommer, masqu
 ## Sélectionner
 
 - **Un calque** : clic sur le canevas, ou dans le navigateur.
-- **Plusieurs calques** : ⇧-clic sur le canevas ; ⌘-clic dans le navigateur. Un simple clic sur l'un d'eux
+- **Plusieurs calques** : ⌘-clic (ou ⇧-clic sur le canevas), comme dans le navigateur. Un simple clic sur l'un d'eux
   (sans glisser) ne garde que lui ; glisser déplace toute la sélection.
 - **Au lasso** : glissez depuis une zone vide du canevas ; un rectangle sélectionne tous les calques visibles
-  qu'il touche, même en partie. ⇧ en commençant ajoute à la sélection en cours.
+  qu'il touche, même en partie. ⇧ ou ⌘ en commençant ajoute à la sélection en cours.
 - **Une plage** dans le navigateur : cliquez le premier calque, puis ⇧-clic sur le dernier.
 - **Tout** : ⌘A. Sélectionne les calques visibles du niveau en cours : ceux du groupe où vous travaillez,
   sinon tous les calques du document, plans de travail traversés.
@@ -19,6 +19,7 @@ Sélectionner, déplacer, aligner, répartir, grouper, ordonner, renommer, masqu
 
 - **Déplacer** : glissez le calque, ou utilisez les flèches (1 px, 10 px avec ⇧).
   Les bords et centres s'aimantent aux autres calques (lignes de repère).
+  Appuyez sur ⌘ (Ctrl) pendant le glissement pour placer librement, sans magnétisme ; l'indice près du pointeur le rappelle.
 - **Redimensionner** : glissez l'une des huit poignées. ⇧ garde les proportions, ⌥ redimensionne depuis le centre.
   Le cadenas **Verrouiller les proportions** de l'inspecteur (section Géométrie) rend le redimensionnement
   proportionnel sans ⇧ ; il est actif par défaut pour les groupes et les SVG importés.
@@ -56,6 +57,8 @@ Son opacité et ses effets restent ceux du groupe, appliqués à l'ensemble.
   Mettre à l'arrière-plan (⌃⌥⌘↓). Chaque calque bouge parmi ses voisins de même parent.
 - **Navigateur** : glissez une ligne au-dessus ou au-dessous d'une autre. Déposée au milieu d'un groupe
   ou d'un plan de travail, elle y entre. Le haut de la liste est le dessus de la pile.
+- **Nouvelle forme** : elle se place juste au-dessus du calque sélectionné (dans son groupe), s'il est sur le même plan
+  de travail qu'elle ; sinon tout en haut.
 
 ## Renommer
 
@@ -66,7 +69,7 @@ Triple-clic sur le nom dans le navigateur (ou **Retour** sur la ligne sélection
 
 Survolez une ligne du navigateur : l'œil masque, le cadenas verrouille. Raccourcis : ⇧⌘H, ⇧⌘L.
 
-- Un calque **masqué** n'est plus dessiné ni cliquable sur le canevas, mais reste sélectionnable dans le navigateur.
+- Un calque **masqué** n'est plus dessiné ni cliquable sur le canevas, ni exporté, mais reste sélectionnable dans le navigateur.
 - Un calque **verrouillé** reste sélectionnable mais ne peut être ni déplacé, ni modifié, ni supprimé.
   L'inspecteur passe en lecture seule et propose **Déverrouiller**.
 - Les calques d'un groupe masqué ou verrouillé le sont aussi ; le navigateur l'indique par une icône pâle.

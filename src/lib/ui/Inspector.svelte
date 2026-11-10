@@ -14,6 +14,7 @@
   import { type TextStyle, FONTS, TEXT_ALIGNS, TEXT_VALIGNS } from '#lib/model/text';
   import { loadFamily, systemFonts } from '#lib/app/fonts.svelte';
   import { pickImage } from '#lib/app/files.svelte';
+  import { pickColor } from '#lib/app/render';
   import Button from '#lib/ui/kit/Button.svelte';
   import Select from '#lib/ui/kit/Select.svelte';
   import FontField from '#lib/ui/kit/FontField.svelte';
@@ -188,6 +189,7 @@
     palette: doc.palette,
     onaddtopalette: (c: RGBA) => doc.addToPalette(c),
     onremovefrompalette: (i: number) => doc.removeFromPalette(i),
+    onpick: () => pickColor(doc),
   });
 </script>
 

@@ -14,6 +14,8 @@ import { artboards } from '#lib/document/artboards';
 import { type Target, insertNode, movedHandle, segmentAt, target, toggleCurve } from '#lib/model/point-editing';
 import type { IconName } from '#lib/ui/kit/Icon.svelte';
 
+const COMMAND = /Mac/.test(globalThis.navigator?.platform ?? '') ? '⌘' : 'Ctrl';
+
 /** What a click-drag does for each tool. */
 
 /** Selection frame handles, in unit coordinates of the layer's local bounds. */
@@ -80,6 +82,7 @@ export class Gestures {
     switch (g.kind) {
       case 'move':
         if (g.box) d = add(d, this.#snap({ ...g.box, x: g.box.x + d.x, y: g.box.y + d.y }));
+        this.#snapHint(at);
         doc.preview = { ids: new Set(g.originals.map((o) => o.id)), t: translate(d.x, d.y) };
         this.#commit = () => {
           for (const o of g.originals) doc.set(o.id, moved(o, d));
@@ -106,6 +109,7 @@ export class Gestures {
         const proportional = doc.shift || g.o.lockRatio;
         let text = proportional ? L('Proportional') : `${L('Free')} · ${L('⇧ proportional')}`;
         if (doc.option) text += ` · ${L('from center')}`;
+        if (this.guides.length) text += ` · ${COMMAND} ${L('no snapping')}`;
         this.hint = { at, text, icon: proportional ? 'lock' : 'lock-open' };
         break;
       }
@@ -124,11 +128,13 @@ export class Gestures {
         if (g.t.handle === 'node') { // a dragged point snaps to the other layers and the layer's other points
           const q = toWorld(g.o, g.o.subpaths[g.t.ref.s].nodes[g.t.ref.n].p);
           d = add(d, this.#snap(pointRect(add(q, d))));
+          this.#snapHint(at);
         }
         this.#editNode(g.o, g.t, d);
         break;
       case 'draw':
         this.#draw(g.tool, this.#from, loc);
+        this.#snapHint(at);
         break;
       case 'marquee':
         if (!this.marquee && dist(at, this.#start) < 3) break; // a click, not a drag
@@ -211,6 +217,11 @@ export class Gestures {
     if (this.#free || !doc.showGrids || !doc.snapToGrid) return pt(0, 0);
     const a = artboards(doc.layers).findLast((a) => !a.hidden && !this.#dragged.has(a.id) && rectContains(localBounds(a), c));
     return a && (a.grid || a.columns) ? snapToGrid(r, localBounds(a), a, SNAP_PX / doc.zoom, axes) : pt(0, 0);
+  }
+
+  /** While guides show, tells how to drop them: ⌘ (Ctrl) held during the drag. */
+  #snapHint(at: Pt) {
+    this.hint = this.guides.length ? { at, text: `${COMMAND} ${L('no snapping')}`, icon: 'align-center' } : null;
   }
 
   #snapPoint(p: Pt): Pt { return add(p, this.#snap(pointRect(p))); }
@@ -339,7 +350,7 @@ export class Gestures {
       doc.selectedIDs = base;
       return { kind: 'marquee', among, base };
     }
-    if (shiftClick) { // ⇧-click toggles the layer in the selection
+    if (shiftClick) { // ⇧- or ⌘-click toggles the layer in the selection
       const ids = new Set(doc.selectedIDs);
       if (ids.has(picked.id)) ids.delete(picked.id);
       else ids.add(picked.id);

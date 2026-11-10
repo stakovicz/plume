@@ -7,17 +7,20 @@
   import NumberField from './NumberField.svelte';
   import Segmented from './Segmented.svelte';
   import Icon from './Icon.svelte';
+  import IconButton from './IconButton.svelte';
 
   /** Swatch that opens a color panel (native popover): saturation/brightness square, hue and opacity
    *  sliders, hex field, document palette. Reports every change; the caller coalesces undo (`styleEdit`).
    *  With `ongradient`, the panel also edits gradients (fill types): linear or radial, a stops bar
    *  (click adds a stop, drag moves it, Delete removes it, two at least) and, for linear, the angle; the
-   *  color controls then edit the selected stop. `bounds` (layer local space) frames new gradients. */
+   *  color controls then edit the selected stop. `bounds` (layer local space) frames new gradients.
+   *  `onpick` (eyedropper): hides the panel, waits for a color picked elsewhere, then shows it again. */
   let { color, onchange, label, palette = [], onaddtopalette, onremovefrompalette, disabled = false,
-    gradient = null, ongradient, bounds = { x: 0, y: 0, width: 1, height: 1 } }: {
+    gradient = null, ongradient, bounds = { x: 0, y: 0, width: 1, height: 1 }, onpick }: {
     color: RGBA; onchange: (c: RGBA) => void; label: string;
     palette?: RGBA[]; onaddtopalette?: (c: RGBA) => void; onremovefrompalette?: (i: number) => void; disabled?: boolean;
     gradient?: GradientFill | null; ongradient?: (g: GradientFill | null) => void; bounds?: Rect;
+    onpick?: () => Promise<RGBA | null>;
   } = $props();
 
   const uid = $props.id();
@@ -141,6 +144,15 @@
   }
 
   let bar = $state<HTMLElement>();
+  let panel = $state<HTMLElement>();
+
+  /** Picked color, keeping the current opacity (as the hex field does). */
+  async function pick() {
+    panel!.hidePopover();
+    const c = await onpick!();
+    if (c) { setColor({ ...c, a: current.a }); syncFromColor(c); }
+    panel!.showPopover();
+  }
 </script>
 
 <button
@@ -156,6 +168,7 @@
 </button>
 
 <div
+  bind:this={panel}
   id="color-{uid}"
   class="panel"
   role="dialog"
@@ -222,7 +235,8 @@
     onkeydown={arrows((dx) => setColor({ ...current, a: clamp(current.a + dx) }))}>
     <i style:left="{current.a * 100}%"></i>
   </div>
-  <div class="fields">
+  <div class="fields" class:picker={onpick}>
+    {#if onpick}<IconButton icon="eyedropper" label={L('Pick a color in the document')} quiet onclick={pick} />{/if}
     <input
       class="hex"
       aria-label={L('Hex')}
@@ -335,6 +349,9 @@
     grid-template-columns: 1fr 64px;
     align-items: center;
     gap: var(--space-1);
+  }
+  .fields.picker {
+    grid-template-columns: auto 1fr 64px;
   }
   .caption {
     font-size: var(--text-12);

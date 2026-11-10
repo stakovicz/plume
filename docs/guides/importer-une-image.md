@@ -6,7 +6,7 @@ la détourer avec un masque ou composer autour.
 ## Trois façons de l'ajouter
 
 - **Fichier › Importer une image…** (⇧⌘I) : choisissez un fichier. L'image arrive au centre du plan de travail
-  de la sélection, sinon au centre de la vue.
+  de la sélection, sinon au centre de la vue, juste au-dessus du calque sélectionné.
 - **Glisser-déposer** un ou plusieurs fichiers image sur le canevas : chacun arrive centré là où vous le déposez,
   dans le plan de travail qui se trouve dessous.
 - **Coller** (⌘V) une image copiée : une capture d'écran, une image copiée depuis un navigateur. Elle se place
