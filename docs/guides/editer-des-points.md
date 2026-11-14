@@ -4,7 +4,7 @@ Ajouter, déplacer ou supprimer les points d'un tracé et régler leurs poignée
 
 ## Entrer en édition de points
 
-Sélectionnez la forme, puis **Retour** ou double-clic. Un rectangle ou un ovale est d'abord converti en tracé
+Sélectionnez la forme, puis **Retour** ou double-clic. Un rectangle, un ovale ou un polygone est d'abord converti en tracé
 (une étape annulable). Un calque texte ouvre la saisie du texte à la place.
 
 Les calques verrouillés ou masqués, les groupes et les plans de travail n'ont pas d'édition de points.

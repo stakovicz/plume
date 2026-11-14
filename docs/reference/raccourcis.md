@@ -29,6 +29,7 @@ Actifs partout, sauf pendant la saisie dans un champ. Mêmes touches sur macOS e
 | Crayon | P |
 | Rectangle | R |
 | Ovale | O |
+| Polygone | Y |
 | Texte | T |
 
 ## Édition

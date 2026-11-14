@@ -1,7 +1,7 @@
 import { type Rect, inset, midX, midY, union } from '#lib/model/geometry';
 import { type RGBA, hex } from '#lib/model/color';
 import type { GradientFill } from '#lib/model/effects';
-import { type Layer, bounds, cornerRadii, imageFlip, localBounds, localShape, textBox } from '#lib/model/layer';
+import { type Layer, bounds, cornerRadii, imageFlip, localBounds, localShape, polygonPoints, textBox } from '#lib/model/layer';
 import { dataURL } from '#lib/model/images';
 import { pathData } from '#lib/model/path-data';
 import { layout } from '#lib/model/text';
@@ -83,6 +83,7 @@ export function layerSVG(l: Layer): string {
     l.kind === 'rect' && radii.some((r) => r !== radii[0]) ? `<path d="${pathData(localShape(l))}"${attrs}/>` // corners SVG's rx can't say
     : l.kind === 'rect' ? `<rect x="${f(b.x)}" y="${f(b.y)}" width="${f(b.width)}" height="${f(b.height)}"${radii[0] > 0 ? ` rx="${f(radii[0])}"` : ''}${attrs}/>`
     : l.kind === 'ellipse' ? `<ellipse cx="${f(midX(b))}" cy="${f(midY(b))}" rx="${f(b.width / 2)}" ry="${f(b.height / 2)}"${attrs}/>`
+    : l.kind === 'polygon' ? `<polygon points="${polygonPoints(b, l.sides, l.innerRadius).map((p) => `${f(p.x)},${f(p.y)}`).join(' ')}"${attrs}/>`
     : `<path d="${pathData(l.subpaths)}"${attrs}${l.evenOdd ? ' fill-rule="evenodd"' : ''}/>`;
   return defs.join('') + element;
 }

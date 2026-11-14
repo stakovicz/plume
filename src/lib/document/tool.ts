@@ -1,17 +1,17 @@
 import { L } from '#lib/i18n';
 
-export const TOOLS = ['select', 'artboard', 'pen', 'pencil', 'rect', 'ellipse', 'text'] as const;
+export const TOOLS = ['select', 'artboard', 'pen', 'pencil', 'rect', 'ellipse', 'polygon', 'text'] as const;
 export type Tool = (typeof TOOLS)[number];
 
 /** Tool shortcuts; select is reached with Esc/Return. */
-export const toolKey: Record<Tool, string | null> = { select: null, artboard: 'a', pen: 'v', pencil: 'p', rect: 'r', ellipse: 'o', text: 't' };
+export const toolKey: Record<Tool, string | null> = { select: null, artboard: 'a', pen: 'v', pencil: 'p', rect: 'r', ellipse: 'o', polygon: 'y', text: 't' };
 
 /** The tool a plain key press (no ⌘, ⌃, ⌥) picks, if any. */
 export const toolForKey = (e: KeyboardEvent): Tool | undefined =>
   e.metaKey || e.ctrlKey || e.altKey ? undefined : TOOLS.find((t) => toolKey[t] === e.key.toLowerCase());
 
 export const toolTitle = (t: Tool) =>
-  ({ select: L('Select'), artboard: L('Artboard'), pen: L('Pen'), pencil: L('Pencil'), rect: L('Rectangle'), ellipse: L('Oval'), text: L('Text') })[t];
+  ({ select: L('Select'), artboard: L('Artboard'), pen: L('Pen'), pencil: L('Pencil'), rect: L('Rectangle'), ellipse: L('Oval'), polygon: L('Polygon'), text: L('Text') })[t];
 
 /** Toolbar tooltip: name, shortcut, how to use it. */
 export function toolTooltip(t: Tool) {
@@ -22,6 +22,7 @@ export function toolTooltip(t: Tool) {
     pencil: L('Drag to draw freehand; smoothed into curves on release.'),
     rect: L('Drag to draw. ⇧ for a square, ⌥ from the center.'),
     ellipse: L('Drag to draw. ⇧ for a circle, ⌥ from the center.'),
+    polygon: L('Drag to draw. ⇧ keeps it regular, ⌥ from the center. Sides and inner radius (star) in the inspector.'),
     text: L('Click to type, drag for a box that wraps lines. Esc to finish.'),
   }[t];
   return `${toolTitle(t)} (${toolKey[t]?.toUpperCase() ?? 'Esc'})\n${usage}`;

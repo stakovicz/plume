@@ -5,12 +5,13 @@ Après un dessin, Plume revient à l'outil Sélection, sauf pour la Plume (qui c
 
 | Outil | Touche | Utilisation | Modificateurs |
 |---|---|---|---|
-| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; glisser depuis le vide : sélection au lasso ; poignées : redimensionner, pivoter (texte : une poignée verticale fixe la hauteur de la zone) ; double-clic ou Retour : éditer les points ou le texte | ⌘- ou ⇧-clic : ajouter/retirer ; ⇧ : proportions, angle par 15° ; ⌥ : depuis le centre |
+| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; glisser depuis le vide : sélection au lasso ; poignées : redimensionner, pivoter, ⌘ sur un coin : déformer (⇧ : symétrique ; un texte ou une image seuls se redimensionnent, groupez un texte pour le déformer) (texte : une poignée verticale fixe la hauteur de la zone) ; double-clic ou Retour : éditer les points ou le texte | ⌘- ou ⇧-clic : ajouter/retirer ; ⇧ : proportions, angle par 15° ; ⌥ : depuis le centre |
 | Plan de travail | A | glisser : dessiner un plan de travail ; l'inspecteur propose des tailles prédéfinies | ⇧ : carré ; ⌥ : depuis le centre |
 | Plume | V | clic : point d'angle ; clic-glisser : point de courbe ; clic sur le premier point : fermer ; Retour ou Échap : terminer ouvert | — |
 | Crayon | P | glisser : trait à main levée, lissé en courbes au relâchement | — |
 | Rectangle | R | glisser | ⇧ : carré ; ⌥ : depuis le centre |
 | Ovale | O | glisser | ⇧ : cercle ; ⌥ : depuis le centre |
+| Polygone | Y | glisser ; côtés et rayon intérieur (étoile) dans l'inspecteur | ⇧ : forme régulière (non étirée) ; ⌥ : depuis le centre |
 | Texte | T | clic : texte sur une ligne (largeur Auto) ; glisser : zone à largeur Fixe ; Échap : terminer | — |
 
 L'outil Plan de travail n'est pas dans la barre d'outils : il s'obtient avec **A** ou le menu **Outils**.
@@ -19,7 +20,7 @@ L'outil Plan de travail n'est pas dans la barre d'outils : il s'obtient avec **A
 
 | Calque | Remplissage | Bordure |
 |---|---|---|
-| Rectangle, ovale | orange #FF6F00 à 70 % d'opacité | noire, 1 px |
+| Rectangle, ovale, polygone | orange #FF6F00 à 70 % d'opacité | noire, 1 px |
 | Tracé (plume, crayon) | aucun | noire, 2 px |
 | Texte | noir (Fira Sans, 16 px) | aucune |
 | Plan de travail | fond blanc | aucune |

@@ -6,6 +6,7 @@
     pencil: '<path d="m11 2.5 2.5 2.5L5.5 13 2.5 13.5 3 10.5Z"/><path d="m9.5 4 2.5 2.5"/>',
     rect: '<rect x="2.5" y="3.5" width="11" height="9" rx="1"/>',
     ellipse: '<circle cx="8" cy="8" r="5.5"/>',
+    polygon: '<path d="M8 2.5 13.5 6.5 11.4 13H4.6L2.5 6.5Z" stroke-linejoin="round"/>',
     text: '<path d="M3.5 4V2.5h9V4M8 2.5v11M6 13.5h4"/>',
     path: '<path d="M2 12C4 3 7 3 8 8s4 5 6-3"/>',
     group: '<path d="M2 4.5h4l1.5 1.5h6.5v6.5H2Z"/>',

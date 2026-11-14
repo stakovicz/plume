@@ -49,7 +49,9 @@
     const i = Math.min(sel, stops.length - 1);
     ongradient!(withStops(stops.map((x, j) => (j === i ? { ...x, color: c } : x))));
   }
-  const push = () => setColor(fromHSV(h, s, v, current.a));
+  /** Picking a color on a transparent one (no fill) makes it opaque, else the change wouldn't show. */
+  const alpha = () => current.a || 1;
+  const push = () => setColor(fromHSV(h, s, v, alpha()));
   const pure = $derived(css(fromHSV(h, 1, 1)));
   const opaque = $derived(css({ ...current, a: 1 }));
 
@@ -118,7 +120,7 @@
     if (hexDraft === null) return;
     const c = fromHex(hexDraft);
     hexDraft = null;
-    if (c) { setColor({ ...c, a: current.a }); syncFromColor(c); }
+    if (c) { setColor({ ...c, a: alpha() }); syncFromColor(c); }
   }
 
   const clamp = (x: number) => Math.min(Math.max(x, 0), 1);

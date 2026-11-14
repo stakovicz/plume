@@ -1,5 +1,5 @@
 import {
-  type Affine, type Pt, type Rect, type Subpath, IDENTITY, apply, inset, invert, mapSubpaths, midX, midY,
+  type Affine, type Pt, type Rect, type Subpath, IDENTITY, apply, inset, invert, mapSubpaths, midX, midY, node,
   pathBounds, pathContains, pt, rectCenter, rectContains, rectOf, rotateAround, sub, union,
 } from './geometry';
 import { type RGBA, BLACK, GRAY } from './color';
@@ -9,7 +9,7 @@ import { parsePath, roundedRect, shapeData } from './path-data';
 import { type TextStyle, fitted, glyphOutlines, textScaled } from './text';
 import type { ImageRef } from './images';
 
-export type Kind = 'rect' | 'ellipse' | 'path' | 'group' | 'artboard' | 'text' | 'image';
+export type Kind = 'rect' | 'ellipse' | 'polygon' | 'path' | 'group' | 'artboard' | 'text' | 'image';
 export const BORDER_POSITIONS = ['center', 'inside', 'outside'] as const;
 export const LINE_CAPS = ['butt', 'round', 'square'] as const;
 export const LINE_JOINS = ['miter', 'round', 'bevel'] as const;
@@ -31,8 +31,10 @@ export type Layer = {
   id: string;
   name: string;
   kind: Kind;
-  points: Pt[]; // rect/ellipse: two opposite corners
+  points: Pt[]; // rect/ellipse/polygon: two opposite corners
   corners: number[]; // rect: radius of each corner, top-left first, clockwise; scaled down together when they don't fit
+  sides: number; // polygon: 3–64
+  innerRadius: number; // polygon: inner over outer radius; 1 = polygon, less = star with 2 × sides points
   subpaths: Subpath[]; // path
   children: Layer[]; // group, bottom to top
   fill: RGBA;
@@ -63,7 +65,7 @@ export type Layer = {
 
 export function newLayer(name: string, kind: Kind, points: Pt[] = [], extra: Partial<Layer> = {}): Layer {
   return {
-    id: crypto.randomUUID(), name, kind, points, corners: [0, 0, 0, 0], subpaths: [], children: [],
+    id: crypto.randomUUID(), name, kind, points, corners: [0, 0, 0, 0], sides: 5, innerRadius: 1, subpaths: [], children: [],
     fill: GRAY, stroke: BLACK, strokeWidth: 1, borderPosition: 'center', dash: [], lineCap: 'butt', lineJoin: 'miter',
     evenOdd: false, rotation: 0, lockRatio: false, hidden: false, locked: false, opacity: 1, clip: [], blur: 0,
     background: { r: 1, g: 1, b: 1, a: 0 }, ...extra,
@@ -108,8 +110,30 @@ export function localShape(l: Layer): Subpath[] {
     case 'artboard': case 'image': return boxShape(l);
     case 'text': return glyphOutlines(l); // what Combine and Convert to Outlines work on
     case 'rect': { const b = localBounds(l); return parsePath(roundedRect(b.x, b.y, b.width, b.height, cornerRadii(l).map((r) => [r, r]))); }
+    case 'polygon': return [{ nodes: polygonPoints(localBounds(l), l.sides, l.innerRadius).map((p) => node(p)), closed: true }];
     default: return parsePath(boxData('ellipse', localBounds(l)));
   }
+}
+
+/** A regular polygon's vertices (a star's, alternating outer and inner, when `innerRadius` < 1), top one first,
+ *  clockwise, stretched so they fill `b`. */
+export function polygonPoints(b: Rect, sides: number, innerRadius: number): Pt[] {
+  const unit = unitPolygon(sides, innerRadius), u = rectOf(unit)!;
+  return unit.map((p) => pt(b.x + ((p.x - u.x) / u.width) * b.width, b.y + ((p.y - u.y) / u.height) * b.height));
+}
+
+/** Width over height of the box a regular (unstretched) polygon or star fills: what ⇧ keeps when drawing. */
+export function polygonRatio(sides: number, innerRadius: number): number {
+  const u = rectOf(unitPolygon(sides, innerRadius))!;
+  return u.width / u.height;
+}
+
+function unitPolygon(sides: number, innerRadius: number): Pt[] {
+  const star = innerRadius < 1, n = star ? 2 * sides : sides;
+  return Array.from({ length: n }, (_, k) => {
+    const a = -Math.PI / 2 + (2 * Math.PI * k) / n, r = star && k % 2 ? innerRadius : 1;
+    return pt(r * Math.cos(a), r * Math.sin(a));
+  });
 }
 
 /** Geometry in document space. */
@@ -139,9 +163,9 @@ export const clipShape = (l: Layer): Subpath[] | null => {
 
 export const hasVisibleStroke = (l: Layer) => l.strokeWidth > 0 && (l.stroke.a > 0 || l.strokeGradient != null);
 
-/** Rect/ellipse converted to an editable Bézier path. */
+/** Rect/ellipse/polygon converted to an editable Bézier path. */
 export function asPath(l: Layer): Layer {
-  if (l.kind !== 'rect' && l.kind !== 'ellipse') return l;
+  if (l.kind !== 'rect' && l.kind !== 'ellipse' && l.kind !== 'polygon') return l;
   return { ...l, kind: 'path', points: [], corners: [0, 0, 0, 0], subpaths: localShape(l) };
 }
 
@@ -280,6 +304,13 @@ export function resized(l: Layer, sx: number, sy: number, a: Pt): Layer {
 const boxResized = (l: Layer, sx: number, sy: number): Layer =>
   ({ ...l, text: { ...l.text!, autoWidth: l.text!.autoWidth && sx === 1, autoHeight: l.text!.autoHeight && sy === 1 } });
 
+/** New sides/inner radius; the height follows so the shape keeps its stretch (a regular polygon stays regular),
+ *  about the center, which is the rotation pivot: nothing moves on screen but the shape. */
+export function reshaped(l: Layer, sides: number, innerRadius: number): Layer {
+  const k = polygonRatio(l.sides, l.innerRadius) / polygonRatio(sides, innerRadius), c = center(l);
+  return { ...mapped(l, (p) => scalePoint(p, c, 1, k)), sides, innerRadius };
+}
+
 /** Scales in document space about document point `a`. */
 // ponytail: a rotated child under a non-uniform scale is scaled along its own axes (approximation);
 // exact would need skew. Uniform scales (the default, proportional resize) are exact.
@@ -297,6 +328,19 @@ export function scaled(l: Layer, sx: number, sy: number, a: Pt): Layer {
   if (l.kind === 'text') return moved(textScaled(s, Math.sqrt(Math.abs(sx * sy))), sub(scalePoint(c, a, sx, sy), c)); // keeps its proportions
   if (l.rotation === 0) return mapped(s, (p) => scalePoint(p, a, sx, sy));
   return moved(mapped(s, (p) => scalePoint(p, c, sx, sy)), sub(scalePoint(c, a, sx, sy), c));
+}
+
+/** Through a non-affine document map `f` (free distort): shapes become paths (text its glyph outlines), rotation
+ *  baked into the points; Bézier control points are mapped, which approximates the curves. Gradients follow
+ *  `f` near their origin. ponytail: an image only moves with its center (no bitmap warp); a text box's
+ *  background is dropped with the text. */
+export function distorted(l: Layer, f: (p: Pt) => Pt): Layer {
+  if (l.kind === 'artboard') return l;
+  if (l.kind === 'group') return { ...mappingClip(l, f), children: l.children.map((c) => distorted(c, f)) };
+  const c = toWorld(l, center(l));
+  if (l.kind === 'image') return moved(l, sub(f(c), c));
+  const p = l.kind === 'text' ? { ...l, kind: 'path' as const, text: undefined, points: [], subpaths: localShape(l), strokeWidth: 0 } : asPath(l);
+  return { ...mapped(p, (q) => f(toWorld(l, q))), rotation: 0 };
 }
 
 /** Mirrors across the vertical (`horizontal`) or horizontal line through document coordinate `axis`.

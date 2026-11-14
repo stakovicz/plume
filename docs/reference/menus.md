@@ -34,7 +34,7 @@ Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj
 
 ## Outils
 
-Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), Ovale (O), Texte (T).
+Sélection (Échap), Plan de travail (A), Plume (V), Crayon (P), Rectangle (R), Ovale (O), Polygone (Y), Texte (T).
 
 | Commande | Raccourci |
 |---|---|

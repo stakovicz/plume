@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { apply, pt, node, pathBounds } from '#lib/model/geometry';
+import { apply, pt, node, pathBounds, quadMap } from '#lib/model/geometry';
 import { angleOf, colorAt, linearAt, radialIn } from '#lib/model/effects';
 import {
-  asPath, bounds, center, cornerRadii, drawnStrokeWidth, effectiveBorderPosition, hit, localBounds, mapped, keepingPlace,
-  newLayer, resizeGesture, resized, rotated, moved, toWorld,
+  asPath, bounds, distorted, center, cornerRadii, drawnStrokeWidth, effectiveBorderPosition, hit, localBounds, mapped, keepingPlace,
+  newLayer, polygonPoints, polygonRatio, reshaped, resizeGesture, resized, rotated, moved, toWorld,
 } from '#lib/model/layer';
 import { insertNode, segmentAt, target, toggleCurve } from '#lib/model/point-editing';
 import { ancestors } from '#lib/model/layer-tree';
@@ -13,6 +13,62 @@ import { near, nearRect, rect } from './helpers';
 const r = () => rect(0, 0, 10, 20);
 
 describe('layer', () => {
+  test('polygon: top vertex first, vertices fill the box; a star alternates outer and inner', () => {
+    const b = { x: 0, y: 0, width: 90, height: 60 };
+    const tri = polygonPoints(b, 3, 1);
+    expect(tri.length).toBe(3);
+    expect(near(tri[0], pt(45, 0))).toBe(true);
+    expect(tri.slice(1).every((p) => Math.abs(p.y - 60) < 1e-9)).toBe(true);
+    for (const pts of [tri, polygonPoints(b, 5, 1), polygonPoints(b, 5, 0.5)]) expect(nearRect(pathBounds([{ nodes: pts.map((p) => node(p)), closed: true }])!, b)).toBe(true);
+    const star = polygonPoints({ x: -1, y: -1, width: 2, height: 2 }, 5, 0.5);
+    expect(star.length).toBe(10);
+    const d = star.map((p) => Math.hypot(p.x, p.y));
+    expect(d.every((r, i) => (i % 2 ? r < Math.min(d[i - 1], d[(i + 1) % 10]) / 1.5 : true))).toBe(true); // inner, well inside its neighbors
+    const l = newLayer('y', 'polygon', [pt(0, 0), pt(90, 60)], { sides: 3 });
+    const p = asPath(l);
+    expect(p.kind).toBe('path');
+    expect(p.subpaths).toHaveLength(1);
+    expect(p.subpaths[0].closed).toBe(true);
+    expect(nearRect(bounds(p), localBounds(l))).toBe(true);
+  });
+
+  test('polygon ratio: the box of the unstretched shape', () => {
+    expect(polygonRatio(4, 1)).toBeCloseTo(1);
+    expect(polygonRatio(3, 1)).toBeCloseTo(2 / Math.sqrt(3)); // width √3, height 1.5
+    expect(polygonRatio(5, 1)).toBeCloseTo(1 / 0.951, 3);
+    expect(polygonRatio(6, 1)).toBeCloseTo(Math.sqrt(3) / 2);
+  });
+
+  test('changing sides keeps a regular polygon regular, about its center', () => {
+    const l = { ...newLayer('y', 'polygon', [pt(0, 0), pt(100, 95.10565)]), rotation: 0.3 }; // regular pentagon
+    const r = reshaped(l, 6, 1), b = localBounds(r);
+    expect(b.width).toBeCloseTo(100);
+    expect(b.height / b.width).toBeCloseTo(1 / polygonRatio(6, 1));
+    expect(near(center(r), center(l))).toBe(true);
+    const star = reshaped(r, 6, 0.5);
+    expect(localBounds(star).height).toBeCloseTo(b.height); // inner points inside: the box doesn't change
+  });
+
+  test('a polygon saved before sides/innerRadius existed decodes as a pentagon', () => {
+    const { layers } = decodeFile('[{"name":"Polygon 1","kind":"polygon","points":[[0,0],[10,10]]}]');
+    expect(layers[0]).toMatchObject({ sides: 5, innerRadius: 1 });
+  });
+
+  test('free distort: corners land on the quad, lines stay straight, a group\'s shapes become paths', () => {
+    const r = { x: 0, y: 0, width: 100, height: 100 }, q = [pt(20, 0), pt(80, 0), pt(100, 100), pt(0, 100)];
+    const f = quadMap(r, q);
+    q.forEach((c, i) => expect(near(f([pt(0, 0), pt(100, 0), pt(100, 100), pt(0, 100)][i]), c)).toBe(true));
+    expect(near(f(pt(50, 0)), pt(50, 0))).toBe(true); // symmetric trapezoid: the top middle stays
+    expect(f(pt(50, 50)).x).toBeCloseTo(50);
+    expect(f(pt(50, 50)).y).toBeLessThan(50); // perspective: the far (narrow) half looks shorter
+    const m = f(pt(0, 37)); // on the left edge, from (20, 0) to (0, 100)
+    expect(m.x).toBeCloseTo(20 - m.y / 5);
+    const g = { ...newLayer('g', 'group'), children: [newLayer('r', 'rect', [pt(0, 0), pt(100, 100)])] };
+    const d = distorted(g, f).children[0];
+    expect(d.kind).toBe('path');
+    expect(nearRect(pathBounds(d.subpaths)!, r)).toBe(true);
+    expect(near(d.subpaths[0].nodes[0].p, f(asPath(g.children[0]).subpaths[0].nodes[0].p))).toBe(true);
+  });
   test('rounded corners: four arcs, same bounds; stretching keeps them, a proportional resize scales them', () => {
     const l = { ...rect(0, 0, 100, 40), corners: [10, 10, 10, 10] };
     expect(asPath(l).subpaths[0].nodes.length).toBe(8);
