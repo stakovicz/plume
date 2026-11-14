@@ -6,7 +6,7 @@ import { FONTS, familyOf, hasFamily, registerFont, trueTypeFace } from '#lib/mod
 /** The bundled fonts (static/fonts), loaded once at launch: registered with the model (measuring, outlines),
  *  with the page (canvas, text field), and kept for exports (PNG/JPG embed them, PDF registers them).
  *  Installed fonts (Tauri only) are listed at launch and registered with the model when a layer uses them;
- *  the web view draws them itself, exports get their faces as TrueType files (none for .otf: Times in PDF). */
+ *  and with the page (the web view only sees system fonts), exports get their faces as TrueType files (none for .otf: Times in PDF). */
 
 export type FontFile = { family: string; weight: number; file: string; data: ArrayBuffer | Uint8Array };
 
@@ -52,6 +52,8 @@ export function loadFamily(family: string): Promise<void> {
       const data = new Uint8Array(await bytes.get(f.path)!);
       registerFont(family, f.weight, data, f.index);
       const face = trueTypeFace(data, f.index);
+      // the web view doesn't see fonts installed per user (~/Library/Fonts): hand it the file the model measures
+      document.fonts.add(new FontFace(family, (face ?? data) as Uint8Array<ArrayBuffer>, { weight: `${w}` }));
       if (face) files.push({ family, weight: w, file: `${family}-${w}.ttf`, data: face });
     })).then(() => { if (hasFamily(family)) systemFonts.loaded++; }));
   }

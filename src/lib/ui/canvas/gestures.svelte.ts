@@ -1,13 +1,13 @@
 import { L } from '#lib/i18n';
 import type { Doc } from '#lib/document/doc.svelte';
 import type { Tool } from '#lib/document/tool';
-import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectCenter, rectContains, rectOf, rotateAround, scaleAround, translate, union } from '#lib/model/geometry';
+import { type Affine, type Pt, type Rect, add, apply, dist, mapNode, node, pt, rectCenter, quadMap, rectContains, rectOf, rotateAround, scaleAround, translate, union } from '#lib/model/geometry';
 import { type Guide, pointRect, snapAlong, snapRect } from '#lib/model/snapping';
 import { snapToGrid } from '#lib/model/grid';
 import { fitCurve } from '#lib/model/curve-fit';
 import { fitted } from '#lib/model/text';
 import {
-  type Layer, bounds, center, hit, polygonRatio, keepingPlace, localBounds, localDelta, moved, resizeGesture, resized, rotated, toLocal, toWorld,
+  type Layer, bounds, center, distorted, hit, polygonRatio, keepingPlace, localBounds, localDelta, moved, resizeGesture, resized, rotated, toLocal, toWorld,
 } from '#lib/model/layer';
 import { parent, remove } from '#lib/model/layer-tree';
 import { artboards } from '#lib/document/artboards';
@@ -35,6 +35,7 @@ type Drag =
   | { kind: 'ignore' }
   | { kind: 'move'; originals: Layer[]; box: Rect | null; narrow?: string } // box: their bounds, for snapping; narrow: see up()
   | { kind: 'resize'; o: Layer; h: Pt } // handle in unit coordinates of the local bounds
+  | { kind: 'distort'; o: Layer; h: Pt } // ⌘ on a corner: that corner moves alone (perspective)
   | { kind: 'rotate'; o: Layer }
   | { kind: 'edit'; o: Layer; t: Target }
   | { kind: 'draw'; tool: Tool }
@@ -113,6 +114,23 @@ export class Gestures {
         this.hint = { at, text, icon: proportional ? 'lock' : 'lock-open' };
         break;
       }
+      case 'distort': {
+        const o = g.o, b = localBounds(o), dl = localDelta(o, d);
+        // the corners clockwise from top-left; ⇧ moves the neighbor along the dominant axis the other way (symmetric)
+        const q = [pt(b.x, b.y), pt(b.x + b.width, b.y), pt(b.x + b.width, b.y + b.height), pt(b.x, b.y + b.height)];
+        const i = g.h.y ? (g.h.x ? 2 : 3) : g.h.x;
+        if (doc.shift) {
+          const horizontal = Math.abs(dl.x) >= Math.abs(dl.y), j = horizontal ? i ^ 1 : 3 - i; // same top/bottom edge, else same side
+          q[i] = add(q[i], horizontal ? pt(dl.x, 0) : pt(0, dl.y));
+          q[j] = add(q[j], horizontal ? pt(-dl.x, 0) : pt(0, -dl.y));
+        } else {
+          q[i] = add(q[i], dl);
+        }
+        const f = quadMap(b, q);
+        doc.set(o.id, distorted(o, (p) => toWorld(o, f(toLocal(o, p)))));
+        this.hint = { at, text: doc.shift ? L('Symmetric distort') : `${L('Distort')} · ${L('⇧ symmetric')}`, icon: 'lock-open' };
+        break;
+      }
       case 'rotate': {
         const o = g.o, c = center(o);
         let a = o.rotation + Math.atan2(loc.y - c.y, loc.x - c.x) - Math.atan2(start.y - c.y, start.x - c.x);
@@ -145,7 +163,7 @@ export class Gestures {
 
   /** Re-applies the drag when ⇧/⌥ toggles without mouse movement. */
   modifiersChanged() {
-    if (this.#last && ['resize', 'rotate', 'draw'].includes(this.#drag.kind)) this.move(this.#last);
+    if (this.#last && ['resize', 'distort', 'rotate', 'draw'].includes(this.#drag.kind)) this.move(this.#last);
   }
 
   up() {
@@ -317,6 +335,9 @@ export class Gestures {
       const b = localBounds(sel);
       if (sel.kind !== 'artboard' && dist(this.rotateHandle(sel, b), p) < tol) return { kind: 'rotate', o: snap(sel) };
       const h = HANDLES.find((h) => dist(toWorld(sel, handlePoint(h, b)), p) < tol);
+      if (h && this.#free && h.x !== 0.5 && h.y !== 0.5 && ['group', 'path', 'rect', 'ellipse', 'polygon'].includes(sel.kind)) {
+        return { kind: 'distort', o: snap(sel), h }; // ⌘ on a corner
+      }
       if (h) {
         this.#targets = this.#snapTargets(new Set([sel.id]));
         return { kind: 'resize', o: snap(sel), h };
