@@ -39,7 +39,12 @@
   <input
     type="text"
     inputmode="decimal"
+    role="spinbutton"
     aria-label={label}
+    aria-valuenow={Number.isNaN(value) ? undefined : value}
+    aria-valuemin={Number.isFinite(min) ? min : undefined}
+    aria-valuemax={Number.isFinite(max) ? max : undefined}
+    aria-valuetext={Number.isNaN(value) ? L('Multiple') : format(value) + suffix}
     title={label}
     {disabled}
     placeholder={Number.isNaN(value) ? L('Multiple') : undefined}

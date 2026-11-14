@@ -1,5 +1,19 @@
 # Changelog
 
+## Non publié
+
+### Ajouts
+
+- **Polygone** (Y) : polygone régulier tracé comme un ovale (⇧ : forme régulière, non étirée ; ⌥ : depuis le centre). L'inspecteur
+  règle le nombre de **Côtés** (3 à 64) et le **Rayon intérieur** : sous 100 %, le polygone devient une étoile. Les changer ajuste la hauteur : un polygone régulier le reste.
+  Exporté en `<polygon>` dans le SVG.
+  Guide : [Dessiner une étoile](docs/guides/dessiner-une-etoile.md).
+
+### Accessibilité
+
+- Les champs numériques de l'inspecteur s'annoncent comme des compteurs (VoiceOver…) avec leur unité et leurs bornes :
+  « Opacité, 50 % », au lieu de « 50 ».
+
 ## 0.5.0 — 2026-11-10
 
 ### Ajouts

@@ -67,7 +67,9 @@ describe('svg', () => {
       { ...rect(0, 0, 10, 20), rotation: Math.PI / 4 },
       newLayer('o', 'ellipse', [pt(30, 0), pt(70, 20)]),
       asPath(newLayer('p', 'ellipse', [pt(0, 0), pt(8, 8)])),
+      newLayer('y', 'polygon', [pt(0, 30), pt(50, 70)], { sides: 6, innerRadius: 0.4 }),
     ];
+    expect(layerSVG(layers[3])).toMatch(/^<polygon points="25(\.0+)?,30(\.0+)? /);
     const back = content(`<svg>${layers.map(layerSVG).join('')}</svg>`);
     expect(back.length).toBe(layers.length);
     back.forEach((b, i) => expect(nearRect(bounds(b), bounds(layers[i]))).toBe(true));

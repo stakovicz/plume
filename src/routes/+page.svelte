@@ -191,7 +191,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-2);
+    gap: var(--space-1);
     height: var(--toolbar-h);
     padding: 0 var(--space-2);
     border-bottom: var(--hairline) solid var(--border);
@@ -201,8 +201,9 @@
     gap: var(--hairline);
   }
   .zoom {
-    min-width: 4em;
+    min-width: 4ch; /* "400%" in tabular figures: the width never jumps */
     margin-left: auto;
+    padding: 0;
     border: none;
     background: none;
     font-size: var(--text-12);

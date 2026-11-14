@@ -172,7 +172,7 @@ export class Doc {
    *  topmost selected layer when that one is on the same artboard (or off artboards with it) and not in a locked group,
    *  else on top. */
   add(kind: Kind, p: Pt) {
-    const base = { rect: L('Rectangle'), ellipse: L('Oval'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text'), image: L('Image') }[kind];
+    const base = { rect: L('Rectangle'), ellipse: L('Oval'), polygon: L('Polygon'), path: L('Path'), group: L('Group'), artboard: L('Artboard'), text: L('Text'), image: L('Image') }[kind];
     const host = kind === 'artboard' ? null : artboardAt(this.layers, p);
     const list = host ? host.children : this.layers;
     const name = kind === 'text' ? base : nextName(this.layers, base); // text: named after its content

@@ -8,7 +8,7 @@
   import { pointType } from '#lib/model/point-editing';
   import { parent } from '#lib/model/layer-tree';
   import {
-    type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, atOriginalSize, bounds, center, isClosed, isContainer, localBounds, moved, refit, resized, rotated, scaled,
+    type Layer, BORDER_POSITIONS, LINE_CAPS, LINE_JOINS, atOriginalSize, bounds, center, isClosed, isContainer, localBounds, moved, refit, reshaped, resized, rotated, scaled,
     withImage,
   } from '#lib/model/layer';
   import { type TextStyle, FONTS, TEXT_ALIGNS, TEXT_VALIGNS } from '#lib/model/text';
@@ -278,6 +278,17 @@
             </Row>
           {/each}
         {/if}
+      {/if}
+      {#if all((x) => x.kind === 'polygon')}
+        <!-- inner radius below 100 %: a star -->
+        <Row label={L('Sides')} single>
+          <NumberField label={L('Sides')} value={num((x) => x.sides)} digits={0} min={3} max={64} disabled={locked}
+            onchange={(v) => edit((x) => reshaped(x, Math.round(v), x.innerRadius))} />
+        </Row>
+        <Row label={L('Inner radius')} single>
+          <NumberField label={L('Inner radius')} value={num((x) => x.innerRadius) * 100} digits={0} min={0} max={100} suffix="%" disabled={locked}
+            onchange={(v) => edit((x) => reshaped(x, x.sides, v / 100))} />
+        </Row>
       {/if}
       {#if multi}
         <!-- several layers: no preset, no shared rotation -->

@@ -11,6 +11,7 @@ Après un dessin, Plume revient à l'outil Sélection, sauf pour la Plume (qui c
 | Crayon | P | glisser : trait à main levée, lissé en courbes au relâchement | — |
 | Rectangle | R | glisser | ⇧ : carré ; ⌥ : depuis le centre |
 | Ovale | O | glisser | ⇧ : cercle ; ⌥ : depuis le centre |
+| Polygone | Y | glisser ; côtés et rayon intérieur (étoile) dans l'inspecteur | ⇧ : forme régulière (non étirée) ; ⌥ : depuis le centre |
 | Texte | T | clic : texte sur une ligne (largeur Auto) ; glisser : zone à largeur Fixe ; Échap : terminer | — |
 
 L'outil Plan de travail n'est pas dans la barre d'outils : il s'obtient avec **A** ou le menu **Outils**.
@@ -19,7 +20,7 @@ L'outil Plan de travail n'est pas dans la barre d'outils : il s'obtient avec **A
 
 | Calque | Remplissage | Bordure |
 |---|---|---|
-| Rectangle, ovale | orange #FF6F00 à 70 % d'opacité | noire, 1 px |
+| Rectangle, ovale, polygone | orange #FF6F00 à 70 % d'opacité | noire, 1 px |
 | Tracé (plume, crayon) | aucun | noire, 2 px |
 | Texte | noir (Fira Sans, 16 px) | aucune |
 | Plan de travail | fond blanc | aucune |

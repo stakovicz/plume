@@ -23,6 +23,7 @@ Quatre parties, chacune pour un besoin différent.
 - [Organiser les calques](guides/organiser-les-calques.md) : sélectionner, aligner, répartir, grouper, ordonner, masquer, verrouiller.
 - [Travailler avec des plans de travail](guides/plans-de-travail.md)
 - [Modifier les points d'un tracé](guides/editer-des-points.md)
+- [Dessiner une étoile](guides/dessiner-une-etoile.md) : polygones réguliers, étoiles, macarons
 - [Combiner des formes](guides/combiner-des-formes.md) et vectoriser un contour
 - [Transformer une icône au trait en icône pleine](guides/icone-au-trait-en-icone-pleine.md)
 - [Appliquer des couleurs, dégradés et effets](guides/couleurs-et-degrades.md)

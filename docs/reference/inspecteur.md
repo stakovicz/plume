@@ -53,6 +53,8 @@ Absente pour les plans de travail.
 | Cadenas (Verrouiller les proportions) | redimensionner garde les proportions sans ⇧ |
 | Rayon | rectangles et zones de texte : rayon des quatre coins ; 0 = coins droits ; « Multiple » quand ils diffèrent |
 | Coins indépendants (bouton à droite du Rayon) | affiche **Haut** (gauche, droit) et **Bas** (gauche, droit) pour régler chaque coin ; si les coins diffèrent, un clic leur redonne à tous le rayon du coin haut gauche |
+| Côtés | polygones : nombre de côtés, de 3 à 64 ; la hauteur s'ajuste pour garder les proportions (un polygone régulier le reste) |
+| Rayon intérieur | polygones : 100 % = polygone régulier ; en dessous, une étoile à deux fois plus de pointes alternées, d'autant plus fine que le rayon est petit |
 | Préréglage | plans de travail : taille prédéfinie, ou Personnalisé |
 | Rotation | en degrés ; ni groupes, ni plans de travail |
 

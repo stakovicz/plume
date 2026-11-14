@@ -7,7 +7,7 @@ import { snapToGrid } from '#lib/model/grid';
 import { fitCurve } from '#lib/model/curve-fit';
 import { fitted } from '#lib/model/text';
 import {
-  type Layer, bounds, center, hit, keepingPlace, localBounds, localDelta, moved, resizeGesture, resized, rotated, toLocal, toWorld,
+  type Layer, bounds, center, hit, polygonRatio, keepingPlace, localBounds, localDelta, moved, resizeGesture, resized, rotated, toLocal, toWorld,
 } from '#lib/model/layer';
 import { parent, remove } from '#lib/model/layer-tree';
 import { artboards } from '#lib/document/artboards';
@@ -260,6 +260,7 @@ export class Gestures {
       case 'artboard': doc.add('artboard', p); break;
       case 'rect': doc.add('rect', p); break;
       case 'ellipse': doc.add('ellipse', p); break;
+      case 'polygon': doc.add('polygon', p); break;
       case 'text': doc.add('text', p); break;
       case 'pencil': doc.add('path', p); break;
       case 'pen': {
@@ -416,11 +417,13 @@ export class Gestures {
       case 'artboard':
       case 'rect':
       case 'ellipse':
+      case 'polygon':
       case 'text': {
         let p = this.#snapPoint(loc);
-        if (doc.shift) { // constrain to square/circle
-          const s = Math.max(Math.abs(p.x - start.x), Math.abs(p.y - start.y));
-          p = pt(start.x + (p.x < start.x ? -s : s), start.y + (p.y < start.y ? -s : s));
+        if (doc.shift) { // constrain to square/circle, a polygon to its regular proportions
+          const k = l.kind === 'polygon' ? polygonRatio(l.sides, l.innerRadius) : 1; // width / height
+          const w = Math.max(Math.abs(p.x - start.x), Math.abs(p.y - start.y) * k), h = w / k;
+          p = pt(start.x + (p.x < start.x ? -w : w), start.y + (p.y < start.y ? -h : h));
         }
         // ⌥ draws from the center: the click point stays in the middle
         l.points = doc.option ? [pt(2 * start.x - p.x, 2 * start.y - p.y), p] : [start, p];
