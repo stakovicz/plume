@@ -6,7 +6,7 @@
 
 - **Déformation libre** : ⌘ en glissant un coin d'un groupe ou d'une forme le déplace seul (perspective) ; ⇧ déplace
   le coin voisin en miroir, horizontalement ou verticalement selon le sens du geste. Les formes deviennent des
-  tracés, le texte ses contours ; les images suivent seulement.
+  tracés, un texte ses contours (seul, il se redimensionne : le grouper pour le déformer) ; les images suivent seulement.
 - **Polygone** (Y) : polygone régulier tracé comme un ovale (⇧ : forme régulière, non étirée ; ⌥ : depuis le centre). L'inspecteur
   règle le nombre de **Côtés** (3 à 64) et le **Rayon intérieur** : sous 100 %, le polygone devient une étoile. Les changer ajuste la hauteur : un polygone régulier le reste.
   Exporté en `<polygon>` dans le SVG.
