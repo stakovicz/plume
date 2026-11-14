@@ -43,7 +43,7 @@
     "marked": "^18.1.1",
     "playwright-core": "^1.48.2",
     "postcss-html": "^2.0.0",
-    "stylelint": "^17.16.0",
+    "stylelint": "^18.0.0",
     "svelte": "^5.56.3",
     "svelte-check": "^4.6.0",
     "typescript": "~6.0.3",
