@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { apply, pt, node, pathBounds } from '#lib/model/geometry';
+import { apply, pt, node, pathBounds, quadMap } from '#lib/model/geometry';
 import { angleOf, colorAt, linearAt, radialIn } from '#lib/model/effects';
 import {
-  asPath, bounds, center, cornerRadii, drawnStrokeWidth, effectiveBorderPosition, hit, localBounds, mapped, keepingPlace,
+  asPath, bounds, distorted, center, cornerRadii, drawnStrokeWidth, effectiveBorderPosition, hit, localBounds, mapped, keepingPlace,
   newLayer, polygonPoints, polygonRatio, reshaped, resizeGesture, resized, rotated, moved, toWorld,
 } from '#lib/model/layer';
 import { insertNode, segmentAt, target, toggleCurve } from '#lib/model/point-editing';
@@ -54,6 +54,21 @@ describe('layer', () => {
     expect(layers[0]).toMatchObject({ sides: 5, innerRadius: 1 });
   });
 
+  test('free distort: corners land on the quad, lines stay straight, a group\'s shapes become paths', () => {
+    const r = { x: 0, y: 0, width: 100, height: 100 }, q = [pt(20, 0), pt(80, 0), pt(100, 100), pt(0, 100)];
+    const f = quadMap(r, q);
+    q.forEach((c, i) => expect(near(f([pt(0, 0), pt(100, 0), pt(100, 100), pt(0, 100)][i]), c)).toBe(true));
+    expect(near(f(pt(50, 0)), pt(50, 0))).toBe(true); // symmetric trapezoid: the top middle stays
+    expect(f(pt(50, 50)).x).toBeCloseTo(50);
+    expect(f(pt(50, 50)).y).toBeLessThan(50); // perspective: the far (narrow) half looks shorter
+    const m = f(pt(0, 37)); // on the left edge, from (20, 0) to (0, 100)
+    expect(m.x).toBeCloseTo(20 - m.y / 5);
+    const g = { ...newLayer('g', 'group'), children: [newLayer('r', 'rect', [pt(0, 0), pt(100, 100)])] };
+    const d = distorted(g, f).children[0];
+    expect(d.kind).toBe('path');
+    expect(nearRect(pathBounds(d.subpaths)!, r)).toBe(true);
+    expect(near(d.subpaths[0].nodes[0].p, f(asPath(g.children[0]).subpaths[0].nodes[0].p))).toBe(true);
+  });
   test('rounded corners: four arcs, same bounds; stretching keeps them, a proportional resize scales them', () => {
     const l = { ...rect(0, 0, 100, 40), corners: [10, 10, 10, 10] };
     expect(asPath(l).subpaths[0].nodes.length).toBe(8);

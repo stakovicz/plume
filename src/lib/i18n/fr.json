@@ -240,5 +240,8 @@
   "Original": "Origine",
   "Original Size": "Taille d’origine",
   "Replace…": "Remplacer…",
-  "Not a PNG, JPEG, WebP or GIF image.": "Ce n’est pas une image PNG, JPEG, WebP ou GIF."
+  "Not a PNG, JPEG, WebP or GIF image.": "Ce n’est pas une image PNG, JPEG, WebP ou GIF.",
+  "Distort": "Déformer",
+  "Symmetric distort": "Déformation symétrique",
+  "⇧ symmetric": "⇧ symétrique"
 }

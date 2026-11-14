@@ -60,6 +60,18 @@ export function mapAffine(t: Affine, f: (p: Pt) => Pt): Affine {
   return { a: ex.x - o.x, b: ex.y - o.y, c: ey.x - o.x, d: ey.y - o.y, tx: o.x, ty: o.y };
 }
 
+/** Perspective map of rect `r` onto the quad `q` (its corners clockwise from top-left): lines stay straight. */
+export function quadMap(r: Rect, q: Pt[]): (p: Pt) => Pt {
+  const [p0, p1, p2, p3] = q, sx = p0.x - p1.x + p2.x - p3.x, sy = p0.y - p1.y + p2.y - p3.y;
+  const dx1 = p1.x - p2.x, dx2 = p3.x - p2.x, dy1 = p1.y - p2.y, dy2 = p3.y - p2.y, den = dx1 * dy2 - dx2 * dy1;
+  const g = den ? (sx * dy2 - dx2 * sy) / den : 0, h = den ? (dx1 * sy - sx * dy1) / den : 0; // 0: a parallelogram, affine
+  const a = p1.x - p0.x + g * p1.x, b = p3.x - p0.x + h * p3.x, d = p1.y - p0.y + g * p1.y, e = p3.y - p0.y + h * p3.y;
+  return (p) => {
+    const u = r.width ? (p.x - r.x) / r.width : 0, v = r.height ? (p.y - r.y) / r.height : 0, w = g * u + h * v + 1;
+    return pt((a * u + b * v + p0.x) / w, (d * u + e * v + p0.y) / w);
+  };
+}
+
 // MARK: Rects
 
 export const midX = (r: Rect) => r.x + r.width / 2;

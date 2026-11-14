@@ -330,6 +330,19 @@ export function scaled(l: Layer, sx: number, sy: number, a: Pt): Layer {
   return moved(mapped(s, (p) => scalePoint(p, c, sx, sy)), sub(scalePoint(c, a, sx, sy), c));
 }
 
+/** Through a non-affine document map `f` (free distort): shapes become paths (text its glyph outlines), rotation
+ *  baked into the points; Bézier control points are mapped, which approximates the curves. Gradients follow
+ *  `f` near their origin. ponytail: an image only moves with its center (no bitmap warp); a text box's
+ *  background is dropped with the text. */
+export function distorted(l: Layer, f: (p: Pt) => Pt): Layer {
+  if (l.kind === 'artboard') return l;
+  if (l.kind === 'group') return { ...mappingClip(l, f), children: l.children.map((c) => distorted(c, f)) };
+  const c = toWorld(l, center(l));
+  if (l.kind === 'image') return moved(l, sub(f(c), c));
+  const p = l.kind === 'text' ? { ...l, kind: 'path' as const, text: undefined, points: [], subpaths: localShape(l), strokeWidth: 0 } : asPath(l);
+  return { ...mapped(p, (q) => f(toWorld(l, q))), rotation: 0 };
+}
+
 /** Mirrors across the vertical (`horizontal`) or horizontal line through document coordinate `axis`.
  *  Exact under rotation: the local geometry is mirrored about its center and the rotation negated.
  *  Text moves but its glyphs aren't mirrored; artboards don't flip. */
