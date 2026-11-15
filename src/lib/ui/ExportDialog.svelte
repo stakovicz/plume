@@ -8,16 +8,18 @@
   import Segmented from '#lib/ui/kit/Segmented.svelte';
 
   /** ⌘E: what to export (document, artboards, selection), as what (PDF, SVG, PNG, JPG), at which scale.
-   *  Format and scale are kept between openings; the target starts at the selection when there is one. */
+   *  Format and scale are kept between openings; the target starts at the artboards when only artboards are
+   *  selected, at the selection when there is one. */
   let { files, open, onclose }: { files: Files; open: boolean; onclose: () => void } = $props();
 
   const TARGETS = [['selection', L('Selection')], ['artboards', L('Artboards')], ['document', L('Document')]] as const;
-  let what = $state<ExportTarget>('document'), format = $state<Format>('png'), scale = $state(1);
+  let what = $state<ExportTarget>('document'), format = $state<Format>('svg'), scale = $state(1);
   const targets = $derived(open ? TARGETS.filter(([t]) => files.canExport(t)) : []);
   const raster = $derived(format === 'png' || format === 'jpg');
 
-  $effect(() => { // on opening: the first available of selection, artboards, document
-    if (open && targets.length) what = targets[0][0];
+  $effect(() => { // on opening: selected artboards, else the first available of selection, artboards, document
+    if (!open || !targets.length) return;
+    what = files.onlyArtboardsSelected() ? 'artboards' : targets[0][0];
   });
 
   function run() {

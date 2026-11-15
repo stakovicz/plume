@@ -10,7 +10,7 @@ import { type Framed, framedArtboard, framedLayers } from '#lib/svg/export';
 import { artboards } from '#lib/document/artboards';
 import { type Format, render } from './render';
 
-/** What the export dialog exports: the whole document, one file per visible artboard, or the selected layers. */
+/** What the export dialog exports: the whole document, one file per selected (else visible) artboard, or the selected layers. */
 export type ExportTarget = 'document' | 'artboards' | 'selection';
 
 /** File menu actions around `doc.load` / `doc.json` (zipped as `.plm`) / exports: native panels and the Rust
@@ -192,11 +192,18 @@ export class Files {
     return this.doc.layers.length > 0;
   }
 
+  /** The selection is artboards only: the export dialog starts at them. */
+  onlyArtboardsSelected() {
+    const sel = this.doc.selectedLayers;
+    return sel.length > 0 && sel.every((l) => l.kind === 'artboard');
+  }
+
   #exports(what: ExportTarget): { base: string; framed: Framed }[] {
     const title = this.title().replace(/\.plm$/i, '');
     if (what === 'document') return [{ base: title, framed: framedLayers(this.doc.layers, 10) }];
-    if (what === 'artboards') {
-      return artboards(this.doc.layers).filter((a) => !a.hidden).map((a) => ({ base: fileName(a.name) || L('Artboard'), framed: framedArtboard(a) }));
+    if (what === 'artboards') { // the selected ones, else every visible one
+      const chosen = this.doc.selectedLayers.filter((l) => l.kind === 'artboard');
+      return (chosen.length ? chosen : artboards(this.doc.layers).filter((a) => !a.hidden)).map((a) => ({ base: fileName(a.name) || L('Artboard'), framed: framedArtboard(a) }));
     }
     const ls = this.doc.selectedLayers;
     return ls.length ? [{ base: (ls.length === 1 && fileName(ls[0].name)) || title, framed: framedLayers(ls) }] : [];
