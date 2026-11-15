@@ -1,3 +1,5 @@
+mod mcp;
+
 use std::fs;
 use std::sync::Mutex;
 
@@ -80,10 +82,16 @@ fn launch_file(opened: tauri::State<OpenedAtLaunch>) -> Option<String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    if std::env::args().any(|a| a == "--mcp") {
+        return mcp::relay(); // launched by an agent: no window, stdio relayed to the running app
+    }
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(OpenedAtLaunch::default())
-        .invoke_handler(tauri::generate_handler![read_text, write_bytes, launch_file, system_fonts, read_bytes, open_url])
+        .manage(mcp::Mcp::default())
+        .invoke_handler(tauri::generate_handler![
+            read_text, write_bytes, launch_file, system_fonts, read_bytes, open_url, mcp::mcp_start, mcp::mcp_stop, mcp::mcp_reply
+        ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
         .run(|_app, _event| {

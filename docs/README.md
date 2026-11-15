@@ -32,6 +32,7 @@ Quatre parties, chacune pour un besoin différent.
 - [Importer un SVG](guides/importer-un-svg.md) : ouvrir, coller, glisser-déposer
 - [Importer une image](guides/importer-une-image.md) : PNG, JPG, WebP, GIF
 - [Exporter en PDF, SVG, PNG ou JPG](guides/exporter.md)
+- [Piloter Plume depuis un agent IA](guides/mcp.md) : serveur MCP pour Claude Code, Claude Desktop, Cursor
 
 ## Référence
 
@@ -40,6 +41,7 @@ Quatre parties, chacune pour un besoin différent.
 - [Inspecteur](reference/inspecteur.md)
 - [Menus](reference/menus.md)
 - [Formats de fichier](reference/formats.md) : document, import SVG, exports
+- [Serveur MCP](reference/mcp.md) : outils exposés aux agents IA
 
 ## Explications
 

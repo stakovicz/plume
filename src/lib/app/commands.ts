@@ -9,6 +9,7 @@ import { TOOLS, toolKey, toolTitle } from '#lib/document/tool';
 import { type IconName, iconSVG } from '#lib/ui/kit/Icon.svelte';
 import { type Files, EXAMPLES } from './files.svelte';
 import { isTyping } from './clipboard';
+import type { McpServer } from './mcp.svelte';
 
 /** The menu bar, defined once: native menus under Tauri, the same shortcuts by keydown in a browser. */
 
@@ -40,11 +41,12 @@ function selectAll(doc: Doc) {
 /** Window parts the menus open or toggle: side panels (View menu), the export dialog. */
 export type Panels = { toggle: (which: 'navigator' | 'inspector') => void; openExport: () => void };
 
-export function menus(doc: Doc, files: Files, panels: Panels): MenuSpec[] {
+export function menus(doc: Doc, files: Files, panels: Panels, mcp?: McpServer): MenuSpec[] {
   return [
     {
       text: 'Plume',
       items: [{ native: 'About' }, sep, ...(mac ? [{ native: 'Services' }, sep, { native: 'Hide' }, { native: 'HideOthers' }, { native: 'ShowAll' }, sep] as Native[] : []),
+        ...(mcp?.available ? [{ text: mcp.running ? L('Turn Off MCP Server') : L('Turn On MCP Server'), run: () => mcp.toggle() }, sep] : []),
         { text: L('Quit Plume'), accelerator: 'CmdOrCtrl+Q', run: () => quit(files) }],
     },
     {

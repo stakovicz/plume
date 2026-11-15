@@ -4,6 +4,10 @@
 
 ### Ajouts
 
+- **Serveur MCP** : un agent IA (Claude Code, Claude Desktop, Cursor…) lit le document ouvert dans la fenêtre : arbre
+  des calques, sélection, SVG des calques, captures PNG. Lecture seule pour l'instant. Désactivé par défaut
+  (Plume › Activer le serveur MCP) ; l'agent lance `plume --mcp`, qui relaie vers la fenêtre par une connexion locale
+  protégée par un jeton. Guide : [Piloter Plume depuis un agent IA](docs/guides/mcp.md).
 - **Déformation libre** : ⌘ en glissant un coin d'un groupe ou d'une forme le déplace seul (perspective) ; ⇧ déplace
   le coin voisin en miroir, horizontalement ou verticalement selon le sens du geste. Les formes deviennent des
   tracés, un texte ses contours (seul, il se redimensionne : le grouper pour le déformer) ; les images suivent seulement.
