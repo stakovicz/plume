@@ -12,6 +12,14 @@
   Exporté en `<polygon>` dans le SVG.
   Guide : [Dessiner une étoile](docs/guides/dessiner-une-etoile.md).
 
+### Changements
+
+- **⇧ inverse le verrou de proportions** : sur un groupe, une image ou un calque au ratio verrouillé,
+  ⇧ en tirant une poignée redimensionne librement (il ne faisait que forcer les proportions).
+
+- **Exporter** (⌘E) part du contenu sélectionné : un plan de travail sélectionné choisit « Plans de travail » et
+  n'exporte que celui-ci (les sélectionnés, sinon tous) ; un groupe ou un tracé choisit « Sélection ». Le format proposé par défaut est SVG.
+
 ### Accessibilité
 
 - Les champs numériques de l'inspecteur s'annoncent comme des compteurs (VoiceOver…) avec leur unité et leurs bornes :
