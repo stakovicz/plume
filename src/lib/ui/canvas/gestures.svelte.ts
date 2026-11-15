@@ -107,8 +107,8 @@ export class Gestures {
         }
         const end = this.#resize(g.o, g.h, d);
         this.guides = this.#free ? [] : snapRect(pointRect(end), this.#targets, 0).guides;
-        const proportional = doc.shift || g.o.lockRatio;
-        let text = proportional ? L('Proportional') : `${L('Free')} · ${L('⇧ proportional')}`;
+        const proportional = doc.shift !== g.o.lockRatio;
+        let text = proportional ? (doc.shift ? L('Proportional') : `${L('Proportional')} · ${L('⇧ free')}`) : (doc.shift ? L('Free') : `${L('Free')} · ${L('⇧ proportional')}`);
         if (doc.option) text += ` · ${L('from center')}`;
         if (this.guides.length) text += ` · ${COMMAND} ${L('no snapping')}`;
         this.hint = { at, text, icon: proportional ? 'lock' : 'lock-open' };
@@ -396,11 +396,11 @@ export class Gestures {
 
   // MARK: Drag steps
 
-  /** Free by default; ⇧ or the layer's ratio lock keeps proportions; ⌥ scales from the center.
+  /** Free by default, proportional when the layer's ratio is locked; ⇧ swaps the two; ⌥ scales from the center.
    *  Returns where the handle ends up, document space. */
   #resize(o: Layer, h: Pt, d: Pt): Pt {
     const b = localBounds(o);
-    const r = resizeGesture(b, h, localDelta(o, d), { proportional: this.doc.shift || o.lockRatio, fromCenter: this.doc.option });
+    const r = resizeGesture(b, h, localDelta(o, d), { proportional: this.doc.shift !== o.lockRatio, fromCenter: this.doc.option });
     const a = r.anchor, t = scaleAround(a, r.sx, r.sy);
     this.#write(o, t, () => resized(o, r.sx, r.sy, a));
     return toWorld(o, apply(t, handlePoint(h, b))); // the anchor stays put, so the original frame still maps it

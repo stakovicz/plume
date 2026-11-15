@@ -1,14 +1,18 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  /** Modal sheet (native <dialog>): title, content, buttons bottom right. Escape closes it (`onclose`). */
+  /** Modal sheet (native <dialog>): title, content, buttons bottom right. Escape closes it (`onclose`).
+   *  Opens with the focus on the primary button (else the first control would look selected), so Return triggers it. */
   let { open, title, onclose, children, actions }: {
     open: boolean; title: string; onclose: () => void; children: Snippet; actions: Snippet;
   } = $props();
 
   let el: HTMLDialogElement;
   $effect(() => {
-    if (open && !el.open) el.showModal();
+    if (open && !el.open) {
+      el.showModal();
+      el.querySelector<HTMLElement>('footer button.primary')?.focus();
+    }
     else if (!open && el.open) el.close();
   });
 </script>
@@ -24,7 +28,7 @@
     /* WebKit (Tauri) stretches the dialog over its UA `inset: 0` and the grid spreads its rows apart: size it to its content */
     height: max-content;
     align-content: start;
-    width: 340px;
+    width: 400px;
     padding: var(--space-4);
     border: none;
     border-radius: var(--radius-2);

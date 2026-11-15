@@ -3,9 +3,9 @@
 Exporter le document, chaque plan de travail ou la sélection en PDF, SVG, PNG ou JPG, en 1×, 2× ou 3×.
 
 1. **Fichier › Exporter…** (⌘E).
-2. **Contenu** (seuls les choix possibles sont proposés) :
+2. **Contenu** (déjà réglé d'après la sélection) :
    - **Sélection** : les calques sélectionnés, recadrés au plus juste ;
-   - **Plans de travail** : un fichier par plan de travail visible ;
+   - **Plans de travail** : un fichier par plan de travail sélectionné, ou par plan de travail s'il n'y a pas de sélection ;
    - **Document** : tout le dessin, avec une marge de 10 px.
 3. **Format** : PDF, SVG, PNG ou JPG.
 4. **Échelle** (PNG et JPG) : 1×, 2× ou 3×.

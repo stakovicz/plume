@@ -5,7 +5,7 @@ Après un dessin, Plume revient à l'outil Sélection, sauf pour la Plume (qui c
 
 | Outil | Touche | Utilisation | Modificateurs |
 |---|---|---|---|
-| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; glisser depuis le vide : sélection au lasso ; poignées : redimensionner, pivoter, ⌘ sur un coin : déformer (⇧ : symétrique ; un texte ou une image seuls se redimensionnent, groupez un texte pour le déformer) (texte : une poignée verticale fixe la hauteur de la zone) ; double-clic ou Retour : éditer les points ou le texte | ⌘- ou ⇧-clic : ajouter/retirer ; ⇧ : proportions, angle par 15° ; ⌥ : depuis le centre |
+| Sélection | Échap | clic : sélectionner ; glisser : déplacer ; glisser depuis le vide : sélection au lasso ; poignées : redimensionner, pivoter ; ⌘ sur un coin : déformer ; double-clic ou Retour : éditer les points ou le texte | ⌘- ou ⇧-clic : ajouter/retirer ; ⇧ : proportions (les libère si elles sont verrouillées, comme sur un groupe), angle par 15°, déformation symétrique ; ⌥ : depuis le centre |
 | Plan de travail | A | glisser : dessiner un plan de travail ; l'inspecteur propose des tailles prédéfinies | ⇧ : carré ; ⌥ : depuis le centre |
 | Plume | V | clic : point d'angle ; clic-glisser : point de courbe ; clic sur le premier point : fermer ; Retour ou Échap : terminer ouvert | — |
 | Crayon | P | glisser : trait à main levée, lissé en courbes au relâchement | — |
@@ -25,14 +25,14 @@ L'outil Plan de travail n'est pas dans la barre d'outils : il s'obtient avec **A
 | Texte | noir (Fira Sans, 16 px) | aucune |
 | Plan de travail | fond blanc | aucune |
 
-Une forme tracée d'un simple clic (moins de 2 pixels à l'écran) est abandonnée.
+Un simple clic sans glisser ne crée pas de forme.
 
 ## Aides au dessin
 
-- **Repères d'alignement** : en déplaçant, redimensionnant ou dessinant, bords et centres s'aimantent à moins
-  de 5 pixels écran de ceux des autres calques visibles ; une ligne de repère s'affiche.
-- **Grille** d'un plan de travail : à défaut de repère, les bords s'aimantent à ses lignes et aux bords de ses
-  colonnes (voir [Plans de travail](../guides/plans-de-travail.md)). ⌘ maintenu en glissant ignore repères et grille.
+- **Repères d'alignement** : en déplaçant, redimensionnant ou dessinant, bords et centres s'aimantent à ceux
+  des autres calques ; une ligne de repère s'affiche.
+- **Grille** d'un plan de travail : les bords s'aimantent à ses lignes et à ses colonnes
+  (voir [Plans de travail](../guides/plans-de-travail.md)). ⌘ maintenu en glissant ignore repères et grille.
 - **Bulle d'information** près du curseur en redimensionnant ou pivotant : mode (libre, proportionnel,
   depuis le centre) ou angle.
 - **Zoom** : de 5 % à 6400 %.

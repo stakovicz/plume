@@ -37,10 +37,9 @@ Dans l'inspecteur, l'interrupteur à droite du titre de chaque section :
 
 Les deux s'utilisent seules ou ensemble, toujours de la même couleur.
 
-- Les lignes gardent la même épaisseur à l'écran ; trop serrées quand on dézoome, elles disparaissent.
-- Grille et colonnes ne sont ni sélectionnables ni exportées. Leurs réglages sont enregistrés avec le document, et dans le SVG exporté.
+- Grille et colonnes ne s'exportent pas.
 - **Magnétisme** : en déplaçant, redimensionnant, dessinant ou éditant un point dans le plan de travail, les bords
-  s'aimantent aux lignes et aux bords des colonnes (les repères d'alignement passent avant).
+  s'aimantent aux lignes et aux colonnes.
   Maintenez **⌘** (Ctrl) pour l'ignorer le temps d'un glissement.
 - Menu **Présentation** : **Afficher/Masquer les grilles** (⌘') et **Activer/Désactiver le magnétisme de la grille**,
   pour tous les plans de travail. Grilles masquées, pas de magnétisme.
@@ -49,8 +48,6 @@ Les deux s'utilisent seules ou ensemble, toujours de la même couleur.
 
 Déplacez simplement le calque : à la fin du déplacement, il appartient au plan de travail sous **son centre**,
 ou au premier niveau s'il n'y en a pas. Vous pouvez aussi le glisser dans le navigateur.
-Un calque déposé dans un plan de travail entièrement en dehors de son cadre y est ramené au centre,
-pour ne pas devenir invisible.
 
 ## Renommer
 
@@ -58,5 +55,5 @@ Triple-clic sur son nom sur le canevas, ou dans le navigateur. Le nom sert de no
 
 ## Exporter
 
-**Fichier › Exporter…**, **Contenu : Plans de travail** : un fichier par plan de travail visible.
+Sélectionnez-le puis **Fichier › Exporter…** (⌘E). Sans sélection, chaque plan de travail devient un fichier.
 Voir [Exporter](exporter.md).

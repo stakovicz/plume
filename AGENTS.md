@@ -81,7 +81,7 @@ Logic that can be tested without a window belongs in model/document, not in comp
   `doc.zoom` so they keep a constant screen size.
 - **Modifiers**: free by default, ⇧ constrains (proportions, 15° angle steps,
   square/circle), ⌥ works from the center (resize, draw). `lockRatio` makes a layer resize
-  proportionally without ⇧ (on by default for groups and imported SVG). Bézier handles: mirrored,
+  proportionally, ⇧ then frees it (on by default for groups and imported SVG). Bézier handles: mirrored,
   ⌥ = independent. Tool keys (and Return/Esc) are handled on the canvas, not as menu shortcuts, so
   they never fire while typing in a text field; tool letters also work from the rest of the window
   (`toolForKey`, +page), still never in a text field. Return commits a field, Escape cancels it.
