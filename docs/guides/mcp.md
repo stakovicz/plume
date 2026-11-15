@@ -16,23 +16,25 @@ Le serveur est désactivé par défaut. Plume se souvient du réglage d'un lance
 ## 2. Déclarer Plume dans l'agent
 
 L'agent lance lui-même Plume avec l'option `--mcp` : ce processus sans fenêtre relaie ses demandes vers la fenêtre
-ouverte. Le chemin de l'exécutable dépend du système :
+ouverte. Il faut donc lui donner le chemin de l'exécutable et l'argument `--mcp`.
 
-| Système | Exécutable |
-|---|---|
-| macOS | `/Applications/Plume.app/Contents/MacOS/plume` |
-| Windows | `%LOCALAPPDATA%\Plume\plume.exe` (installeur `.exe`) ou `C:\Program Files\Plume\plume.exe` (`.msi`) ; Scoop : `%USERPROFILE%\scoop\apps\plume-editor\current\plume.exe` |
-| Linux (APT, DNF, AUR) | `plume` |
-| Linux (Snap) | `plume-editor.plume` |
-| Linux (Flatpak) | `flatpak` avec les arguments `run cz.stakovi.plume --mcp` |
+### Chemin de l'exécutable
 
-**Claude Code**, dans un terminal :
+| Installation | Commande | Arguments |
+|---|---|---|
+| macOS | `/Applications/Plume.app/Contents/MacOS/plume` | `--mcp` |
+| Windows, installeur `.exe` | `%LOCALAPPDATA%\Plume\plume.exe` | `--mcp` |
+| Windows, installeur `.msi` | `C:\Program Files\Plume\plume.exe` | `--mcp` |
+| Windows, Scoop | `%USERPROFILE%\scoop\apps\plume-editor\current\plume.exe` | `--mcp` |
+| Linux : APT, DNF, AUR | `plume` | `--mcp` |
+| Linux : Snap | `plume-editor.plume` | `--mcp` |
+| Linux : Flatpak | `flatpak` | `run`, `cz.stakovi.plume`, `--mcp` |
 
-```sh
-claude mcp add plume -- /Applications/Plume.app/Contents/MacOS/plume --mcp
-```
+Dans un fichier JSON, un chemin Windows s'écrit avec des antislashs doublés (`C:\\Program Files\\Plume\\plume.exe`) ou
+des barres obliques (`C:/Program Files/Plume/plume.exe`). Remplacez `%LOCALAPPDATA%` ou `%USERPROFILE%` par le chemin
+complet : les fichiers de configuration ne développent pas ces variables.
 
-**Claude Desktop** : Réglages › Développeur › Modifier la configuration, puis dans `claude_desktop_config.json` :
+La plupart des agents attendent la même entrée, sous la clé `mcpServers` :
 
 ```json
 {
@@ -42,9 +44,98 @@ claude mcp add plume -- /Applications/Plume.app/Contents/MacOS/plume --mcp
 }
 ```
 
-**Cursor** : la même entrée dans `~/.cursor/mcp.json`.
+Variantes de l'entrée `plume` :
 
-Redémarrez l'agent (ou reconnectez le serveur : `/mcp` dans Claude Code) pour qu'il voie les outils de Plume.
+```json
+"plume": { "command": "C:/Program Files/Plume/plume.exe", "args": ["--mcp"] }
+"plume": { "command": "plume", "args": ["--mcp"] }
+"plume": { "command": "flatpak", "args": ["run", "cz.stakovi.plume", "--mcp"] }
+```
+
+### Claude Code
+
+Dans un terminal :
+
+```sh
+claude mcp add plume -- /Applications/Plume.app/Contents/MacOS/plume --mcp
+```
+
+Par défaut, Plume n'est disponible que dans le dossier où la commande a été lancée. Ajoutez `--scope user` (avant `--`)
+pour l'avoir dans tous vos projets, ou `--scope project` pour l'écrire dans le fichier `.mcp.json` du projet, à
+partager avec l'équipe (même format `mcpServers` que ci-dessus ; Claude Code demande de l'approuver la première fois).
+Pour changer de portée : `claude mcp remove plume`, puis l'ajouter à nouveau.
+
+### Claude Desktop
+
+Menu **Claude › Réglages… › Développeur › Modifier la configuration**, qui ouvre (ou crée)
+`claude_desktop_config.json` :
+
+| Système | Fichier |
+|---|---|
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+Ajoutez l'entrée `mcpServers` ci-dessus, puis **quittez complètement** Claude Desktop (pas seulement sa fenêtre) et
+rouvrez-le. En cas d'échec, les journaux sont dans `~/Library/Logs/Claude` (macOS) ou `%APPDATA%\Claude\logs` (Windows).
+
+### Cursor
+
+La même entrée `mcpServers`, dans `~/.cursor/mcp.json` pour tous les projets, ou dans `.cursor/mcp.json` à la racine
+d'un projet.
+
+### VS Code (GitHub Copilot)
+
+Dans `.vscode/mcp.json` (ou par la commande **MCP: Open User Configuration** pour tous les projets). Attention, la
+clé est `servers`, et chaque serveur précise son type :
+
+```json
+{
+  "servers": {
+    "plume": { "type": "stdio", "command": "/Applications/Plume.app/Contents/MacOS/plume", "args": ["--mcp"] }
+  }
+}
+```
+
+### Windsurf
+
+Dans le panneau Cascade, menu MCP › **Open MCP config file**, qui ouvre le bon fichier `mcp_config.json` pour votre
+installation, puis ajoutez l'entrée `mcpServers` ci-dessus.
+
+### Zed
+
+Dans `settings.json`, sous la clé `context_servers` (ou par Réglages › AI › MCP Servers) :
+
+```json
+{
+  "context_servers": {
+    "plume": { "command": "/Applications/Plume.app/Contents/MacOS/plume", "args": ["--mcp"], "env": {} }
+  }
+}
+```
+
+### Codex CLI
+
+```sh
+codex mcp add plume -- /Applications/Plume.app/Contents/MacOS/plume --mcp
+```
+
+ou, dans `~/.codex/config.toml` (la table s'appelle bien `mcp_servers`) :
+
+```toml
+[mcp_servers.plume]
+command = "/Applications/Plume.app/Contents/MacOS/plume"
+args = ["--mcp"]
+```
+
+### Vérifier la connexion
+
+- **Claude Code** : `claude mcp list` affiche `plume: … - ✔ Connected` ; dans une session, `/mcp` liste les outils
+  `get_document`, `get_selection`, `get_svg` et `screenshot`.
+- **Autres agents** : les outils de Plume apparaissent dans la liste des outils ou des serveurs MCP.
+- Si l'agent répond que Plume n'est pas ouvert, voir le Dépannage plus bas.
+
+Après avoir activé le serveur dans Plume, reconnectez l'agent s'il était déjà lancé (`/mcp` dans Claude Code,
+redémarrage pour les autres) : il ne lit la liste des outils qu'à la connexion.
 
 ## 3. Demander
 
