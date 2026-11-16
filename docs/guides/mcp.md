@@ -1,11 +1,12 @@
 # Piloter Plume depuis un agent IA
 
-Demander à un assistant IA (Claude, Cursor, Copilot…) de regarder votre dessin dans Plume : le décrire, vérifier un
-alignement, proposer des couleurs, récupérer le SVG d'un logo. L'assistant voit le document ouvert dans la fenêtre,
-tel que vous le voyez.
+Demander à un assistant IA (Claude, Cursor, Copilot…) de travailler avec vous dans Plume : décrire le dessin,
+vérifier un alignement, ajouter des formes, changer des couleurs, aligner, grouper. L'assistant voit le document ouvert
+dans la fenêtre, tel que vous le voyez, et ses modifications s'affichent en direct.
 
-Pour l'instant, l'assistant **lit** le document : il ne le modifie pas. Cette fonction n'existe que dans l'application
-de bureau (macOS, Windows, Linux), pas dans la version web.
+Chacune de ses modifications s'annule comme les vôtres, avec **Édition › Annuler** (⌘Z). Il ne touche pas aux calques
+verrouillés, et attend que vous ayez fini de taper un texte ou de modifier des points. Cette fonction n'existe que dans
+l'application de bureau (macOS, Windows, Linux), pas dans la version web.
 
 Elle repose sur MCP (Model Context Protocol), le standard qui permet de brancher des outils sur un assistant IA.
 
@@ -18,7 +19,7 @@ Elle repose sur MCP (Model Context Protocol), le standard qui permet de brancher
 ## 1. Activer le serveur dans Plume
 
 Pour démarrer : menu **Plume › Activer le serveur MCP**. Une étiquette **MCP** s'affiche à côté du titre du « Navigateur » : tant
-qu'elle est là, un assistant peut lire le document ouvert.
+qu'elle est là, un assistant peut lire et modifier le document ouvert.
 
 Pour arrêter : menu **Plume › Désactiver le serveur MCP**.
 Plume se souvient de votre choix au lancement suivant.
@@ -109,8 +110,8 @@ Attention : VS Code utilise `servers` là où les autres écrivent `mcpServers`,
 
 ### Vérifier que ça marche
 
-Redémarrez votre assistant, puis demandez-lui : « Quels outils Plume as-tu ? ». Il doit citer `get_document`,
-`get_selection`, `get_svg` et `screenshot`. Dans Claude Code, la commande `claude mcp list` affiche
+Redémarrez votre assistant, puis demandez-lui : « Quels outils Plume as-tu ? ». Il doit citer, entre autres,
+`get_document`, `screenshot`, `add_svg` et `update_layers`. Dans Claude Code, la commande `claude mcp list` affiche
 `plume … ✔ Connected`.
 
 Si l'assistant a été lancé **avant** que vous activiez le serveur dans Plume, il ne voit pas encore ses outils :
@@ -121,11 +122,15 @@ redémarrez-le (dans Claude Code, tapez `/mcp` et reconnectez Plume).
 Plume doit être ouvert, avec le serveur activé. Quelques idées :
 
 - « Décris le document ouvert dans Plume. »
-- « Quelles couleurs utilise le plan de travail Carte ? Propose une palette plus contrastée. »
 - « Fais une capture de la sélection et dis-moi si le texte est bien centré. »
 - « Donne-moi le SVG du logo pour l'intégrer à ma page web. »
+- « Ajoute une étoile jaune en haut à droite du plan de travail. »
+- « Passe tous les titres en bleu nuit et aligne-les à gauche. »
+- « Propose une palette plus contrastée et applique-la. »
 
-L'assistant lit d'abord la liste des calques, puis demande le SVG ou une capture de ce qui l'intéresse.
+L'assistant lit d'abord la liste des calques, puis agit et vérifie le résultat par une capture. Pour dessiner, il
+écrit du SVG que Plume transforme en calques modifiables. Si le résultat ne vous plaît pas : ⌘Z, ou demandez-lui
+d'annuler.
 
 ## Est-ce sûr ?
 
@@ -133,7 +138,8 @@ L'assistant lit d'abord la liste des calques, puis demande le SVG ou une capture
 - **Tout reste sur votre ordinateur** : la connexion entre l'assistant et Plume ne sort pas de votre machine.
 - **Personne d'autre ne peut s'y brancher** : chaque connexion doit fournir un code secret, tiré au hasard et
   enregistré dans un fichier que vous seul pouvez lire. Vous n'avez rien à recopier.
-- **L'assistant ne voit que le document ouvert** : il ne peut pas parcourir vos fichiers par Plume.
+- **L'assistant ne voit que le document ouvert** : il ne peut pas parcourir vos fichiers, ni enregistrer, par Plume.
+- **Vous gardez la main** : tout ce qu'il change s'annule avec ⌘Z ; verrouillez un calque pour qu'il n'y touche pas.
 
 Le document est en revanche envoyé à l'assistant, comme tout ce que vous lui montrez : n'activez pas le serveur sur un
 document confidentiel si votre assistant fonctionne en ligne.

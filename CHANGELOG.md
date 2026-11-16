@@ -4,8 +4,10 @@
 
 ### Ajouts
 
-- **Serveur MCP** : un agent IA (Claude Code, Claude Desktop, Cursor…) lit le document ouvert dans la fenêtre : arbre
-  des calques, sélection, SVG des calques, captures PNG. Lecture seule pour l'instant. Désactivé par défaut
+- **Serveur MCP** : un agent IA (Claude Code, Claude Desktop, Cursor…) lit et modifie le document ouvert dans la fenêtre,
+  en direct : arbre des calques, SVG, captures PNG ; ajout de formes en SVG, couleurs, taille, position, texte,
+  grouper, combiner, aligner, ordre, suppression, annuler. Chaque modification est une étape d'annulation ; les
+  calques verrouillés restent intouchables. Désactivé par défaut
   (Plume › Activer le serveur MCP) ; l'agent lance `plume --mcp`, qui relaie vers la fenêtre par une connexion locale
   protégée par un jeton. Guide : [Piloter Plume depuis un agent IA](docs/guides/mcp.md).
 - **Déformation libre** : ⌘ en glissant un coin d'un groupe ou d'une forme le déplace seul (perspective) ; ⇧ déplace

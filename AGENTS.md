@@ -94,9 +94,9 @@ Logic that can be tested without a window belongs in model/document, not in comp
   Views (Inspector, LayerList, …) assemble `ui/kit/` primitives and use tokens, no px or color literals;
   `npm run lint` enforces it. A new control goes in `kit/` and on the `/kit` page, in all its states.
   Native HTML first (`popover`, `<input>`); add a headless library (Bits UI) only for what HTML can't do.
-- **MCP** (agents read the open window; `docs/guides/mcp.md`): Rust only carries JSON-RPC lines; what the protocol
+- **MCP** (agents read and edit the open window; `docs/guides/mcp.md`): Rust only carries JSON-RPC lines; what the protocol
   says (initialize, `instructions`, tools) lives in `app/mcp.ts`, tested in `tests/mcp.test.ts`. Adding a tool = an entry
-  in `TOOLS` (one-sentence "when to use", every parameter described) + a case in `call` + a test + a section in
+  in `TOOLS` (one-sentence "when to use", every parameter described) + a case in `call` (reads) or `edit` (writes, behind `busy`/`editable`) + a test + a section in
   `docs/reference/mcp.md`. Tools mirror user gestures (not `Doc` internals), stay few, return compact JSON (ids, rounded
   bounds, hex) or SVG, and fail with readable `isError` results, never a throw. Write tools must respect locked layers and
   make one undo step per call. Off by default, local only, token file; never add a listener that skips the token.
