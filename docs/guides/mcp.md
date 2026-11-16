@@ -17,10 +17,10 @@ Elle repose sur MCP (Model Context Protocol), le standard qui permet de brancher
 
 ## 1. Activer le serveur dans Plume
 
-Pour démarrer : Menu **Plume › Activer le serveur MCP**. Une étiquette **MCP** s'affiche à côté du titre du « Navigateur » : tant
+Pour démarrer : menu **Plume › Activer le serveur MCP**. Une étiquette **MCP** s'affiche à côté du titre du « Navigateur » : tant
 qu'elle est là, un assistant peut lire le document ouvert.
 
-Pour arrêter : Menu **Plume › Désactiver le serveur MCP**.
+Pour arrêter : menu **Plume › Désactiver le serveur MCP**.
 Plume se souvient de votre choix au lancement suivant.
 
 ## 2. Ajouter Plume à votre assistant IA
