@@ -17,13 +17,13 @@ Elle repose sur MCP (Model Context Protocol), le standard qui permet de brancher
 
 ## 1. Activer le serveur dans Plume
 
-Choisissez **Plume › Activer le serveur MCP**. Une pastille **MCP** s'affiche à côté du titre « Navigateur » : tant
+Pour démarrer : Menu **Plume › Activer le serveur MCP**. Une étiquette **MCP** s'affiche à côté du titre du « Navigateur » : tant
 qu'elle est là, un assistant peut lire le document ouvert.
 
-Pour arrêter : **Plume › Désactiver le serveur MCP**. Le serveur est désactivé tant que vous ne l'activez pas, et
+Pour arrêter : Menu **Plume › Désactiver le serveur MCP**.
 Plume se souvient de votre choix au lancement suivant.
 
-## 2. Ajouter Plume à votre assistant
+## 2. Ajouter Plume à votre assistant IA
 
 Votre assistant a besoin de savoir où se trouve Plume sur votre ordinateur. Il le lancera lui-même, sans fenêtre,
 avec l'option `--mcp`.
@@ -129,7 +129,7 @@ L'assistant lit d'abord la liste des calques, puis demande le SVG ou une capture
 
 ## Est-ce sûr ?
 
-- **Rien n'est ouvert sans vous** : le serveur ne tourne que si vous l'activez, et la pastille MCP le signale.
+- **Rien n'est ouvert sans vous** : le serveur ne tourne que si vous l'activez, et l'étiquette MCP le signale.
 - **Tout reste sur votre ordinateur** : la connexion entre l'assistant et Plume ne sort pas de votre machine.
 - **Personne d'autre ne peut s'y brancher** : chaque connexion doit fournir un code secret, tiré au hasard et
   enregistré dans un fichier que vous seul pouvez lire. Vous n'avez rien à recopier.
