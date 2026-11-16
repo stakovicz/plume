@@ -104,6 +104,13 @@ pub fn mcp_stop(mcp: tauri::State<Mcp>) {
     }
 }
 
+/// Plume is quitting: the server stops with it, its `mcp.json` removed, so relays answer "not open" at once.
+/// ponytail: a crash or a forced quit still leaves the file; the relay then finds no one at the port and answers the same.
+pub fn shutdown(app: &AppHandle) {
+    use tauri::Manager;
+    mcp_stop(app.state::<Mcp>());
+}
+
 /// The web view's answer to request `id` (a JSON-RPC response, as text).
 #[tauri::command]
 pub fn mcp_reply(id: u64, response: String, mcp: tauri::State<Mcp>) {

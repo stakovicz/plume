@@ -95,6 +95,9 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
         .run(|_app, _event| {
+            if let tauri::RunEvent::Exit = _event {
+                mcp::shutdown(_app); // no `mcp.json` left pointing at a closed port
+            }
             // Finder › Open With / double-click on a .plm: stored for `launch_file`, and sent to a running window.
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Opened { urls } = _event {
