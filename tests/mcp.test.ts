@@ -119,12 +119,12 @@ describe('mcp', () => {
   test('update_layers: style, size, position, text, polygon; all or nothing; one undo step', async () => {
     const { d, sun, star } = sample();
     const r = await callTool(d, 'update_layers', { updates: [
-      { id: sun.id, name: 'Moon', fill: '#336699', stroke: 'none', x: 0, y: 0, width: 50, opacity: 0.5 },
+      { id: sun.id, name: 'Moon', fill: '#336699', stroke: 'none', x: 0, y: 0, width: 50, opacity: 0.85 },
       { id: star.id, sides: 6, hidden: false },
     ] });
     expect(r.isError).toBeUndefined();
     const [moon, hex6] = JSON.parse(r.content[0].text!);
-    expect(moon).toMatchObject({ name: 'Moon', fill: '#336699', bounds: [0, 0, 50, 100], opacity: 0.5 });
+    expect(moon).toMatchObject({ name: 'Moon', fill: '#336699', bounds: [0, 0, 50, 100], opacity: 0.85 }); // read back as given
     expect(moon.stroke).toBeUndefined();
     expect(hex6).toMatchObject({ sides: 6 });
     expect(hex6.hidden).toBeUndefined();

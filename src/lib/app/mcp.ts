@@ -173,7 +173,7 @@ export function summary(l: Layer): object {
     else if (l.fill.a > 0) s.fill = l.fill.a < 1 ? `${hex(l.fill)} ${Math.round(l.fill.a * 100)}%` : hex(l.fill);
     if (hasVisibleStroke(l) && l.kind !== 'text') s.stroke = `${l.strokeGradient ? 'gradient' : hex(l.stroke)} ${round(l.strokeWidth)}px`;
   }
-  if (l.opacity < 1) s.opacity = round(l.opacity);
+  if (l.opacity < 1) s.opacity = Math.round(l.opacity * 100) / 100; // as precise as the inspector's percent
   if (l.rotation) s.rotation = round((l.rotation * 180) / Math.PI);
   if (l.kind === 'polygon') Object.assign(s, { sides: l.sides, innerRadius: l.innerRadius });
   if (l.text) s.text = l.text.content;
