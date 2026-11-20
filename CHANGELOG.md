@@ -6,7 +6,7 @@
 
 - **Serveur MCP** : un agent IA (Claude Code, Claude Desktop, Cursor…) lit et modifie le document ouvert dans la fenêtre,
   en direct : arbre des calques, SVG, captures PNG ; ajout de formes en SVG, couleurs, taille, position, texte,
-  grouper, combiner, aligner, ordre, suppression, annuler. Chaque modification est une étape d'annulation ; les
+  grouper, combiner, aligner, ordre, suppression, annuler ; export SVG, PNG, JPG ou PDF, enregistrement. Chaque modification est une étape d'annulation ; les
   calques verrouillés restent intouchables. Désactivé par défaut
   (Plume › Activer le serveur MCP) ; l'agent lance `plume --mcp`, qui relaie vers la fenêtre par une connexion locale
   protégée par un jeton. Guide : [Piloter Plume depuis un agent IA](docs/guides/mcp.md).

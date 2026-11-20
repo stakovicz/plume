@@ -3,7 +3,8 @@ import { listen } from '@tauri-apps/api/event';
 import { message } from '@tauri-apps/plugin-dialog';
 import { L } from '#lib/i18n';
 import type { Doc } from '#lib/document/doc.svelte';
-import { handle } from './mcp';
+import type { Files } from './files.svelte';
+import { type Host, handle } from './mcp';
 import { render } from './render';
 
 /** Plume › MCP Server: off by default, remembered per machine (localStorage), desktop app only.
@@ -13,7 +14,11 @@ export class McpServer {
   readonly available = isTauri();
   #listening = false;
 
-  constructor(private doc: Doc) {}
+  readonly #host: Host;
+
+  constructor(private doc: Doc, files: Files) {
+    this.#host = { render, save: () => files.save(), exportAs: (f, name, format, scale) => files.exportFramed(f, name, format, scale) };
+  }
 
   /** At launch: back on if it was on when Plume quit. */
   async restore() {
@@ -27,7 +32,7 @@ export class McpServer {
     if (!this.#listening) {
       this.#listening = true;
       await listen<{ id: number; message: Parameters<typeof handle>[1] }>('mcp-call', async ({ payload }) => {
-        const response = await handle(this.doc, payload.message, (f, scale) => render(f, 'png', scale));
+        const response = await handle(this.doc, payload.message, this.#host);
         await invoke('mcp_reply', { id: payload.id, response: JSON.stringify(response) });
       });
     }

@@ -8,7 +8,7 @@ IA](../guides/mcp.md).
 | Transport | stdio : l'agent lance `plume --mcp`, qui relaie vers la fenêtre ouverte |
 | Versions du protocole | 2025-06-18 (par défaut), 2025-11-25, 2025-03-26, 2024-11-05 |
 | Capacités | outils (`tools`) ; pas de ressources ni de prompts |
-| Accès | lecture et modification du document ouvert ; les outils de lecture portent l'annotation `readOnlyHint`, `delete_layers` l'annotation `destructiveHint` |
+| Accès | lecture et modification du document ouvert ; les outils de lecture (et `export`) portent l'annotation `readOnlyHint`, `delete_layers` et `save` l'annotation `destructiveHint` |
 | Délai | 30 s par demande |
 
 ## Conventions
@@ -71,6 +71,32 @@ Une image PNG, telle qu'affichée.
 | `scale` | nombre de 0,1 à 2 (pixels d'image par pixel du document) | 1 |
 
 L'échelle est réduite si besoin pour que l'image ne dépasse pas 2048 pixels de côté.
+
+## Outils de fichier
+
+Plume n'écrit sur le disque que dans le fichier `.plm` déjà enregistré par l'utilisateur, ou là où il le choisit
+dans une boîte d'enregistrement.
+
+### export
+
+Un fichier SVG, PNG, JPG ou PDF, comme Fichier › Exporter. Il est renvoyé à l'agent, qui l'écrit avec ses propres
+outils : SVG en texte, PNG et JPG en image, PDF en ressource intégrée (`resource`, base64). Avec `ask: true`, Plume
+ouvre sa boîte d'enregistrement à la place et répond aussitôt, sans attendre le choix de l'utilisateur.
+
+| Paramètre | Type | Défaut |
+|---|---|---|
+| `format` | `svg`, `png`, `jpg` ou `pdf` | obligatoire |
+| `ids` | liste d'identifiants (un plan de travail : son cadre) | la sélection, sinon tout le document |
+| `scale` | PNG et JPG : nombre de 0,1 à 4 | 1 |
+| `ask` | booléen : ouvrir la boîte d'enregistrement de Plume | `false` |
+
+Une image renvoyée ne dépasse pas 2048 pixels de côté ; pour une plus grande, `ask: true`.
+
+### save
+
+Enregistre le document dans son fichier `.plm`, comme Fichier › Enregistrer. Aucun paramètre. Refusé pour un
+document jamais enregistré (nouveau, ou ouvert depuis un SVG) : l'agent demande alors à l'utilisateur de choisir
+Fichier › Enregistrer. Refusé aussi tant que l'utilisateur est occupé, comme les modifications.
 
 ## Outils de modification
 

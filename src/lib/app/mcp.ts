@@ -7,6 +7,7 @@ import { remove } from '#lib/model/layer-tree';
 import type { BooleanOp } from '#lib/model/boolean';
 import { importSVG } from '#lib/svg/import';
 import { type Framed, framedArtboard, framedLayers } from '#lib/svg/export';
+import type { Format } from './render';
 import { version } from '../../../package.json'; // serverInfo: the app's version
 
 /** MCP (Model Context Protocol) as Plume speaks it: what an agent reads and calls. The Rust shell only carries the
@@ -24,7 +25,9 @@ export const INSTRUCTIONS = `Plume is a vector editor; these tools read and edit
 - Hidden layers are listed (hidden: true) but left out of get_svg and screenshot.
 - To draw, write SVG and pass it to add_svg: it becomes editable layers. Then adjust with update_layers and arrange.
 - Every edit is one undo step for the user (Edit › Undo). Locked layers can't be changed: ask the user to unlock them.
-- Edits are refused while the user is typing text, editing points or drawing with the pen: ask them to finish (Esc).`;
+- Edits are refused while the user is typing text, editing points or drawing with the pen: ask them to finish (Esc).
+- export hands you a file (SVG, PNG, JPG, PDF) to write with your own tools, or opens Plume's save dialog (ask: true).
+  save writes the open .plm file, only if the user saved it before; Plume never writes anywhere else on its own.`;
 
 type Schema = { type: 'object'; properties: Record<string, object>; required?: string[]; additionalProperties: false };
 type Annotations = { readOnlyHint: boolean; destructiveHint?: boolean; idempotentHint?: boolean };
@@ -48,6 +51,7 @@ const ARRANGE = {
   'bring-forward': 'One step up in paint order', 'send-backward': 'One step down', 'bring-to-front': 'On top of its siblings', 'send-to-back': 'Below its siblings',
 } as const;
 type ArrangeOp = keyof typeof ARRANGE;
+const FORMATS: Format[] = ['svg', 'png', 'jpg', 'pdf'];
 
 export const TOOLS: Tool[] = [
   {
@@ -76,6 +80,25 @@ export const TOOLS: Tool[] = [
       scale: { type: 'number', minimum: 0.1, maximum: 2, description: 'Pixels per document pixel. Default 1; reduced so the image stays within 2048 px.' },
     }),
     annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'export', title: 'Export a file',
+    description: 'The whole document, an artboard or layers as an SVG, PNG, JPG or PDF file, as File › Export makes it. '
+      + 'Returns the file (SVG as text, PNG and JPG as an image, PDF as an embedded resource) for you to write where the user '
+      + 'wants with your own tools. If you can\'t write files, or for a large PNG, JPG or PDF, pass ask: true: Plume opens its save dialog and the user picks where.',
+    inputSchema: schema({
+      ids,
+      format: { type: 'string', enum: FORMATS, description: 'svg (vector, editable), png (transparent), jpg (on white) or pdf (vector).' },
+      scale: { type: 'number', minimum: 0.1, maximum: 4, description: 'PNG and JPG: pixels per document pixel. Default 1; a returned image stays within 2048 px.' },
+      ask: { type: 'boolean', description: 'Open Plume\'s save dialog instead of returning the file. Answers at once; the user may cancel.' },
+    }, ['format']),
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'save', title: 'Save the document',
+    description: 'Saves the document to its .plm file, like File › Save. Only for a document the user already saved: '
+      + 'otherwise ask them to choose File › Save, so they pick the name and folder.',
+    inputSchema: schema(), annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true },
   },
   {
     name: 'add_svg', title: 'Draw with SVG',
@@ -153,14 +176,24 @@ export const TOOLS: Tool[] = [
   },
 ];
 
-type Content = { type: 'text'; text: string } | { type: 'image'; data: string; mimeType: string };
+type Content = { type: 'text'; text: string } | { type: 'image'; data: string; mimeType: string }
+  | { type: 'resource'; resource: { uri: string; mimeType: string; blob: string } };
 export type ToolResult = { content: Content[]; isError?: boolean };
-/** PNG bytes of a framed SVG: app/render in the window, injected so the protocol is testable in Node. */
-export type Rasterize = (f: Framed, scale: number) => Promise<Uint8Array>;
+/** What the window does for the protocol (app/render, app/files), injected so it is testable in Node. */
+export type Host = {
+  render(f: Framed, format: Format, scale: number): Promise<Uint8Array>;
+  /** File › Save to `doc.filePath`; false when it failed (the user was told why). */
+  save(): Promise<boolean>;
+  /** File › Export's save dialog for one file named after `name`. */
+  exportAs(f: Framed, name: string | undefined, format: Format, scale: number): Promise<void>;
+};
 
 const text = (s: string): ToolResult => ({ content: [{ type: 'text', text: s }] });
 const fail = (s: string): ToolResult => ({ content: [{ type: 'text', text: s }], isError: true });
 const round = (v: number) => Math.round(v * 10) / 10;
+/** `asked` clamped to [0.1, max], default 1, and kept so the image stays within 2048 px. */
+const scaleOf = (f: Framed, asked: unknown, max: number) =>
+  Math.min(typeof asked === 'number' ? Math.min(Math.max(asked, 0.1), max) : 1, 2048 / Math.max(f.width, f.height, 1)); // ponytail: a fixed cap, a parameter if agents need more
 
 /** What an agent needs to find and recognize a layer, without its raw points. */
 export function summary(l: Layer): object {
@@ -296,10 +329,14 @@ function arrange(doc: Doc, op: ArrangeOp, ls: Layer[]): ToolResult {
   return fail(`Nothing changed: ${why[op] ?? combine ?? 'the layers are already in place.'}`);
 }
 
-async function edit(doc: Doc, name: string, args: Record<string, unknown>): Promise<ToolResult> {
+async function edit(doc: Doc, name: string, args: Record<string, unknown>, host: Host): Promise<ToolResult> {
   const why = busy(doc);
   if (why) return fail(why);
   switch (name) {
+    case 'save': {
+      if (!doc.filePath) return fail('This document has no .plm file yet (new, or opened from an SVG). Ask the user to choose File › Save (French: Fichier › Enregistrer).');
+      return (await host.save()) ? text(`Saved to ${doc.filePath}.`) : fail('Plume could not save the file; it told the user why.');
+    }
     case 'add_svg': {
       if (typeof args.svg !== 'string' || !args.svg.trim()) return fail('Give the shapes as SVG text in "svg".');
       const host = args.parent === undefined ? null : doc.get(String(args.parent));
@@ -361,7 +398,7 @@ async function edit(doc: Doc, name: string, args: Record<string, unknown>): Prom
   return fail(`Unknown tool "${name}". Available: ${TOOLS.map((t) => t.name).join(', ')}.`);
 }
 
-export async function call(doc: Doc, name: string, args: Record<string, unknown>, rasterize: Rasterize): Promise<ToolResult> {
+export async function call(doc: Doc, name: string, args: Record<string, unknown>, host: Host): Promise<ToolResult> {
   switch (name) {
     case 'get_document':
       return text(JSON.stringify({
@@ -381,20 +418,36 @@ export async function call(doc: Doc, name: string, args: Record<string, unknown>
       const ls = target(doc, args.id === undefined ? undefined : [args.id]);
       if (typeof ls === 'string') return fail(ls);
       const f = frameOf(doc, ls);
-      const asked = typeof args.scale === 'number' ? Math.min(Math.max(args.scale, 0.1), 2) : 1;
-      const scale = Math.min(asked, 2048 / Math.max(f.width, f.height, 1)); // ponytail: a fixed cap, a parameter if agents need more
-      const png = await rasterize(f, scale);
+      const png = await host.render(f, 'png', scaleOf(f, args.scale, 2));
       return { content: [{ type: 'image', data: base64(png), mimeType: 'image/png' }] };
     }
+    case 'export': {
+      const format = args.format as Format;
+      if (!FORMATS.includes(format)) return fail(`Give "format": one of ${FORMATS.join(', ')}.`);
+      const ls = target(doc, args.ids);
+      if (typeof ls === 'string') return fail(ls);
+      if (!ls && !doc.layers.length) return fail('The document is empty: nothing to export.');
+      const f = frameOf(doc, ls);
+      if (args.ask === true) {
+        const scale = typeof args.scale === 'number' ? Math.min(Math.max(args.scale, 0.1), 4) : 1;
+        void host.exportAs(f, ls?.length === 1 ? ls[0].name : undefined, format, format === 'png' || format === 'jpg' ? scale : 1);
+        return text('Plume\'s save dialog is open: the user chooses where to save, or cancels. Nothing more will be reported.');
+      }
+      if (format === 'svg') return text(f.svg);
+      const bytes = base64(await host.render(f, format, scaleOf(f, args.scale, 4)));
+      return format === 'pdf'
+        ? { content: [{ type: 'resource', resource: { uri: 'plume:///export.pdf', mimeType: 'application/pdf', blob: bytes } }] }
+        : { content: [{ type: 'image', data: bytes, mimeType: format === 'png' ? 'image/png' : 'image/jpeg' }] };
+    }
     default:
-      return edit(doc, name, args);
+      return edit(doc, name, args, host);
   }
 }
 
 type Request = { jsonrpc: '2.0'; id: string | number; method: string; params?: Record<string, unknown> };
 
 /** One JSON-RPC request → its response. Never throws: a failure is an error the agent can read. */
-export async function handle(doc: Doc, req: Request, rasterize: Rasterize): Promise<object> {
+export async function handle(doc: Doc, req: Request, host: Host): Promise<object> {
   const ok = (result: object) => ({ jsonrpc: '2.0', id: req.id, result });
   const error = (code: number, message: string) => ({ jsonrpc: '2.0', id: req.id, error: { code, message } });
   try {
@@ -412,7 +465,7 @@ export async function handle(doc: Doc, req: Request, rasterize: Rasterize): Prom
       case 'tools/list': return ok({ tools: TOOLS });
       case 'tools/call': {
         const p = req.params ?? {};
-        return ok(await call(doc, String(p.name), (p.arguments as Record<string, unknown>) ?? {}, rasterize));
+        return ok(await call(doc, String(p.name), (p.arguments as Record<string, unknown>) ?? {}, host));
       }
       default: return error(-32601, `Method not found: ${req.method}`);
     }

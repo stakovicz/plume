@@ -212,7 +212,15 @@ export class Files {
   /** One file (save panel), or one per artboard in a folder the user picks; downloads in a browser.
    *  Raster files at another scale than 1 are suffixed (`Name@2x.png`). */
   async export(what: ExportTarget, format: Format, scale = 1) {
-    const items = this.#exports(what);
+    return this.#export(this.#exports(what), format, scale);
+  }
+
+  /** One framed file through the save dialog, named after `name` (else the document): the MCP export tool. */
+  exportFramed(framed: Framed, name: string | undefined, format: Format, scale = 1) {
+    return this.#export([{ base: fileName(name ?? '') || this.title().replace(/\.plm$/i, ''), framed }], format, scale);
+  }
+
+  async #export(items: { base: string; framed: Framed }[], format: Format, scale: number) {
     if (!items.length) return;
     const suffix = (format === 'png' || format === 'jpg') && scale !== 1 ? `@${scale}x` : '';
     const used = new Set<string>();
