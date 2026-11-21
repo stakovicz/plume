@@ -5,8 +5,9 @@ en haut de la fenêtre avec les mêmes commandes.
 
 ## Plume
 
-À propos de Plume · Services · Masquer Plume · Masquer les autres · Tout afficher · Quitter Plume (⌘Q).
-Sous Linux : À propos de Plume · Quitter Plume (Ctrl+Q).
+À propos de Plume · Services · Masquer Plume · Masquer les autres · Tout afficher · Activer (ou Désactiver) le serveur MCP ·
+Quitter Plume (⌘Q). Sous Linux et Windows : À propos de Plume · Activer le serveur MCP · Quitter Plume (Ctrl+Q).
+Le serveur MCP n'existe que dans l'application de bureau (voir [Piloter Plume depuis un agent IA](../guides/mcp.md)).
 
 Raccourcis donnés pour macOS ; sous Linux, ⌘ devient Ctrl, ⌥ Alt et ⇧ Maj (voir [Raccourcis](raccourcis.md)).
 

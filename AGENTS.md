@@ -8,7 +8,8 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 - Run (desktop): `npm run tauri dev`
 - Run (browser, no file panels): `npm run dev` → http://localhost:1420 (`/kit` = UI primitives gallery, dev only)
 - Test: `npm test` (vitest; `// @vitest-environment jsdom` for files that need `DOMParser`; `tests/setup.ts` lets paper.js load without a canvas)
-- Types: `npm run check` · Style rules: `npm run lint` (stylelint)
+- Types: `npm run check` · Style rules: `npm run lint` (stylelint) · Rust: `cargo test` / `cargo clippy` in src-tauri
+- MCP by hand: with the app running and Plume › Turn On MCP Server, pipe JSON-RPC lines into `src-tauri/target/debug/plume --mcp`
 - Build the app: `npm run tauri build`
 - Examples (File › Examples; the web version opens the first at launch): SVGs in `static/exemples/`, listed in
   `EXAMPLES` (app/files); `svg.test.ts` checks each one imports and is listed
@@ -21,6 +22,7 @@ All editor logic is TypeScript so the same code runs in a browser; Rust only rea
 
 ```
 src-tauri/src/lib.rs   Rust commands: read_text, read_bytes, write_bytes (atomic), launch_file (+ macOS Finder opens), system_fonts (fontdb); dialog plugin
+src-tauri/src/mcp.rs   MCP transport only: `--mcp` stdio relay, 127.0.0.1 listener + token file, requests → web view (`mcp-call`/`mcp_reply`)
 src/lib/
   model/      Layer (+ transforms, border), geometry (Pt, Affine, Bézier bounds/hit), path-data,
               point-editing, curve-fit, layer-tree helpers, color, effects, grid (artboard grid, snapping), codable (file format),
@@ -30,12 +32,12 @@ src/lib/
   document/   Doc (state, undo, editing ops, zoom, load/save data), Tool
   svg/        import (DOMParser → element tree → layers; gradients, masks as clips, filters), export, syntax
   app/        files (panels/read/write, recents, save prompt, export), render (PNG/JPG/PDF from SVG),
-              commands (menu bar + browser shortcuts)
+              commands (menu bar + browser shortcuts), mcp (MCP protocol + tools; mcp.svelte: on/off, listener)
   ui/         Inspector, LayerList, tokens.css; kit/ primitives; canvas/ Canvas | LayerView | gestures
   i18n/       L() + fr.json
 src/routes/   +page (window layout, toolbar, global keys), kit/ (primitives gallery)
 site/         presentation page, doc page template, style, images (scripts/site.js assembles _site/)
-tests/        one file per area (layer, doc, svg, color, curve-fit, localization)
+tests/        one file per area (layer, doc, svg, color, curve-fit, localization, mcp)
 ```
 
 Dependencies point downwards: ui/app → document → model/svg. model and svg never import UI, Svelte or Tauri.
@@ -92,6 +94,12 @@ Logic that can be tested without a window belongs in model/document, not in comp
   Views (Inspector, LayerList, …) assemble `ui/kit/` primitives and use tokens, no px or color literals;
   `npm run lint` enforces it. A new control goes in `kit/` and on the `/kit` page, in all its states.
   Native HTML first (`popover`, `<input>`); add a headless library (Bits UI) only for what HTML can't do.
+- **MCP** (agents read the open window; `docs/guides/mcp.md`): Rust only carries JSON-RPC lines; what the protocol
+  says (initialize, `instructions`, tools) lives in `app/mcp.ts`, tested in `tests/mcp.test.ts`. Adding a tool = an entry
+  in `TOOLS` (one-sentence "when to use", every parameter described) + a case in `call` + a test + a section in
+  `docs/reference/mcp.md`. Tools mirror user gestures (not `Doc` internals), stay few, return compact JSON (ids, rounded
+  bounds, hex) or SVG, and fail with readable `isError` results, never a throw. Write tools must respect locked layers and
+  make one undo step per call. Off by default, local only, token file; never add a listener that skips the token.
 - **Commands.** Menu items and their shortcuts are defined once in `app/commands.ts`: native menu under
   Tauri, keydown matching in a browser.
 - **Files.** `doc.filePath` is the current document; `isDirty` compares layers and palette with the

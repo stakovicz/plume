@@ -6,6 +6,7 @@
   import { Doc } from '#lib/document/doc.svelte';
   import { TOOLS, toolForKey, toolTooltip } from '#lib/document/tool';
   import { Files } from '#lib/app/files.svelte';
+  import { McpServer } from '#lib/app/mcp.svelte';
   import { installNativeMenu, menus, quit, runShortcut } from '#lib/app/commands';
   import { installClipboard, isTyping } from '#lib/app/clipboard';
   import Canvas from '#lib/ui/canvas/Canvas.svelte';
@@ -18,6 +19,7 @@
 
   const doc = new Doc();
   const files = new Files(doc);
+  const mcp = new McpServer(doc);
   // Side panels, collapsible (⌥⌘1 / ⌥⌘2, or the buttons over the canvas). Per-machine convenience → localStorage.
   type Which = 'navigator' | 'inspector';
   let open = $state<Record<Which, boolean>>({ navigator: true, inspector: true });
@@ -35,7 +37,7 @@
   let fontsLoaded = $state(false); // text is laid out with the bundled fonts' metrics
   fontsReady.then(() => (fontsLoaded = true));
   $effect(() => loadUsedFonts(doc.layers));
-  const specs = $derived(menus(doc, files, { toggle, openExport: () => (exporting = true) }));
+  const specs = $derived(menus(doc, files, { toggle, openExport: () => (exporting = true) }, mcp));
 
 
 
@@ -51,6 +53,7 @@
   });
 
   onMount(() => installClipboard(doc));
+  onMount(() => void mcp.restore());
 
   onMount(() => {
     files.openAtLaunch();
@@ -105,6 +108,11 @@
     <aside class="layers">
       <header>
         <h2>{L('Navigator')}</h2>
+        {#if mcp.running}
+          <!-- the agent sees the document: say so, visibly and to screen readers -->
+          <span class="mcp" role="status" title={L('MCP server on: an agent can read this document.')}
+            aria-label={L('MCP server on: an agent can read this document.')}>MCP</span>
+        {/if}
         <IconButton quiet icon="sidebar-left" label="{L('Show/Hide Navigator')} (⌥⌘1)" onclick={() => toggle('navigator')} />
       </header>
       <LayerList {doc} />
@@ -225,6 +233,15 @@
     font-size: var(--text-12);
     font-weight: 600;
     color: var(--text-2);
+  }
+  .mcp {
+    margin-right: auto; /* next to the title, the button stays right */
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-1);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--text-11);
+    font-weight: 600;
   }
   .inspector {
     grid-template-rows: auto 1fr; /* tools, then the scrolling inspector */

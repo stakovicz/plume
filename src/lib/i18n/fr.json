@@ -244,5 +244,9 @@
   "Not a PNG, JPEG, WebP or GIF image.": "Ce n’est pas une image PNG, JPEG, WebP ou GIF.",
   "Distort": "Déformer",
   "Symmetric distort": "Déformation symétrique",
-  "⇧ symmetric": "⇧ symétrique"
+  "⇧ symmetric": "⇧ symétrique",
+  "Turn On MCP Server": "Activer le serveur MCP",
+  "Turn Off MCP Server": "Désactiver le serveur MCP",
+  "MCP server on: an agent can read this document.": "Serveur MCP actif : un agent peut lire ce document.",
+  "Could not start the MCP server.": "Impossible de démarrer le serveur MCP."
 }
