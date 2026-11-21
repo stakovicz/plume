@@ -168,7 +168,7 @@ writeFileSync(join(OUT, 'llms.txt'), `# Plume
 Plume dessine en vectoriel (formes, plume, crayon, texte, plans de travail), combine les formes, applique dégradés et
 effets, ouvre et exporte le SVG, et exporte en PDF, PNG et JPG. Licence MIT. Application de bureau pour macOS, Windows et Linux
 (Tauri), version web : ${SITE}app/. Code : https://github.com/${REPO}. Documentation en français.
-Plume expose un serveur MCP (stdio : plume --mcp) pour qu'un agent lise le document ouvert dans la fenêtre :
+Plume expose un serveur MCP (stdio : plume --mcp) pour qu'un agent lise et modifie le document ouvert dans la fenêtre :
 ${SITE}docs/guides/mcp.html (outils : ${SITE}docs/reference/mcp.html).
 
 ${sections.map(([dir, name]) => `## ${name}\n\n${pages.filter((p) => p.path.startsWith(`docs/${dir}/`)).map(entry).join('\n')}`).join('\n\n')}
