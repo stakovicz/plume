@@ -1,7 +1,7 @@
 # Piloter Plume depuis un agent IA
 
 Demander à un assistant IA (Claude, Cursor, Copilot…) de travailler avec vous dans Plume : décrire le dessin,
-vérifier un alignement, ajouter des formes, changer des couleurs, aligner, grouper. L'assistant voit le document ouvert
+vérifier un alignement, ajouter des formes, changer des couleurs, aligner, grouper, exporter. L'assistant voit le document ouvert
 dans la fenêtre, tel que vous le voyez, et ses modifications s'affichent en direct.
 
 Chacune de ses modifications s'annule comme les vôtres, avec **Édition › Annuler** (⌘Z). Il ne touche pas aux calques
@@ -127,6 +127,7 @@ Plume doit être ouvert, avec le serveur activé. Quelques idées :
 - « Ajoute une étoile jaune en haut à droite du plan de travail. »
 - « Passe tous les titres en bleu nuit et aligne-les à gauche. »
 - « Propose une palette plus contrastée et applique-la. »
+- « Exporte le plan de travail en PNG @2x dans le dossier `img` du projet. »
 
 L'assistant lit d'abord la liste des calques, puis agit et vérifie le résultat par une capture. Pour dessiner, il
 écrit du SVG que Plume transforme en calques modifiables. Si le résultat ne vous plaît pas : ⌘Z, ou demandez-lui
@@ -138,7 +139,9 @@ d'annuler.
 - **Tout reste sur votre ordinateur** : la connexion entre l'assistant et Plume ne sort pas de votre machine.
 - **Personne d'autre ne peut s'y brancher** : chaque connexion doit fournir un code secret, tiré au hasard et
   enregistré dans un fichier que vous seul pouvez lire. Vous n'avez rien à recopier.
-- **L'assistant ne voit que le document ouvert** : il ne peut pas parcourir vos fichiers, ni enregistrer, par Plume.
+- **L'assistant ne voit que le document ouvert** : il ne peut pas parcourir vos fichiers par Plume. Il enregistre
+  seulement dans le fichier `.plm` que vous avez déjà enregistré ; un export lui est renvoyé, ou passe par une boîte
+  d'enregistrement où vous choisissez l'emplacement.
 - **Vous gardez la main** : tout ce qu'il change s'annule avec ⌘Z ; verrouillez un calque pour qu'il n'y touche pas.
 
 Le document est en revanche envoyé à l'assistant, comme tout ce que vous lui montrez : n'activez pas le serveur sur un

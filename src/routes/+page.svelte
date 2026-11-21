@@ -19,7 +19,7 @@
 
   const doc = new Doc();
   const files = new Files(doc);
-  const mcp = new McpServer(doc);
+  const mcp = new McpServer(doc, files);
   // Side panels, collapsible (⌥⌘1 / ⌥⌘2, or the buttons over the canvas). Per-machine convenience → localStorage.
   type Which = 'navigator' | 'inspector';
   let open = $state<Record<Which, boolean>>({ navigator: true, inspector: true });

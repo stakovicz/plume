@@ -3,12 +3,17 @@ import { describe, expect, test } from 'vitest';
 import { Doc } from '#lib/document/doc.svelte';
 import { pt } from '#lib/model/geometry';
 import { newArtboard, newLayer } from '#lib/model/layer';
-import { INSTRUCTIONS, TOOLS, handle } from '#lib/app/mcp';
+import { type Host, INSTRUCTIONS, TOOLS, handle } from '#lib/app/mcp';
 import type { Framed } from '#lib/svg/export';
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
-let rasterized: { f: Framed; scale: number } | null = null;
-const rasterize = async (f: Framed, scale: number) => ((rasterized = { f, scale }), PNG);
+let rasterized: { f: Framed; format: string; scale: number } | null = null;
+let saves = 0, asked: { name?: string; format: string; scale: number } | null = null;
+const host: Host = {
+  render: async (f, format, scale) => ((rasterized = { f, format, scale }), PNG),
+  save: async () => (saves++, true),
+  exportAs: async (_f, name, format, scale) => { asked = { name, format, scale }; },
+};
 
 function sample() {
   const d = new Doc();
@@ -23,25 +28,25 @@ function sample() {
 
 const request = (method: string, params?: object) => ({ jsonrpc: '2.0' as const, id: 7, method, params: params as Record<string, unknown> });
 const callTool = async (d: Doc, name: string, args: object = {}) =>
-  ((await handle(d, request('tools/call', { name, arguments: args }), rasterize)) as { result: { content: { type: string; text?: string; data?: string; mimeType?: string }[]; isError?: boolean } }).result;
+  ((await handle(d, request('tools/call', { name, arguments: args }), host)) as { result: { content: { type: string; text?: string; data?: string; mimeType?: string }[]; isError?: boolean } }).result;
 
 describe('mcp', () => {
   test('initialize: echoes a known protocol version, gives instructions', async () => {
-    const r = (await handle(new Doc(), request('initialize', { protocolVersion: '2025-03-26' }), rasterize)) as { id: number; result: Record<string, any> };
+    const r = (await handle(new Doc(), request('initialize', { protocolVersion: '2025-03-26' }), host)) as { id: number; result: Record<string, any> };
     expect(r.id).toBe(7);
     expect(r.result.protocolVersion).toBe('2025-03-26');
     expect(r.result.capabilities).toEqual({ tools: {} });
     expect(r.result.instructions).toBe(INSTRUCTIONS);
-    const unknown = (await handle(new Doc(), request('initialize', { protocolVersion: '1999-01-01' }), rasterize)) as { result: Record<string, any> };
+    const unknown = (await handle(new Doc(), request('initialize', { protocolVersion: '1999-01-01' }), host)) as { result: Record<string, any> };
     expect(unknown.result.protocolVersion).toBe('2025-06-18');
   });
 
   test('tools/list: every tool described, reads marked read-only, closed input schemas', async () => {
-    const r = (await handle(new Doc(), request('tools/list'), rasterize)) as { result: { tools: typeof TOOLS } };
-    expect(r.result.tools.map((t) => t.name)).toEqual(['get_document', 'get_selection', 'get_svg', 'screenshot', 'add_svg', 'update_layers', 'delete_layers', 'arrange', 'select', 'undo', 'redo']);
+    const r = (await handle(new Doc(), request('tools/list'), host)) as { result: { tools: typeof TOOLS } };
+    expect(r.result.tools.map((t) => t.name)).toEqual(['get_document', 'get_selection', 'get_svg', 'screenshot', 'export', 'save', 'add_svg', 'update_layers', 'delete_layers', 'arrange', 'select', 'undo', 'redo']);
     for (const t of r.result.tools) {
       expect(t.description.length).toBeGreaterThan(40);
-      expect(t.annotations.readOnlyHint).toBe(t.name.startsWith('get_') || t.name === 'screenshot');
+      expect(t.annotations.readOnlyHint).toBe(t.name.startsWith('get_') || t.name === 'screenshot' || t.name === 'export');
       expect(t.inputSchema.additionalProperties).toBe(false);
       for (const p of Object.values(t.inputSchema.properties)) expect((p as { description: string }).description).toBeTruthy();
     }
@@ -94,9 +99,9 @@ describe('mcp', () => {
   test('errors are answers, never throws', async () => {
     const d = new Doc();
     expect((await callTool(d, 'draw_logo')).isError).toBe(true);
-    const r = (await handle(d, request('resources/list'), rasterize)) as { error: { code: number } };
+    const r = (await handle(d, request('resources/list'), host)) as { error: { code: number } };
     expect(r.error.code).toBe(-32601);
-    const broken = await handle(d, request('tools/call', { name: 'screenshot', arguments: {} }), async () => { throw new Error('no canvas'); });
+    const broken = await handle(d, request('tools/call', { name: 'screenshot', arguments: {} }), { ...host, render: async () => { throw new Error('no canvas'); } });
     expect((broken as { result: { isError: boolean } }).result.isError).toBe(true);
   });
 
@@ -207,5 +212,33 @@ describe('mcp', () => {
     expect(r.isError).toBe(true);
     expect(r.content[0].text).toContain('typing text');
     expect((await callTool(d, 'get_document')).isError).toBeUndefined(); // reading still works
+  });
+
+  test('export: the file returned (SVG text, image, PDF resource), or the save dialog with ask', async () => {
+    const { d, board, sun } = sample();
+    expect((await callTool(d, 'export', { ids: [board.id], format: 'svg' })).content[0].text).toContain('<svg');
+    expect((await callTool(d, 'export', { ids: [sun.id], format: 'jpg', scale: 3 })).content[0]).toMatchObject({ type: 'image', mimeType: 'image/jpeg' });
+    expect(rasterized).toMatchObject({ format: 'jpg', scale: 3 });
+    const pdf = (await callTool(d, 'export', { format: 'pdf' })).content[0] as unknown as { type: string; resource: { mimeType: string; blob: string } };
+    expect(pdf).toMatchObject({ type: 'resource', resource: { mimeType: 'application/pdf', blob: 'iVBORw==' } });
+    const r = await callTool(d, 'export', { ids: [sun.id], format: 'png', scale: 9, ask: true });
+    expect(r.content[0].text).toContain('save dialog');
+    expect(asked).toEqual({ name: 'Sun', format: 'png', scale: 4 });
+    expect((await callTool(d, 'export', { format: 'gif' })).isError).toBe(true);
+    expect((await callTool(new Doc(), 'export', { format: 'svg' })).isError).toBe(true);
+  });
+
+  test('save: only to the file the user already saved, never while they are busy', async () => {
+    const { d } = sample();
+    const never = await callTool(d, 'save');
+    expect(never.isError).toBe(true);
+    expect(never.content[0].text).toContain('File › Save');
+    expect(saves).toBe(0);
+    d.filePath = '/tmp/card.plm';
+    d.renaming = { id: 'x', where: 'list' };
+    expect((await callTool(d, 'save')).isError).toBe(true);
+    d.renaming = null;
+    expect((await callTool(d, 'save')).content[0].text).toBe('Saved to /tmp/card.plm.');
+    expect(saves).toBe(1);
   });
 });
