@@ -9,7 +9,15 @@ on:
 
 jobs:
   flatpak:
-    runs-on: ubuntu-24.04
+    # aarch64 too: Flathub builds both, and an Apple Silicon VM runs only arm64 Linux.
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
       options: --privileged
@@ -19,13 +27,15 @@ jobs:
       - name: npm and cargo source lists
         run: scripts/flatpak-sources.sh
 
-      - uses: actions/upload-artifact@v7
+      - if: matrix.arch == 'x86_64'
+        uses: actions/upload-artifact@v7
         with:
           name: flatpak-sources
           path: flatpak/*-sources.json
 
       # The screenshot URLs point to main: checked here at the commit being built, where they already exist.
       - name: Flathub's checks of the AppStream metadata
+        if: matrix.arch == 'x86_64'
         env:
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -37,4 +47,5 @@ jobs:
         with:
           manifest-path: flatpak/cz.stakovi.plume.yml
           bundle: plume.flatpak
-          cache-key: flatpak-builder-${{ hashFiles('package-lock.json', 'src-tauri/Cargo.lock') }}
+          arch: ${{ matrix.arch }}
+          cache-key: flatpak-builder-${{ matrix.arch }}-${{ hashFiles('package-lock.json', 'src-tauri/Cargo.lock') }}
