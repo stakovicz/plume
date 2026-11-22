@@ -11,6 +11,7 @@ jobs:
   flatpak:
     # aarch64 too: Flathub builds both, and an Apple Silicon VM runs only arm64 Linux.
     strategy:
+      fail-fast: false
       matrix:
         include:
           - arch: x86_64
@@ -42,6 +43,16 @@ jobs:
           flatpak install -y --noninteractive flathub org.flatpak.Builder
           sed "s|/stakovicz/plume/main/|/stakovicz/plume/$SHA/|" flatpak/cz.stakovi.plume.metainfo.xml > "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
           flatpak run --command=flatpak-builder-lint --filesystem="$RUNNER_TEMP" org.flatpak.Builder appstream "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
+
+      # ponytail: since 2026-11-21 the image's preinstalled SDK fails to update in place ("Invalid cross-device link":
+      # overlayfs can't rename a directory from a lower layer). Copying the installations into the container's own
+      # layer works around it; drop this step once the image is fixed.
+      - name: Move the image's Flatpak installations into the container layer
+        run: |
+          for d in /var/lib/flatpak "$HOME/.local/share/flatpak"; do
+            [ -d "$d" ] || continue
+            cp -a "$d" "$d.copy" && rm -rf "$d" && mv "$d.copy" "$d"
+          done
 
       - uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
         with:
