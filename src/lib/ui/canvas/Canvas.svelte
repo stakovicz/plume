@@ -55,12 +55,29 @@
     gestures.down(view(e), e.shiftKey || e.metaKey || e.ctrlKey, e.metaKey || e.ctrlKey);
   }
 
-  /** Scroll = pan, ⌘-scroll / pinch (ctrl-wheel in WebKit) = zoom around the cursor. */
+  /** Scroll = pan, ⌘-scroll / pinch (ctrl-wheel in WebKit) = zoom around the cursor.
+   *  Wheel events are summed and applied once per frame, the zoom step capped at ×1.25: WebKitGTK sends large
+   *  steps in bursts, which otherwise zoom too far, then jump at once after a slow render. */
+  let wheelDX = 0, wheelDY = 0, wheelZoom = 0, wheelAt = pt(0, 0), wheelFrame = 0;
+  const MAX_ZOOM_STEP = Math.log(1.25);
+
   function wheel(e: WheelEvent) {
     e.preventDefault();
     const k = e.deltaMode === 1 ? 16 : 1;
-    if (e.ctrlKey || e.metaKey) doc.zoomBy(Math.exp(-e.deltaY * k * 0.01), view(e));
-    else doc.pan = pt(doc.pan.x - e.deltaX * k, doc.pan.y - e.deltaY * k);
+    if (e.ctrlKey || e.metaKey) {
+      wheelZoom -= e.deltaY * k * 0.01;
+      wheelAt = view(e);
+    } else {
+      wheelDX += e.deltaX * k;
+      wheelDY += e.deltaY * k;
+    }
+    wheelFrame ||= requestAnimationFrame(applyWheel);
+  }
+
+  function applyWheel() {
+    if (wheelDX || wheelDY) doc.pan = pt(doc.pan.x - wheelDX, doc.pan.y - wheelDY);
+    if (wheelZoom) doc.zoomBy(Math.exp(Math.min(Math.max(wheelZoom, -MAX_ZOOM_STEP), MAX_ZOOM_STEP)), wheelAt);
+    wheelDX = wheelDY = wheelZoom = wheelFrame = 0;
   }
 
   const ARROWS: Record<string, Pt> = { ArrowLeft: pt(-1, 0), ArrowRight: pt(1, 0), ArrowUp: pt(0, -1), ArrowDown: pt(0, 1) };

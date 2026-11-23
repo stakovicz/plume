@@ -1,5 +1,12 @@
 # Changelog
 
+## Non publié
+
+### Corrections
+
+- **Zoom à la molette sous Linux** : les crans sont regroupés et appliqués une fois par image, le zoom plafonné à ×1,25
+  par image ; il ne part plus trop vite ni ne saute d'un coup après un rendu lent.
+
 ## 0.6.0 — 2026-11-21
 
 ### Ajouts
