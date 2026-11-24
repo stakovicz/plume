@@ -40,8 +40,7 @@ avec l'option `--mcp`.
 | sur Linux, avec APT, DNF ou AUR | `plume` |
 | sur Linux, avec Snap | `plume-editor.plume` |
 
-Remplacez `VOUS` par votre nom d'utilisateur Windows. Avec Flatpak, le cas est un peu différent : voir
-[Linux avec Flatpak](#linux-avec-flatpak).
+Remplacez `VOUS` par votre nom d'utilisateur Windows.
 
 Les exemples ci-dessous utilisent le chemin macOS : remplacez-le par le vôtre.
 
@@ -174,16 +173,6 @@ obliques :
 ```
 
 Les variables comme `%LOCALAPPDATA%` ne fonctionnent pas dans ces fichiers : écrivez le chemin complet.
-
-### Linux avec Flatpak
-
-La commande est `flatpak`, et Plume se lance avec trois arguments :
-
-```json
-"plume": { "command": "flatpak", "args": ["run", "cz.stakovi.plume", "--mcp"] }
-```
-
-Avec Claude Code : `claude mcp add --scope user plume -- flatpak run cz.stakovi.plume --mcp`.
 
 ### Partager la configuration avec une équipe (Claude Code, Cursor)
 
