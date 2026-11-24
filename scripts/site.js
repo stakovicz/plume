@@ -92,6 +92,8 @@ function page(source, out, back, about) {
     title: escapeAttr(title), root: prefix, source, content: html,
     description: escapeAttr(description), shareTitle: escapeAttr(`${title} — Plume`), url: SITE + out.replace(/index\.html$/, ''),
     markdown: md.split('/').pop(),
+    // the menu says where the reader is: the docs home is the page, a doc page lies in that section
+    docsCurrent: out === 'docs/index.html' ? ' aria-current="page"' : out.startsWith('docs/') ? ' aria-current="true"' : '',
     back: back ? `<a class="back" href="${prefix}${back.href}">← ${back.text}</a>` : '',
   })));
 }
