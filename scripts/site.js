@@ -79,7 +79,8 @@ const pages = [];
  *  (`<link rel="alternate">`): plain text that AI assistants read better than HTML. */
 function page(source, out, back, about) {
   const html = htmlLinks(marked.parse(readFileSync(source, 'utf8')))
-    .replace(/<table>/g, '<div class="table"><table>').replace(/<\/table>/g, '</table></div>'); // see .doc .table
+    .replace(/<table>/g, '<div class="table" tabindex="0"><table>').replace(/<\/table>/g, '</table></div>') // see .doc .table
+    .replace(/<pre>/g, '<pre tabindex="0">'); // wide code and tables scroll: focusable, the keyboard scrolls them too
   const root = relative(dirname(join(OUT, out)), OUT).replace(/\\/g, '/');
   const prefix = root ? `${root}/` : './';
   const markdown = readFileSync(source, 'utf8'), md = out.replace(/\.html$/, '.md');
