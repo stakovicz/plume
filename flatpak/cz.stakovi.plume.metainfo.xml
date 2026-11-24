@@ -43,7 +43,7 @@
       <caption>Radial gradient on a shape</caption>
     </screenshot>
     <screenshot>
-      <video container="webm" codec="vp9" width="1352" height="818">https://raw.githubusercontent.com/stakovicz/plume/main/flatpak/screenshots/demo.webm</video>
+      <video container="webm" codec="vp9" width="1352" height="818">https://stakovicz.github.io/plume/img/demo.webm</video>
       <caption>Drawing a shape and filling it with a radial gradient</caption>
     </screenshot>
   </screenshots>
