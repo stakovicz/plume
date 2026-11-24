@@ -34,14 +34,17 @@ jobs:
           name: flatpak-sources
           path: flatpak/*-sources.json
 
-      # The screenshot URLs point to main: checked here at the commit being built, where they already exist.
+      # The screenshot URLs point to main, the video to the site: checked here at the commit being built, where they
+      # already exist.
       - name: Flathub's checks of the AppStream metadata
         if: matrix.arch == 'x86_64'
         env:
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           flatpak install -y --noninteractive flathub org.flatpak.Builder
-          sed "s|/stakovicz/plume/main/|/stakovicz/plume/$SHA/|" flatpak/cz.stakovi.plume.metainfo.xml > "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
+          sed -e "s|/stakovicz/plume/main/|/stakovicz/plume/$SHA/|" \
+            -e "s|https://stakovicz.github.io/plume/img/|https://raw.githubusercontent.com/stakovicz/plume/$SHA/site/img/|" \
+            flatpak/cz.stakovi.plume.metainfo.xml > "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
           flatpak run --command=flatpak-builder-lint --filesystem="$RUNNER_TEMP" org.flatpak.Builder appstream "$RUNNER_TEMP/cz.stakovi.plume.metainfo.xml"
 
       # ponytail: since 2026-11-21 the image's preinstalled SDK fails to update in place ("Invalid cross-device link":
