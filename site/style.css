@@ -51,7 +51,7 @@ a { color: var(--accent-text); text-decoration-thickness: 1px; text-underline-of
   transform: translateY(-200%);
 }
 .skip:focus { transform: none; }
-img { max-width: 100%; height: auto; }
+img, video { max-width: 100%; height: auto; }
 
 /* Top bar */
 .bar {
