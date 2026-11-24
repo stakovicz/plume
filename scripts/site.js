@@ -79,7 +79,8 @@ const pages = [];
  *  (`<link rel="alternate">`): plain text that AI assistants read better than HTML. */
 function page(source, out, back, about) {
   const html = htmlLinks(marked.parse(readFileSync(source, 'utf8')))
-    .replace(/<table>/g, '<div class="table"><table>').replace(/<\/table>/g, '</table></div>'); // see .doc .table
+    .replace(/<table>/g, '<div class="table" tabindex="0"><table>').replace(/<\/table>/g, '</table></div>') // see .doc .table
+    .replace(/<pre>/g, '<pre tabindex="0">'); // wide code and tables scroll: focusable, the keyboard scrolls them too
   const root = relative(dirname(join(OUT, out)), OUT).replace(/\\/g, '/');
   const prefix = root ? `${root}/` : './';
   const markdown = readFileSync(source, 'utf8'), md = out.replace(/\.html$/, '.md');
@@ -92,6 +93,8 @@ function page(source, out, back, about) {
     title: escapeAttr(title), root: prefix, source, content: html,
     description: escapeAttr(description), shareTitle: escapeAttr(`${title} — Plume`), url: SITE + out.replace(/index\.html$/, ''),
     markdown: md.split('/').pop(),
+    // the menu says where the reader is: the docs home is the page, a doc page lies in that section
+    docsCurrent: out === 'docs/index.html' ? ' aria-current="page"' : out.startsWith('docs/') ? ' aria-current="true"' : '',
     back: back ? `<a class="back" href="${prefix}${back.href}">← ${back.text}</a>` : '',
   })));
 }

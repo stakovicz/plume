@@ -51,7 +51,7 @@ a { color: var(--accent-text); text-decoration-thickness: 1px; text-underline-of
   transform: translateY(-200%);
 }
 .skip:focus { transform: none; }
-img { max-width: 100%; height: auto; }
+img, video { max-width: 100%; height: auto; }
 
 /* Top bar */
 .bar {
@@ -78,7 +78,8 @@ img { max-width: 100%; height: auto; }
 }
 .bar nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
 .bar nav a { color: var(--text-2); font-size: 0.95rem; text-decoration: none; }
-.bar nav a:hover { color: var(--text); }
+.bar nav a:hover, .bar nav a[aria-current] { color: var(--text); }
+.bar nav a[aria-current] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.4em; }
 
 main { padding: 0 1rem; }
 section { max-width: var(--width); margin: 0 auto; padding: 4.5rem 0; }
@@ -153,9 +154,8 @@ h3 { font-size: 1.1rem; margin: 0 0 0.35rem; }
 .compare figure { margin: 0; text-align: center; }
 .compare img { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
 .compare figcaption { margin-top: 0.5rem; color: var(--text-2); font-size: 0.9rem; }
-.single { max-width: 32rem; margin: 0 auto; }
+.single { max-width: 32rem; margin: 0; }
 .single img { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
-.more { text-align: center; margin-top: 2rem; }
 
 /* Downloads */
 .downloads { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; margin: 2rem 0; }

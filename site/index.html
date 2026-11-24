@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Plume — éditeur vectoriel simple, léger et libre</title>
+  <title>Plume {{version}} — éditeur vectoriel simple, léger et libre</title>
   <meta name="google-site-verification" content="QwQobztHQ7iToqCtbaMxKPQFRgHZjPHsmq04MD6V-lU">
   <meta name="description" content="Plume est un éditeur vectoriel simple, léger, libre et gratuit, pour macOS, Windows, Linux et le navigateur. Sans compte, sans abonnement.">
   <link rel="canonical" href="https://stakovicz.github.io/plume/">
@@ -30,8 +30,8 @@
     <nav aria-label="Navigation principale">
       <a href="#fonctionnalites">Fonctionnalités</a>
       <a href="docs/">Documentation</a>
+      <a href="app/">Essayer</a>
       <a href="#telecharger">Télécharger</a>
-      <a href="https://github.com/stakovicz/plume">GitHub</a>
     </nav>
   </header>
 
@@ -59,7 +59,7 @@
         <li>
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 12C3 7.5 5 6 8 6s5 1.5 5.5 6M2.5 6h11"/><circle cx="8" cy="6" r="1.5"/><circle cx="2.5" cy="6" r="1" fill="currentColor"/><circle cx="13.5" cy="6" r="1" fill="currentColor"/></svg>
           <h3>Édition de points</h3>
-          <p>Ajoutez, déplacez ou supprimez des points ; poignées miroir, asymétriques ou indépendantes.</p>
+          <p>Ajoutez, déplacez ou supprimez des points ; poignées miroir, asymétriques ou indépendantes. Déformation libre en perspective par les coins.</p>
         </li>
         <li>
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h7v4h4v7h-7v-4h-4Z" fill="currentColor"/></svg>
@@ -99,10 +99,24 @@
       </ul>
     </section>
 
-    <section id="icones">
-      <h2>Des icônes prêtes à l'emploi</h2>
-      <p class="intro">Dessinez une icône au trait, puis <em>Vectoriser le contour</em> la transforme en forme pleine :
-        un seul tracé, sans bordure, comme l'attendent les bibliothèques et polices d'icônes.</p>
+    <section id="video" class="split">
+      <video class="shot" src="img/demo.webm" poster="img/demo.webp" width="1352" height="818" controls muted playsinline preload="none"
+        aria-label="Démonstration de Plume : dessiner un soleil en dégradé radial, réordonner les calques, faire pivoter un texte."></video>
+      <div>
+        <h2>Plume en vidéo</h2>
+        <p>Un ovale devient un soleil en dégradé radial, passe derrière les montagnes dans la liste des calques, puis le
+          texte se place et pivote.</p>
+        <p class="note">Sous Linux, interface en anglais.</p>
+      </div>
+    </section>
+
+    <section id="icones" class="split">
+      <div>
+        <h2>Des icônes prêtes à l'emploi</h2>
+        <p>Dessinez une icône au trait, puis <em>Vectoriser le contour</em> la transforme en forme pleine :
+          un seul tracé, sans bordure, comme l'attendent les bibliothèques et polices d'icônes.</p>
+        <p><a href="docs/guides/icone-au-trait-en-icone-pleine.html">Pas à pas : d'une icône au trait à une icône pleine</a></p>
+      </div>
       <div class="compare">
         <figure>
           <img src="docs/img/icone-au-trait.webp" alt="Une maison au trait, avec quelques points sur la ligne centrale du trait." width="620" height="620" loading="lazy">
@@ -113,17 +127,18 @@
           <figcaption>Pleine : une forme, extrémités arrondies conservées</figcaption>
         </figure>
       </div>
-      <p class="more"><a href="docs/guides/icone-au-trait-en-icone-pleine.html">Pas à pas : d'une icône au trait à une icône pleine</a></p>
     </section>
 
-    <section id="blocs">
-      <h2>Des boutons qui restent des textes</h2>
-      <p class="intro">Un texte peut porter son fond, ses marges, sa bordure et ses coins arrondis : centré dans les deux
-        sens, justifié, il reste modifiable et sa zone le suit.</p>
+    <section id="blocs" class="split">
       <figure class="single">
         <img src="docs/img/bouton-resultat.webp" alt="Un bouton Valider en dégradé, un bouton Annuler blanc bordé de bleu, une étiquette NOUVEAU rouge et un encadré jaune au texte justifié." width="1000" height="550" loading="lazy">
       </figure>
-      <p class="more"><a href="docs/guides/bouton.html">Pas à pas : faire un bouton, une étiquette ou un encadré</a></p>
+      <div>
+        <h2>Des boutons au texte toujours modifiable</h2>
+        <p>Un texte peut porter son fond, ses marges, sa bordure et ses coins arrondis : centré dans les deux
+          sens, justifié, il reste modifiable et sa zone le suit.</p>
+        <p><a href="docs/guides/bouton.html">Pas à pas : faire un bouton, une étiquette ou un encadré</a></p>
+      </div>
     </section>
 
     <section id="essayer" class="split">
