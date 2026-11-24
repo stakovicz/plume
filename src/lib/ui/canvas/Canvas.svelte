@@ -45,14 +45,41 @@
     untrack(() => gestures.modifiersChanged()); // depends on the modifiers only, not on what the drag reads
   });
 
+  /** Space held or middle button = hand: a drag pans the view instead of acting on layers. */
+  let space = $state(false);
+  let panFrom = $state<Pt | null>(null); // view space, last point of a hand drag
+
   function pointerdown(e: PointerEvent) {
+    if (e.button === 1) { // middle button: pan, without the browser's autoscroll
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+      panFrom = view(e);
+      return;
+    }
     if (e.button !== 0) return;
     e.preventDefault(); // no native mousedown focus change: it would blur a rename field opened by this click
     if (doc.eyedropper) return; // a color panel picks on release (pointerup): no selection change
     el.focus();
     el.setPointerCapture(e.pointerId);
+    if (space) {
+      panFrom = view(e);
+      return;
+    }
     // ⇧- or ⌘-click (Ctrl) adds/removes, as in the navigator; a ⌘ drag moves without snapping
     gestures.down(view(e), e.shiftKey || e.metaKey || e.ctrlKey, e.metaKey || e.ctrlKey);
+  }
+
+  function pointermove(e: PointerEvent) {
+    if (!panFrom) return gestures.move(view(e), e.metaKey || e.ctrlKey);
+    const p = view(e);
+    doc.pan = pt(doc.pan.x + p.x - panFrom.x, doc.pan.y + p.y - panFrom.y);
+    panFrom = p;
+  }
+
+  function pointerup(e: PointerEvent) {
+    if (panFrom) panFrom = null;
+    else if (doc.eyedropper) doc.eyedropper(doc.toDoc(view(e)));
+    else gestures.up();
   }
 
   /** Scroll = pan, ⌘-scroll / pinch (ctrl-wheel in WebKit) = zoom around the cursor.
@@ -85,6 +112,11 @@
   // Tool keys live here, not in the menus, so they never fire while typing in a text field.
   function keydown(e: KeyboardEvent) {
     if (e.target !== el || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === ' ') {
+      space = true;
+      e.preventDefault();
+      return;
+    }
     const arrow = ARROWS[e.key];
     if (arrow) { // nudge: 1 px, 10 with ⇧
       if (doc.editing) return;
@@ -134,15 +166,20 @@
   bind:this={el}
   class="canvas"
   class:crosshair={doc.tool !== 'select' || !!doc.eyedropper}
+  class:grab={space}
+  class:grabbing={!!panFrom}
   tabindex="0"
   role="application"
   aria-label={L('Canvas')}
   onpointerdown={pointerdown}
-  onpointermove={(e) => gestures.move(view(e), e.metaKey || e.ctrlKey)}
-  onpointerup={(e) => (doc.eyedropper ? doc.eyedropper(doc.toDoc(view(e))) : gestures.up())}
-  onpointercancel={() => gestures.up()}
+  onpointermove={pointermove}
+  onpointerup={pointerup}
+  onpointercancel={() => (panFrom ? (panFrom = null) : gestures.up())}
+  onauxclick={(e) => e.preventDefault()}
   onwheel={wheel}
   onkeydown={keydown}
+  onkeyup={(e) => e.key === ' ' && (space = false)}
+  onblur={() => (space = false)}
 >
   <svg>
     <g transform="translate({doc.pan.x} {doc.pan.y}) scale({doc.zoom})">
@@ -279,6 +316,12 @@
   }
   .crosshair {
     cursor: crosshair;
+  }
+  .grab {
+    cursor: grab;
+  }
+  .grabbing {
+    cursor: grabbing;
   }
   svg {
     position: absolute;
