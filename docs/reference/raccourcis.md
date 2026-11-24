@@ -63,6 +63,7 @@ AZERTY, Aligner à gauche est ⌥Q et Aligner en haut ⌥Z.
 |---|---|---|
 | Zoom + / − / 100 % / Tout afficher | ⌘= / ⌘- / ⌘0 / ⌘1 | Ctrl+= / Ctrl+- / Ctrl+0 / Ctrl+1 |
 | Défiler | molette ou trackpad | molette ou pavé tactile |
+| Déplacer la vue | Espace + glisser, ou glisser avec le bouton du milieu | Espace + glisser, ou glisser avec le bouton du milieu |
 | Zoomer autour du curseur | ⌘ + molette, ou pincement | Ctrl + molette, ou pincement |
 | Zoom à 100 % | double-clic sur le pourcentage | double-clic sur le pourcentage |
 | Afficher/Masquer les grilles | ⌘' | Ctrl+' |
