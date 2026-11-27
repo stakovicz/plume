@@ -116,8 +116,7 @@ Logic that can be tested without a window belongs in model/document, not in comp
    Cargo.toml and Cargo.lock, dates the changelog section, commits `Plume x.y.z`, tags `vx.y.z` and pushes.
 3. The tag triggers `.github/workflows/release.yml`: macOS (signed with Developer ID and notarized, `APPLE_*` secrets), Linux
    and Windows bundles (installers signed by SignPath Foundation, `packaging/signpath/`, `SIGNPATH_*`), release notes from the changelog.
-   Then package managers: winget (Komac), Scoop (`packaging/scoop/`, stakovicz/scoop-bucket), Homebrew cask (stakovicz/homebrew-tap), AUR (`packaging/aur/`), Snap Store (`snap/`), Flathub (`flatpak/`, source lists from
-   `scripts/flatpak-sources.sh`, checked by flatpak.yml);
+   Then package managers: winget (Komac), Scoop (`packaging/scoop/`, stakovicz/scoop-bucket), Homebrew cask (stakovicz/homebrew-tap), AUR (`packaging/aur/`), Snap Store (`snap/`);
    pages.yml rebuilds the APT and RPM repositories on the site (`scripts/linux-repos.sh`).
    Their secrets live in the `release` environment (tags v* and main only); third-party actions are pinned by SHA
    (Dependabot updates them). User guide: docs/guides/installer.md.

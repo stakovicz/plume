@@ -5,13 +5,12 @@ TypeScript (SvelteKit, Svelte 5) et le rendu en SVG. La même interface tourne a
 
 ## Fonctionnalités
 
-- **Dessin** : rectangle (R, coins arrondis), ovale (O), polygone et étoile (Y), plume (V), crayon (P, lissé en courbes de Bézier), texte (T), plan de travail (A).
-  ⇧ contraint (carré, cercle, angles par 15°), ⌥ dessine depuis le centre.
-- **Édition de points** : double-clic ou Retour sur un tracé ; poignées miroir, ⌥ pour les rendre indépendantes.
+- **Dessin** : rectangle (coins arrondis), ovale, polygone et étoile, plume, crayon (lissé en courbes de Bézier), texte, plan de travail.
+- **Édition de points** : poignées miroir ou indépendantes.
 - **Calques** : groupes, plans de travail, masquer / verrouiller, renommer, glisser-déposer dans la liste,
   ordre d'empilement (avancer, reculer, premier plan, arrière-plan).
-- **Aligner et répartir** : à gauche, au centre, à droite, en haut, au milieu, en bas (⌥A, ⌥H, ⌥D, ⌥W, ⌥V, ⌥S),
-  espacement égal horizontal ou vertical (⌥⇧H, ⌥⇧V) ; menu Disposition ou haut de l'inspecteur.
+- **Aligner et répartir** : à gauche, au centre, à droite, en haut, au milieu, en bas,
+  espacement égal horizontal ou vertical ; menu Disposition ou haut de l'inspecteur.
 - **Combiner** des formes : union, soustraction, intersection, différence (courbes conservées).
 - **Vectoriser le contour** : une bordure devient une forme pleine.
 - **Retourner** horizontalement ou verticalement (menu Outils).
