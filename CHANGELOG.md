@@ -1,5 +1,11 @@
 # Changelog
 
+## Non publié
+
+### Ajouts
+
+- **Windows ARM64** : un programme d'installation natif (.exe), en plus de la version x64.
+
 ## 0.6.1 — 2026-11-24
 
 ### Ajouts

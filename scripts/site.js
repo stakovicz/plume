@@ -131,7 +131,7 @@ writeFileSync(join(OUT, 'index.html'), githubInNewTab(fill(readFileSync('site/in
   version: release?.tag_name ?? '',
   jsonld: softwareJSON(release),
   mac: buttons(release, 'macOS', [['Apple Silicon', /aarch64\.dmg$/], ['Intel', /x64\.dmg$/]]),
-  windows: buttons(release, 'Windows', [['Installateur (.exe)', /setup\.exe$/], ['MSI', /\.msi$/]]),
+  windows: buttons(release, 'Windows', [['Installateur (.exe)', /x64-setup\.exe$/], ['MSI', /\.msi$/], ['ARM64 (.exe)', /arm64-setup\.exe$/]]),
   linux: buttons(release, 'Linux', [['AppImage', /\.AppImage$/], ['Debian, Ubuntu (.deb)', /\.deb$/], ['Fedora (.rpm)', /\.rpm$/]]),
 })));
 cpSync('site/style.css', join(OUT, 'style.css'));
