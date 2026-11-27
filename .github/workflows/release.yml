@@ -98,6 +98,60 @@ jobs:
             Windows : programme d'installation .exe ou .msi (x64), .exe pour ARM64. Non signé : si Windows SmartScreen
             bloque, cliquez sur Informations complémentaires, puis Exécuter quand même.
 
+            Code signing policy : https://stakovicz.github.io/plume/docs/reference/signature.html
+
+      # Windows: SignPath Foundation signs the installers (SIGNPATH_API_TOKEN in the `release` environment,
+      # SIGNPATH_ORGANIZATION_ID as a repository variable; configuration in packaging/signpath/). Without the token,
+      # as on a manual run off main, they stay unsigned. Each request waits for an approver on signpath.io.
+      - name: Windows signing enabled?
+        id: sign
+        if: runner.os == 'Windows'
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        run: echo "enabled=${TOKEN:+true}" >> "$GITHUB_OUTPUT"
+
+      - name: Installers to sign
+        if: steps.sign.outputs.enabled == 'true'
+        shell: bash
+        env:
+          ARTIFACTS: ${{ steps.tauri.outputs.artifactPaths }}
+        run: |
+          mkdir unsigned
+          jq -r '.[] | select(test("(-setup\\.exe|\\.msi)$"))' <<< "$ARTIFACTS" | while read -r f; do cp "$(cygpath -u "$f")" unsigned/; done
+
+      - uses: actions/upload-artifact@v7
+        id: unsigned
+        if: steps.sign.outputs.enabled == 'true'
+        with:
+          name: plume-${{ matrix.target }}-unsigned
+          path: unsigned/
+
+      - uses: signpath/github-action-submit-signing-request@c92b958760219087e01f8d67a1669ed57afe2627 # v2
+        if: steps.sign.outputs.enabled == 'true'
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: plume
+          signing-policy-slug: release-signing
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion-timeout-in-seconds: 18000 # manual approval; the job stops at 6 h anyway
+          output-artifact-directory: signed
+
+      # ponytail: the tag's release briefly carries the unsigned installers (tauri-action uploads them first);
+      # build without tagName on Windows and upload here if that window matters.
+      - name: Signed installers replace the unsigned ones
+        if: steps.sign.outputs.enabled == 'true'
+        shell: bash
+        env:
+          ARTIFACTS: ${{ steps.tauri.outputs.artifactPaths }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          jq -r '.[] | select(test("(-setup\\.exe|\\.msi)$"))' <<< "$ARTIFACTS" | while read -r f; do
+            f=$(cygpath -u "$f"); cp "signed/$(basename "$f")" "$f"
+          done
+          if [[ $GITHUB_REF == refs/tags/* ]]; then gh release upload "$GITHUB_REF_NAME" signed/* --clobber; fi
+
       - uses: actions/upload-artifact@v7
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         with:
