@@ -76,6 +76,11 @@ L'architecture et les conventions du code sont décrites dans [AGENTS.md](AGENTS
 Un document `.plm` est une archive zip contenant `document.json` : `{ "layers": [...], "palette": [...] }`,
 les points écrits `[x, y]`.
 
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+Équipe, approbation et confidentialité : [Code signing policy](docs/reference/signature.md).
+
 ## Licence
 
 MIT
