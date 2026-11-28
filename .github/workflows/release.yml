@@ -109,11 +109,10 @@ jobs:
             Windows : programme d'installation .exe ou .msi (x64), .exe pour ARM64. Non signé : si Windows SmartScreen
             bloque, cliquez sur Informations complémentaires, puis Exécuter quand même.
 
-            Code signing policy : https://stakovicz.github.io/plume/docs/reference/signature.html
-
-      # Windows: SignPath Foundation signs the installers (SIGNPATH_API_TOKEN in the `release` environment,
+      # Windows: SignPath signs the installers (SIGNPATH_API_TOKEN in the `release` environment,
       # SIGNPATH_ORGANIZATION_ID as a repository variable; configuration in packaging/signpath/). Without the token,
-      # as on a manual run off main, they stay unsigned. Each request waits for an approver on signpath.io.
+      # as today (Foundation application refused 2026-11-28, issue #26), they stay unsigned. Each request
+      # waits for an approver on signpath.io.
       - name: Windows signing enabled?
         id: sign
         if: runner.os == 'Windows'
