@@ -5,7 +5,6 @@
 ### Ajouts
 
 - **Windows ARM64** : un programme d'installation natif (.exe), en plus de la version x64.
-- **Programmes d'installation Windows signés** par SignPath Foundation.
 
 ## 0.6.1 — 2026-11-24
 

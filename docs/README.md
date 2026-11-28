@@ -42,7 +42,6 @@ Quatre parties, chacune pour un besoin différent.
 - [Menus](reference/menus.md)
 - [Formats de fichier](reference/formats.md) : document, import SVG, exports
 - [Serveur MCP](reference/mcp.md) : outils exposés aux agents IA
-- [Code signing policy](reference/signature.md) : signature des programmes d'installation Windows
 
 ## Explications
 
